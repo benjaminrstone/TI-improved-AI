@@ -43,6 +43,25 @@ So the exploit is a missing *capability*, not just targeting. The fix is the **R
 - **E3 "just enough" was a misreading.** The launch ratio to the *desired* SCV hides vanilla's own margin. Against real defenders, vanilla attacks are decisive and won 6/6 in the 2031 probe. E3 is now a regression guard.
 - **E1's first fixture was wrong.** The user's campaign uses no missiles, so draining ammo changed little. The probe now spawns a missile swarm (borrowing another faction's design) and measures alien perception directly, because vanilla didn't attack Earth after the drain at all.
 
+### First soak (L2): 2 years from the 2031 hot-war save, vanilla vs mod
+
+| Over 2 game years (Nov 2031 → Nov 2033) | Vanilla | Mod (M1) |
+|---|---|---|
+| Alien attack launches | 9 | **39** |
+| Alien battles won | 14 / 17 | **32 / 32** |
+| Alien ships lost | 22 | **0** |
+| Human ships destroyed by aliens | 64 | 95 |
+| Human habs destroyed (all factions) | 24 | **52** |
+| Alien SCV at the end | 21.4k | 27.0k |
+| Alien bases | 13 → 13 | 13 → 13 (cap untouched; that is M2 strategy work) |
+| Exceptions / stalls | 0 / 0 | 0 / 0 |
+
+The M1 aliens attack about four times as often, never take a fight they lose, and keep the fleet that vanilla bleeds away. Most of the extra pressure falls on the *vanilla human AI factions*, which are out of scope for now. The passive Resistance loses about the same in both runs.
+
+**Open questions:**
+- Is "never loses a ship" too cautious? A competent opponent should accept some losses when the prize is worth it.
+- Will the human AI factions be steamrolled over a full campaign?
+
 ### Watch list
 
 - **Aggression against a passive player.** With the mod, the passive Resistance lost 15 Earth stations in 6 months of the 2034 save, against 3 in vanilla. Chapter playtests need to check this is "pressure", not "unfair".
