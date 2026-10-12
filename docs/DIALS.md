@@ -23,6 +23,10 @@ Direction key:
 | Commitment / PoolMargin | 1.1 | = | |
 | Commitment / PoolReserveFraction | 0.25 | `−` | How much of each system's force stays home when pooling. Lower means harder concentration. |
 | Commitment / AttackMaxRatioFloor | 1.5 | = | A bug fix in effect. |
+| Commitment / ShortcutSuperiority | 1.0 | `−` | A fleet already in the system may attack below its goal's desired strength at this ratio to the full expected threat. Was 2.0, which gave "never loses a ship". |
+| Combat / StanceCourage | on | = | Fight instead of evading when defending own habs, or on arrival at about even odds (user, 10-12). |
+| Combat / ArrivalFightRatio | 0.9 | `−` | Lower means bolder attackers. |
+| Combat / DefendHabHopelessRatio | 0.25 | `−` | Defenders of a hab evade only below this ratio. |
 | Targeting / RaidPlanner | on | `+` (Cinematic off?) | |
 | Targeting / MaxRaidGoals | 4 | `+` | Raid tempo. |
 | Targeting / RaidImportance | 16 | `+` | How raids compete with other goals for fleets. |

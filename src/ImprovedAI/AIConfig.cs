@@ -24,6 +24,10 @@ namespace ImprovedAI
         public readonly ConfigEntry<float> PoolMargin;
         public readonly ConfigEntry<float> PoolReserveFraction;
         public readonly ConfigEntry<float> AttackMaxRatioFloor;
+        public readonly ConfigEntry<float> ShortcutSuperiority;
+        public readonly ConfigEntry<bool> StanceCourage;
+        public readonly ConfigEntry<float> ArrivalFightRatio;
+        public readonly ConfigEntry<float> DefendHabHopelessRatio;
         public readonly ConfigEntry<bool> RaidPlanner;
         public readonly ConfigEntry<int> MaxRaidGoals;
         public readonly ConfigEntry<int> RaidImportance;
@@ -60,6 +64,14 @@ namespace ImprovedAI
                 "Pooling may draw defenders from a system only beyond max(local human threat x superiority, this fraction of the aliens' own force there).");
             AttackMaxRatioFloor = cfg.Bind("Commitment", "AttackMaxRatioFloor", 1.5f,
                 "Floor on an alien attack goal's max fleet/desired ratio (vanilla can drop it to 0, splitting waiting fleets).");
+            ShortcutSuperiority = cfg.Bind("Commitment", "ShortcutSuperiority", 1.0f,
+                "A fleet already in the target's system may attack below its goal's desired strength only at this ratio to the full expected threat (~even odds).");
+            StanceCourage = cfg.Bind("Combat", "StanceCourage", true,
+                "Aliens don't evade when defending their own habs (unless hopeless) or when an attack arrives at ~even odds.");
+            ArrivalFightRatio = cfg.Bind("Combat", "ArrivalFightRatio", 0.9f,
+                "An alien attack fleet fights instead of evading at this own/enemy strength ratio or better.");
+            DefendHabHopelessRatio = cfg.Bind("Combat", "DefendHabHopelessRatio", 0.25f,
+                "Alien fleets defending their own base/station evade only below this strength ratio.");
             RaidPlanner = cfg.Bind("Targeting", "RaidPlanner", true,
                 "Every 7 days the aliens add attack goals on the most valuable, least defended human bases/stations anywhere (not only in alien turf).");
             MaxRaidGoals = cfg.Bind("Targeting", "MaxRaidGoals", 4, "Maximum raid goals the planner keeps open at once.");
@@ -73,6 +85,7 @@ namespace ImprovedAI
         public bool UseDecisiveForce => !VanillaAI.Value && DecisiveForce.Value;
         public bool UseForcePooling => !VanillaAI.Value && ForcePooling.Value;
         public bool UseRaidPlanner => !VanillaAI.Value && RaidPlanner.Value;
+        public bool UseStanceCourage => !VanillaAI.Value && StanceCourage.Value;
 
         /// <summary>Apply section → key → value overrides for this run only (not saved).</summary>
         public void ApplyOverrides(System.Collections.Generic.Dictionary<string, System.Collections.Generic.Dictionary<string, string>> overrides)

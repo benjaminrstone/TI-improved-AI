@@ -81,7 +81,7 @@ namespace ImprovedAI.AI
             if (scv >= __instance.desiredFleetCombatValue) return;              // the normal launch rule; leave it
             var target = __instance.target();
             if (target == null || target.ref_faction == null || target.ref_faction.IsAlienFaction) return;
-            float need = DecisiveForce.DefenderThreat(__instance.faction, target) * Plugin.Cfg.AlienAttackSuperiority.Value;
+            float need = DecisiveForce.DefenderThreat(__instance.faction, target) * Plugin.Cfg.ShortcutSuperiority.Value;
             if (scv < need) __result = false;
         }
     }

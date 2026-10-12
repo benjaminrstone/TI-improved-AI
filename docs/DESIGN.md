@@ -318,6 +318,9 @@ The user made these on 2026-10-11:
 - **Difficulty:** reuse the vanilla levels (Cinematic, Normal, Veteran, Brutal). Each level sets how tight the constraints are (P2), not how competent the AI is (P1).
 - **Test install:** an isolated game copy at `C:\Games\TI-ImprovedAI`.
 - **Passive players (2026-10-12).** Punishing a passive player is fine. Every dial we create or turn is tracked in `docs/DIALS.md`, so a smooth difficulty curve can be built across the levels.
+- **Willingness to fight (2026-10-12).** "Never lose a ship" is too cautious.
+  - Alien fleets defend their bases and stations (there are Hydras aboard), unless the odds are hopeless.
+  - Attack fleets that arrive to roughly even odds fight rather than burn fuel going home.
 - **Raid targeting (2026-10-12).** Weigh value and hate together. A faction the aliens hate intensely has its assets prioritised anywhere; at lower hate they go for the most valuable targets.
 
 ## Engineering rules
