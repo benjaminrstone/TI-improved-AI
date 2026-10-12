@@ -37,6 +37,7 @@ namespace ImprovedAI.Diagnostics
                 AI.RaidPlanner.Reset();
                 Safe(() => AI.ThreatMemory.Sample(now), "threat memory");
                 Safe(DecisionJournal.Init, "journal init");
+                Safe(AI.AlienStrategy.OnCampaignReady, "strategy");
                 Safe(Metrics.Write, "metrics");
                 OnCampaignReady?.Invoke();
                 return;

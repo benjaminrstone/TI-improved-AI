@@ -16,6 +16,8 @@ namespace ImprovedAI.Harness
     ///   ai.spawnfleet &lt;faction&gt; &lt;system&gt; &lt;count&gt; [missile|best|design:&lt;dataName&gt;]
     ///       Build a fleet of N copies of one of the faction's designs, docked at its hab in that system (or in Earth
     ///       orbit). "missile" = its strongest design armed with missiles (default), "best" = strongest design.
+    ///   ai.doctrine focus=Raider weapons=Missiles hulls=Swarm engagement=Assault puppetry=0.2 forward=0.8
+    ///       Force (part of) the alien doctrine for this run.
     ///   ai.drainammo &lt;faction&gt; &lt;system&gt;
     ///       Empty every magazine on that faction's fleets in a system (e.g. Earth). Weapons without ammo count as
     ///       inoperable, so missile fleets drop to ~0 SCV: the "unresupplied bait" trick (EXPLOITS E1).
@@ -35,6 +37,9 @@ namespace ImprovedAI.Harness
                         break;
                     case "ai.spawnfleet":
                         output.Add(SpawnFleet(parts[1], parts[2], int.Parse(parts[3]), parts.Length > 4 ? parts[4] : "missile"));
+                        break;
+                    case "ai.doctrine":
+                        output.Add(AI.AlienStrategy.Force(line.Substring(parts[0].Length).Trim()));
                         break;
                     case "ai.drainammo":
                         output.Add(DrainAmmo(parts[1], parts[2]));

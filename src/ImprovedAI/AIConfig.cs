@@ -16,6 +16,7 @@ namespace ImprovedAI
         public readonly ConfigEntry<bool> Metrics;
         public readonly ConfigEntry<string> LogDir;
         public readonly ConfigEntry<bool> VanillaAI;
+        public readonly ConfigEntry<bool> Strategy;
         public readonly ConfigEntry<bool> ThreatMemory;
         public readonly ConfigEntry<float> ThreatMemoryDays;
         public readonly ConfigEntry<bool> DecisiveForce;
@@ -51,6 +52,8 @@ namespace ImprovedAI
 
             VanillaAI = cfg.Bind("General", "VanillaAI", false,
                 "Master switch: true turns every AI change off (diagnostics still run). Used for vanilla baselines.");
+            Strategy = cfg.Bind("Strategy", "Enabled", true,
+                "Alien strategy state (doctrine, later contempt/clocks), derived per campaign and kept in a <save>.improvedai.json sidecar.");
             ThreatMemory = cfg.Bind("Perception", "ThreatMemory", true,
                 "Aliens judge human fleets by their best recent per-ship SCV, not the currently fitted design (defeats bait refits / empty magazines).");
             ThreatMemoryDays = cfg.Bind("Perception", "ThreatMemoryDays", 180f,
@@ -89,6 +92,7 @@ namespace ImprovedAI
             RaidBombardMultiplier = cfg.Bind("Targeting", "RaidBombardMultiplier", 2f, "Raid goals want this multiple of vanilla's desired bombardment value.");
         }
 
+        public bool UseStrategy => !VanillaAI.Value && Strategy.Value;
         public bool UseThreatMemory => !VanillaAI.Value && ThreatMemory.Value;
         public bool UseDecisiveForce => !VanillaAI.Value && DecisiveForce.Value;
         public bool UseForcePooling => !VanillaAI.Value && ForcePooling.Value;
