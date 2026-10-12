@@ -61,7 +61,7 @@ Difficulty should come from what the aliens are allowed to do, not from how clev
 
 ### P3. Variety: doctrines
 
-Each campaign draws a hidden **strategic doctrine** and a **fleet doctrine**, weighted by difficulty and start date. Intel can reveal them. They can shift when a doctrine keeps failing, and the shift is signalled through intel events so the player can notice the change.
+Each campaign draws a hidden **strategic doctrine** and a **fleet doctrine**, weighted by difficulty and start date. Intel can reveal them. They can shift when a doctrine keeps failing. The player notices the shift through observed behaviour and fresh captives (see "Seeing their doctrine" under P5).
 
 **Strategic doctrines** (the user's list, consolidated):
 - **Inner-system land grab:** an early fast grab of Mars, Mercury or Venus.
@@ -126,7 +126,7 @@ Status: [ext], user interested 2026-10-11, to be developed.
 
 **Tiers.**
 - **A (cheap, high value):** a command gate on our adaptive behaviours. Motherships and the primary base are nodes. Standing orders outside their range. Decapitation reverts fleets.
-- **B:** doctrine propagation delay, an alien command module, the AI deciding where to forward-deploy command, intel events and fleet-tooltip status.
+- **B:** doctrine propagation delay, an alien command module, the AI deciding where to forward-deploy command, status in fleet tooltips and on the posture panel.
 - **C:** physical couriers carrying intent between nodes and remote fleets. These are small, fast, interceptable ships; intercepting them keeps a theatre on stale orders. Also tactical-combat effects: in-command fleets get the better combat AI.
 
 ### Disposition: contempt × hate (the danger meter)
@@ -157,6 +157,20 @@ The player must be able to read and answer the AI:
 - intel reveals doctrine, intent and posture at the right investment;
 - alien behaviour follows from its constraints, so a player who understands it can exploit it;
 - the decision journal (TESTING.md) shows why the AI did something, for us and optionally for players.
+
+**Seeing their doctrine** (agreed with the user, 2026-10-11). There are three channels.
+1. **Observed behaviour.** Fleet compositions, targets and posture visibly change. Intel events report what sensors and wrecks reveal, e.g. "Alien shipyards at Titan have retooled for heavy laser hulls."
+2. **Captive interrogation, ongoing.** A captive answers truthfully or goes silent (P6). What they know is frozen at the moment of capture, so they show doctrine *as of capture*. As time passes and the aliens change course, their answers go stale. A fresh captive is worth more than an old one. There are no separate "leadership change" events: a doctrine change shows up as a difference between old and new captives and in observed behaviour.
+3. **The alien posture panel** (approved). An intel screen that fills in with intel:
+   - doctrine (strategic and fleet), with its source and date ("Strangler, from a captive taken Mar 2033");
+   - disposition (contempt × hate);
+   - supply state;
+   - command nodes;
+   - known silences.
+   - At low intel it shows guesses or blanks.
+   - This is new UI work: a screen plus localization text.
+
+**Two-way intel** (agreed in both directions). How the aliens see you: surveillance, Servants, scouts. You counter by destroying surveillance, purging infiltrators, using ECM and disguise, and staying dark. How you see them: sensors, captives, wreck analysis, turned Servants, traffic near the wormhole. They counter with concealment, purging compromised Servants, and protecting command nodes.
 
 ### P6. The information game: Hydras conceal, humans deceive
 
@@ -202,7 +216,7 @@ The player must be able to read and answer the AI:
 
 **Shame drives doctrinal inertia [ext].**
 - **Failure is shameful,** like failed deception, so the Hydra command persists with a failing doctrine longer than is optimal. That is the root of P3's inertia, and an exploitable flaw.
-- **Collapse is visible.** Past a threshold the command abandons the doctrine and adopts a new one: an intel event and a new posture.
+- **Collapse is visible.** Past a threshold the command abandons the doctrine and adopts a new one. Players see this through behaviour and fresh captives, not a dedicated event.
 - **One will, no internal factions (user, 2026-10-11).** The Hydras are a single, unified threat. Doctrine changes are one command revising its course, never rival factions. Earth is the divided side. A unified intelligence bending divided humans leans into the mind-control angle (Servants, pherocyte control).
 - **Players can read and steer it.** A player who understands this can keep a failing alien doctrine alive by not handing it the decisive defeat that would force the change.
 
@@ -240,6 +254,8 @@ The player must be able to read and answer the AI:
 ## Decisions
 
 The user made these on 2026-10-11:
+
+- **Lore:** expanding the lore is allowed. Keep it consistent with the game's text. Where a mod idea conflicts with existing lore, that can be acceptable, but call it out explicitly to the user.
 
 - **Scope:** aliens only. The human AI factions stay vanilla for now. Soaks will show whether they get steamrolled.
 - **Difficulty:** reuse the vanilla levels (Cinematic, Normal, Veteran, Brutal). Each level sets how tight the constraints are (P2), not how competent the AI is (P1).
