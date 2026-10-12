@@ -25,6 +25,23 @@ Mass is in Mt.
 - **Bases are hard-capped.** From 2030 to 2035 the aliens had exactly 12 bases plus 12 matching stations (24 habs) in every save. That is the Normal cap (`maxAlienBaseGoals_N` = 12). The bases were at Triton ×2, Titania, Titan, Callisto, Europa, 2 KBOs, a Centaur, Vesta, and 2 belt asteroids.
 - **Resources are stranded.** Metals kept dropping to around 100–300, while volatiles and water grew without limit (330k+ each by 2038), fissiles reached 19k, and exotics climbed steadily (1.7k → 2.6k, then 7.8k in 2039). The aliens are short of one input and sitting on large unspent stockpiles of the others.
 
+## 0b. Evidence from harness probes (2026-10-12)
+
+Unattended runs of the user's saves; see HARNESS.md. These are the vanilla AI unless marked otherwise.
+
+- **Undefended mines (E5).** 15 mining outposts were spawned across the main belt in mid-2034, during the hot war. After 180 days: **0 lost, and 0 alien attack goals targeted any of them.** Alien attack goals went to Earth (33), Mercury (25) and Mars (17).
+- **Jupiter plateau (E9).** Year-long run from the `clean-jupiter` save (Mar 2039). This run had threat memory and decisive force on, which don't affect escalation.
+  - **Total strength.** Alien SCV grew from 39.6k to 65.0k. The Resistance grew from 11.3k to 13.1k, of which 3.0–3.4k is at Jupiter.
+  - **Planned but never launched.** The aliens created six attack goals on Jupiter targets and **launched none**. Each goal wanted 5k–18.5k SCV and was handed a single fleet of 1.5k–3.8k. It never reached its target, was dropped (importance → 0) and was re-created, over and over.
+  - **Force is parked, not missing.** Their 65k is spread over 10+ systems: 14k in Sol transit, 9.9k at Luison (KBO home), 7.4k Neptune, 6.4k Uranus, 6.3k Saturn, 5.4k Hippasus, 5.2k Thetis, … Nothing pools ships from the 24 DefendWithFleet postings into one strike force.
+  - **Stockpiles unspent again:** metals 1.1k against water 458k, volatiles 411k and exotics 7.7k.
+  - **Conclusion.** The late-game problem is *allocation*: no force pooling, and attack goals that starve and reset. Thresholds are not the problem, and raising them (DecisiveForce) without pooling just means waiting longer.
+- **Attack sizing (E3).** The vanilla launch ratio *to the goal's desired SCV* is 1.05–1.21. That understates the margin, because desired already includes ~1.4× superiority plus a small-target bonus.
+  - With DecisiveForce on, desired became exactly 2 × (remembered defenders + half the system). For the 2031 targets this was close to what vanilla already wanted (435 vs 422, 485 vs 481).
+  - The real weaknesses are what counts as a defender (1000 km, current SCV), one-at-a-time commitment, and pooling.
+  - Outcome measurement (CombatJournal) was added to settle it.
+- **The stall** in a 2039 run was intermittent: a blocking prompt the Autopilot couldn't clear. It did not recur in a later 140-day run. The harness now logs the player's pending prompts and aborts after 4 stalls in a row.
+
 ## 1. Architecture
 
 - **No separate alien brain.** The aliens use the same goal planner as the human AI factions, with alien branches added.
