@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <AssemblyName>ImprovedAI</AssemblyName>
+    <RootNamespace>ImprovedAI</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <!-- This project's isolated game copy (outside OneDrive). Override with -p:GameDir=... or env TI_AI_DIR. -->
+    <GameDir Condition="'$(GameDir)' == '' and '$(TI_AI_DIR)' != ''">$(TI_AI_DIR)</GameDir>
+    <GameDir Condition="'$(GameDir)' == ''">C:\Games\TI-ImprovedAI</GameDir>
+    <ManagedDir>$(GameDir)\TerraInvicta_Data\Managed</ManagedDir>
+    <BepInExDir>$(GameDir)\BepInEx\core</BepInExDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="BepInEx"><HintPath>$(BepInExDir)\BepInEx.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="0Harmony"><HintPath>$(BepInExDir)\0Harmony.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Assembly-CSharp"><HintPath>$(ManagedDir)\Assembly-CSharp.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Assembly-CSharp-firstpass"><HintPath>$(ManagedDir)\Assembly-CSharp-firstpass.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Newtonsoft.Json"><HintPath>$(ManagedDir)\Newtonsoft.Json.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="netstandard"><HintPath>$(ManagedDir)\netstandard.dll</HintPath><Private>false</Private></Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <UnityDll Include="$(ManagedDir)\UnityEngine*.dll" />
+    <UnityDll Include="$(ManagedDir)\Unity.*.dll" />
+    <Reference Include="@(UnityDll)" Private="false" />
+  </ItemGroup>
+
+</Project>

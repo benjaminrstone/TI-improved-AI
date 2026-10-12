@@ -1,0 +1,14 @@
+{
+  "name": "smoke",
+  "notes": "Harness smoke test: load a mid-game save, run 30 days unattended, check the instrumentation works and measure throughput. Not an AI probe.",
+  "fixture": "accel-2034-fusion-drives",
+  "runDays": 30,
+  "asserts": [
+    "results['endReason'] == 'days-elapsed'",
+    "status['gameDays'] >= 30",
+    "len(metrics) >= 2",
+    "count('init') == 1",
+    "results['savesBlocked'] >= 0",
+    "status['stalls'] == 0"
+  ]
+}

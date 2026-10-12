@@ -1,0 +1,13 @@
+{
+  "_comment": "Fixture saves for harness runs: name -> file in the user's TerraInvicta Saves folder (copied, never modified). All from one accelerated Resistance campaign on Normal (200% research/alien progression/mining/IP).",
+  "accel-2026-start":              { "file": "Resist-accel-past-start.gz",                       "date": "2026-08-28", "chapter": "early game" },
+  "accel-2027-mars":               { "file": "Resist-accel-mid-mars-construction.gz",            "date": "2027-11-10", "chapter": "early expansion" },
+  "accel-2030-mercury":            { "file": "Resist-accel-mercury-start.gz",                    "date": "2030-02-16", "chapter": "inner-system expansion" },
+  "accel-2031-hot-war":            { "file": "Resist-accel-ramp-up-to-hot-war.gz",               "date": "2031-11-08", "chapter": "hot war at Earth" },
+  "accel-2032-pre-fusion-lull":    { "file": "Resist-accel-hot-war-pre-fusion-lull.gz",          "date": "2032-09-30", "chapter": "hot war lull" },
+  "accel-2034-fusion-drives":      { "file": "Resist-accel-fusion-drives-mid-build.gz",          "date": "2034-06-01", "chapter": "turtling for late drives" },
+  "accel-2035-first-attack-fleet": { "file": "Resist-accel-building-first-attack-fleet.gz",      "date": "2035-02-14", "chapter": "first offensive fleet" },
+  "accel-2037-jupiter-launch":     { "file": "Resist-accel-launch-jupiter-assault-fleet.gz",     "date": "2037-07-20", "chapter": "Jupiter assault launch" },
+  "accel-2038-jupiter-assault":    { "file": "Resist-accel-jupiter-assault.gz",                  "date": "2038-02-19", "chapter": "Jupiter assault" },
+  "accel-2039-clean-jupiter":      { "file": "Resist-accel-clean-jupiter.gz",                    "date": "2039-03-22", "chapter": "Jupiter held (plateau)" }
+}
