@@ -61,12 +61,15 @@ namespace ImprovedAI.AI
             }
             Pooling.Add(goal);
 
+            // Why fleets are not donors (diagnostics for tuning).
+            var rej = new Dictionary<string, int>();
+            bool Ok(bool cond, string why) { if (!cond) rej[why] = (rej.TryGetValue(why, out var n) ? n : 0) + 1; return cond; }
             var donors = faction.fleets
-                .Where(f => f != anchor && TIGameState.Valid(f) && !f.transferAssigned && f.isCapableOfTransfering
-                            && f.CombatFleet() && !f.InvasionFleet() && !f.AI_NeedsRepairBadly()
-                            && !goal.pendingFleets.Contains(f)
-                            && !AIEvaluators.ShouldSystemBeInDefenseMode(faction, f.ref_system)
-                            && Releasable(faction, f))
+                .Where(f => f != anchor && TIGameState.Valid(f) && !goal.pendingFleets.Contains(f)
+                            && Ok(!f.transferAssigned, "inTransfer") && Ok(f.isCapableOfTransfering, "cantTransfer")
+                            && Ok(f.CombatFleet() && !f.InvasionFleet(), "notCombat") && Ok(!f.AI_NeedsRepairBadly(), "needsRepair")
+                            && Ok(!AIEvaluators.ShouldSystemBeInDefenseMode(faction, f.ref_system), "defenseMode")
+                            && Ok(Releasable(faction, f), "goal:" + (f.AssignedGoal()?.GetGoalType().ToString() ?? "none")))
                 .OrderBy(f => f.ref_system == anchor.ref_system ? 0 : 1)
                 .ThenByDescending(f => f.SpaceCombatValue())
                 .ToList();
@@ -92,7 +95,7 @@ namespace ImprovedAI.AI
                 float dv = d.SpaceCombatValue();
                 if (d.AssignedGoal() is FactionGoal_DefendWithFleet)
                 {
-                    if (Budget(d.ref_system) < dv) continue;
+                    if (Budget(d.ref_system) < dv) { Ok(false, "budget"); continue; }
                     budget[d.ref_system] -= dv;
                 }
                 var from = d.AssignedGoal();
@@ -105,7 +108,7 @@ namespace ImprovedAI.AI
             {
                 t = GameRead.Now(), kind = "pool", goalId = GameRead.Id(goal), imp = goal.importance,
                 target = GameRead.Name(goal.target()), targetSystem = GameRead.System(goal.target()),
-                anchor = anchor.displayName, at = GameRead.System(anchor), need, have, donors = sent,
+                anchor = anchor.displayName, at = GameRead.System(anchor), need, have, donors = sent, rejected = rej,
                 maxRatio = GameRead.Safe(() => goal.GetMaximumFleetCombatValueRatio()),
             });
         }

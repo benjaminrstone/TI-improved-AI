@@ -92,7 +92,8 @@ namespace ImprovedAI.Harness
         private float _menuSeenAt = -1f, _loadRequestedAt, _readyAt, _lastHeartbeat, _lastDateChangeAt;
         private TIDateTime _startDate;
         private string _lastDate;
-        private int _stalls, _consecutiveStalls;
+        private int _stalls, _consecutiveStalls, _unsticks;
+        private float _lastUnstick;
         private readonly List<string> _exceptions = new List<string>();
         private int _exceptionCount;
         private readonly List<string> _terminal = new List<string>();
@@ -249,6 +250,15 @@ namespace ImprovedAI.Harness
             float now = Time.realtimeSinceStartup;
             string date = GameRead.Now();
             if (date != _lastDate) { _lastDate = date; _lastDateChangeAt = now; _consecutiveStalls = 0; }
+            else if (now - _lastDateChangeAt > 20f && now - _lastUnstick > 20f && BlockingPrompts().Contains("faction:PromptSelectCouncilorMissions"))
+            {
+                // The Autopilot sometimes fails to confirm the mission phase (seen at 2039-08-01); do what the button does.
+                _lastUnstick = now;
+                _unsticks++;
+                Plugin.Log.LogInfo($"[Harness] Finalizing councilor missions for the stuck mission phase at {date}");
+                var p = GameControl.control.activePlayer;
+                p.playerControl.StartAction(new PavonisInteractive.TerraInvicta.Actions.FinalizeCouncilorMissions(p));
+            }
             else if (now - _lastDateChangeAt > Run.stallSeconds)
             {
                 _stalls++;
@@ -304,6 +314,7 @@ namespace ImprovedAI.Harness
                 fps = Math.Round(1f / Mathf.Max(Time.unscaledDeltaTime, 1e-4f), 1),
                 exceptions = _exceptionCount,
                 stalls = _stalls,
+                unsticks = _unsticks,
             };
         }
 
