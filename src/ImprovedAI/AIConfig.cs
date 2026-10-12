@@ -15,6 +15,11 @@ namespace ImprovedAI
         public readonly ConfigEntry<bool> DecisionJournal;
         public readonly ConfigEntry<bool> Metrics;
         public readonly ConfigEntry<string> LogDir;
+        public readonly ConfigEntry<bool> VanillaAI;
+        public readonly ConfigEntry<bool> ThreatMemory;
+        public readonly ConfigEntry<float> ThreatMemoryDays;
+        public readonly ConfigEntry<bool> DecisiveForce;
+        public readonly ConfigEntry<float> AlienAttackSuperiority;
 
         public AIConfig(ConfigFile cfg)
         {
@@ -27,7 +32,21 @@ namespace ImprovedAI
                 "Write one metrics row per game month (resources, habs, fleets, hate, alien goals) to metrics.jsonl.");
             LogDir = cfg.Bind("Diagnostics", "LogDir", "",
                 "Folder for diagnostics output. Empty = BepInEx/ImprovedAI-logs/<session>. The harness overrides this per run.");
+
+            VanillaAI = cfg.Bind("General", "VanillaAI", false,
+                "Master switch: true turns every AI change off (diagnostics still run). Used for vanilla baselines.");
+            ThreatMemory = cfg.Bind("Perception", "ThreatMemory", true,
+                "Aliens judge human fleets by their best recent per-ship SCV, not the currently fitted design (defeats bait refits / empty magazines).");
+            ThreatMemoryDays = cfg.Bind("Perception", "ThreatMemoryDays", 180f,
+                "How many game days a fleet's best showing is remembered.");
+            DecisiveForce = cfg.Bind("Commitment", "DecisiveForce", true,
+                "Aliens size attacks to win decisively against remembered defenders and nearby fleets, not to just beat current SCV.");
+            AlienAttackSuperiority = cfg.Bind("Commitment", "AlienAttackSuperiority", 2.0f,
+                "Required ratio of attacking fleet SCV to expected defender strength.");
         }
+
+        public bool UseThreatMemory => !VanillaAI.Value && ThreatMemory.Value;
+        public bool UseDecisiveForce => !VanillaAI.Value && DecisiveForce.Value;
 
         /// <summary>Apply section → key → value overrides for this run only (not saved).</summary>
         public void ApplyOverrides(System.Collections.Generic.Dictionary<string, System.Collections.Generic.Dictionary<string, string>> overrides)

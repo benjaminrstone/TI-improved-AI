@@ -50,6 +50,8 @@ namespace ImprovedAI.Harness
             /// <summary>Real seconds without the game date advancing before we call it a stall (screenshot + note).</summary>
             public float stallSeconds = 90f;
             public int targetFrameRate = -1;
+            /// <summary>Give up after this many stalls in a row (each is stallSeconds without the date moving).</summary>
+            public int maxConsecutiveStalls = 4;
         }
 
         public static bool Active { get; private set; }
@@ -90,7 +92,7 @@ namespace ImprovedAI.Harness
         private float _menuSeenAt = -1f, _loadRequestedAt, _readyAt, _lastHeartbeat, _lastDateChangeAt;
         private TIDateTime _startDate;
         private string _lastDate;
-        private int _stalls;
+        private int _stalls, _consecutiveStalls;
         private readonly List<string> _exceptions = new List<string>();
         private int _exceptionCount;
         private readonly List<string> _terminal = new List<string>();
@@ -221,15 +223,17 @@ namespace ImprovedAI.Harness
 
             float now = Time.realtimeSinceStartup;
             string date = GameRead.Now();
-            if (date != _lastDate) { _lastDate = date; _lastDateChangeAt = now; }
+            if (date != _lastDate) { _lastDate = date; _lastDateChangeAt = now; _consecutiveStalls = 0; }
             else if (now - _lastDateChangeAt > Run.stallSeconds)
             {
                 _stalls++;
                 _lastDateChangeAt = now;
                 string shot = Path.Combine(Run.outDir, $"stall-{_stalls}.png");
                 ScreenCapture.CaptureScreenshot(shot);
-                Plugin.Log.LogWarning($"[Harness] Stall #{_stalls} at {date} (speed idx {gtm?.currentSpeedIndex}); screenshot {shot}");
-                Session.Journal?.Write(new { t = date, kind = "stall", n = _stalls, speed = gtm?.currentSpeedIndex });
+                var prompts = BlockingPrompts();
+                Plugin.Log.LogWarning($"[Harness] Stall #{_stalls} at {date} (speed idx {gtm?.currentSpeedIndex}); prompts: {string.Join(", ", prompts)}; screenshot {shot}");
+                Session.Journal?.Write(new { t = date, kind = "stall", n = _stalls, speed = gtm?.currentSpeedIndex, prompts });
+                if (++_consecutiveStalls >= Run.maxConsecutiveStalls) { Finish("stalled: " + string.Join(", ", prompts)); return; }
             }
 
             if (now - _lastHeartbeat >= Run.heartbeatSeconds)
@@ -240,6 +244,21 @@ namespace ImprovedAI.Harness
 
             if (DaysElapsed() >= Run.runDays) Finish("days-elapsed");
             else if (now - _readyAt > Run.maxRealSeconds) Finish("real-time-limit");
+        }
+
+        /// <summary>The active player's pending prompts (what the Autopilot failed to clear), for stall diagnosis.</summary>
+        private static List<string> BlockingPrompts()
+        {
+            var names = new List<string>();
+            try
+            {
+                var q = GameStateManager.PromptQueue();
+                foreach (var pr in q.activePlayerFactionPromptList) names.Add("faction:" + pr.name);
+                foreach (var pr in q.activePlayerNationPromptList) names.Add("nation:" + pr.name);
+                names.Add("anyActivePlayerBlocking=" + TIPromptQueueState.anyActivePlayerBlockingPrompt);
+            }
+            catch (Exception e) { names.Add("error:" + e.Message); }
+            return names;
         }
 
         private object Status(string state)

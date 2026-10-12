@@ -33,6 +33,8 @@ namespace ImprovedAI.Diagnostics
                 _y = now.year; _m = now.month; _d = now.day;
                 Session.Start();
                 Plugin.Log.LogInfo($"[Diagnostics] Campaign ready at {GameRead.Date(now)}; player {GameRead.Faction(player)}.");
+                AI.ThreatMemory.Reset();
+                Safe(() => AI.ThreatMemory.Sample(now), "threat memory");
                 Safe(DecisionJournal.Init, "journal init");
                 Safe(Metrics.Write, "metrics");
                 OnCampaignReady?.Invoke();
@@ -42,6 +44,7 @@ namespace ImprovedAI.Diagnostics
             if (now.day == _d && now.month == _m && now.year == _y) return;
             bool newMonth = now.month != _m || now.year != _y;
             _y = now.year; _m = now.month; _d = now.day;
+            Safe(() => AI.ThreatMemory.Sample(now), "threat memory");
             if (Plugin.Cfg.DecisionJournal.Value) Safe(() => DecisionJournal.Daily(), "journal");
             if (newMonth && Plugin.Cfg.Metrics.Value) Safe(Metrics.Write, "metrics");
             try { OnNewDay?.Invoke(now); } catch (Exception e) { Plugin.Log.LogError($"[Diagnostics] OnNewDay: {e}"); }

@@ -8,5 +8,8 @@
   "asserts": [
     "count('transfer', goal='AttackWithFleet') >= 3",
     "median([r['scv'] / r['desiredScv'] for r in events('transfer', goal='AttackWithFleet') if r.get('desiredScv')]) >= 2.0"
-  ]
+  ],
+  "baseline": {
+    "vanilla-2026-10-11": "median launch ratio 1.21 (5 attacks, 2031-32); 1.05 over 13 attacks in the 2034 run"
+  }
 }

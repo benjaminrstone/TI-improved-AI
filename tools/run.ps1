@@ -15,7 +15,9 @@ param(
     [int]$TimeoutMinutes = 0,
     [switch]$NoDeploy,
     [switch]$KeepOpen,
-    [switch]$FinalSave
+    [switch]$FinalSave,
+    # Turn every AI change off (diagnostics still run): the vanilla baseline for a probe.
+    [switch]$Vanilla
 )
 $ErrorActionPreference = 'Stop'
 . "$PSScriptRoot\paths.ps1"
@@ -33,6 +35,13 @@ if ($Probe) {
 }
 if (-not $Fixture) { throw 'Give -Probe or -Fixture' }
 if (-not $Name) { $Name = $Fixture }
+if ($Vanilla) {
+    $Name = "$Name-vanilla"
+    $cfg = @{}
+    if ($spec.config) { foreach ($p in $spec.config.PSObject.Properties) { $cfg[$p.Name] = $p.Value } }
+    $cfg['General'] = @{ VanillaAI = 'true' }
+    $spec.config = $cfg
+}
 
 $fixtures = Get-Content (Join-Path $ProjectRoot 'lab\fixtures.json') -Raw | ConvertFrom-Json
 $fx = $fixtures.$Fixture

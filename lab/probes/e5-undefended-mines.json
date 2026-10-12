@@ -5,10 +5,15 @@
   "expect": "vanilla FAILS (few or no mines lost); the fixed AI raids undefended economic targets anywhere",
   "fixture": "accel-2034-fusion-drives",
   "runDays": 180,
-  "commands": ["ai.foundoutposts ResistCouncil belt 15 mine"],
+  "commands": [
+    "ai.foundoutposts ResistCouncil belt 15 mine"
+  ],
   "asserts": [
     "events('inject')[0]['count'] == 15",
-    "count('goal+', type='AttackWithFleet', targetFaction='ResistCouncil', targetType='TIHabState') >= 3",
-    "count('hab-', faction='ResistCouncil', habType='Base') >= 5"
-  ]
+    "count('goal+', type='AttackWithFleet', targetBody=lambda b: b in events('inject')[0]['bodies']) >= 3",
+    "count('hab-', faction='ResistCouncil', habType='Base', body=lambda b: b in events('inject')[0]['bodies']) >= 5"
+  ],
+  "baseline": {
+    "vanilla-2026-10-11": "0/15 mines lost in 180 days; 0 attack goals on belt targets (alien attack goals went to Earth 33, Mercury 25, Mars 17)"
+  }
 }
