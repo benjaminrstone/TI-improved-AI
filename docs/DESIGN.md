@@ -74,12 +74,16 @@ Each campaign draws a hidden **strategic doctrine** and a **fleet doctrine**, we
 
 ### P4. A late-game arc
 
-- **Escalation tied to losses.** Losing a gas-giant system, or the main base being threatened, triggers mobilization:
-  - the wormhole surges, spending stockpiled exotics,
-  - advanced tech arrives earlier,
-  - total war,
-  - a concentrated counteroffensive.
-  - Taking Jupiter should start the hardest phase of the game, not end it.
+**Target experience (user, 2026-10-11).** Holding Jupiter or Saturn means the aliens now take you seriously as an opponent. The game doesn't simply get harder. Two things are true at once:
+- you are in a much better position;
+- the aliens are going all out against you.
+
+The final phase should feel different (higher stakes, decisive battles), not merely tougher.
+
+- **Change of posture, triggered by real losses.** Losing a gas-giant system, or a threat to the main base, moves the aliens from managing a nuisance to fighting a war they could lose.
+  - **They commit everything they have saved:** the wormhole surges using stockpiled exotics, advanced tech is released, total war begins, and they launch concentrated counteroffensives.
+  - **Desperation relaxes loss aversion (P2).** They accept fights and casualties they used to avoid. That makes them more dangerous, and it also gives the player the decisive engagements the cautious alien would have refused.
+  - **It's justified, not rubber-banding.** The surge spends resources that actually exist, such as the exotics stockpile. There is no hidden bonus. A player who has raided their economy or wormhole meets a weaker surge.
 - **A longer human tech ladder.** Extend weapons, armor and radiators past the current ceiling, and add military repeatables, so "turtle and research" is a real strategy with a real cost.
 - **Pressure on turtles.** The economic-strangulation and expansion doctrines make sitting at Earth expensive.
 
@@ -116,7 +120,7 @@ The player must be able to read and answer the AI:
   - Those probes pass. A soak shows no runaway and no stall.
   - Chapter playtests at "hot war 2031" and "Jupiter assault 2037".
 - **M2, a different opponent each game.** WS3 doctrines and WS4 constraints. Soak curves are tuned. Playtests on early chapters.
-- **M3, a late game worth playing.** WS3 escalation, WS7 tech extension, WS6 stations. Full user campaign.
+- **M3, the war they could lose.** WS3 escalation, WS7 tech extension, WS6 stations. Full user campaign.
 - **WS8 controls** are independent and can land at any point. It's a good parallel track for a separate session.
 
 ## Decisions
