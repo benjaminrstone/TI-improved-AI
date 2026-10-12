@@ -45,10 +45,16 @@ if ($Vanilla) {
     $spec.config = $cfg
 }
 
-$fixtures = Get-Content (Join-Path $ProjectRoot 'lab\fixtures.json') -Raw | ConvertFrom-Json
-$fx = $fixtures.$Fixture
-if (-not $fx) { throw "Unknown fixture '$Fixture' (see lab\fixtures.json)" }
-$srcSave = Join-Path $UserSaves $fx.file
+if ($SavePath) {
+    $srcSave = (Resolve-Path $SavePath).Path
+    $fx = [pscustomobject]@{ date = '?'; file = [IO.Path]::GetFileName($srcSave) }
+    $Fixture = $fx.file
+} else {
+    $fixtures = Get-Content (Join-Path $ProjectRoot 'lab\fixtures.json') -Raw | ConvertFrom-Json
+    $fx = $fixtures.$Fixture
+    if (-not $fx) { throw "Unknown fixture '$Fixture' (see lab\fixtures.json)" }
+    $srcSave = Join-Path $UserSaves $fx.file
+}
 if (-not (Test-Path $srcSave)) { throw "Fixture save missing: $srcSave" }
 
 # One harness run at a time on this game copy.
@@ -74,6 +80,7 @@ try {
     # Stage copies: the game never sees the user's save folder during a harness run.
     $save = Join-Path $savesDir ([IO.Path]::GetFileName($srcSave))
     Copy-Item $srcSave $save
+    if (Test-Path "$srcSave.improvedai.json") { Copy-Item "$srcSave.improvedai.json" "$save.improvedai.json" }
     $profileSrc = Join-Path $UserSaves 'PlayerOptions.TIProfile'
     if (Test-Path $profileSrc) {
         $text = [IO.File]::ReadAllText($profileSrc)
