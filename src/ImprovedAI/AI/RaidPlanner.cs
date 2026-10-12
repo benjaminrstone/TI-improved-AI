@@ -16,7 +16,9 @@ namespace ImprovedAI.AI
     /// Every 7 game days, for each human faction the aliens are at war with, score that faction's bases and stations:
     ///   value  = (1 + tier) x 2 if it has an active mine x 1.5 if it has a shipyard
     ///   threat = the hab's own SCV + remembered SCV of that faction's fleets in the same system
-    ///   score  = value / (1 + threat / 200)
+    ///   score  = value / (1 + threat / 200) x (1 + RaidHateWeight x hate / war-threshold hate)
+    /// so at low hate the aliens go for the most valuable targets, and a faction they hate intensely has its assets
+    /// prioritised anywhere (user, 2026-10-12).
     /// and add AttackWithFleet goals (requiresWar, so vanilla drops them if the war ends) for the best targets not already
     /// under attack, keeping at most MaxRaidGoals of our raids open. Vanilla then sizes, builds for and launches them.
     /// </summary>
@@ -45,8 +47,11 @@ namespace ImprovedAI.AI
                 .Select(g => g.targetFaction).Where(f => f != null && !f.IsAlienFaction).Distinct().ToList();
 
             var candidates = new List<(TIHabState hab, float score, float value, float threat)>();
+            float warHate = UnityEngine.Mathf.Max(1f, TemplateManager.global.alienFactionHateWarValue);
             foreach (var enemy in enemies)
             {
+                float hate = GameRead.Safe(() => alien.GetFactionHate(enemy));
+                float hateFactor = 1f + Plugin.Cfg.RaidHateWeight.Value * UnityEngine.Mathf.Clamp(float.IsNaN(hate) ? 0f : hate / warHate, 0f, 4f);
                 foreach (var hab in enemy.habs)
                 {
                     if (hab == null || targeted.Contains(hab) || hab.ref_system == null) continue;
@@ -55,7 +60,7 @@ namespace ImprovedAI.AI
                     float threat = GameRead.Safe(() => hab.SpaceCombatValue())
                                    + enemy.fleets.Where(f => f.ref_system == hab.ref_system).Sum(f => ThreatMemory.Remembered(f));
                     if (float.IsNaN(threat)) continue;
-                    candidates.Add((hab, value / (1f + threat / 200f), value, threat));
+                    candidates.Add((hab, value / (1f + threat / 200f) * hateFactor, value, threat));
                 }
             }
 

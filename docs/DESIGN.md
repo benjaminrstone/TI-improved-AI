@@ -317,6 +317,8 @@ The user made these on 2026-10-11:
 - **Scope:** aliens only. The human AI factions stay vanilla for now. Soaks will show whether they get steamrolled.
 - **Difficulty:** reuse the vanilla levels (Cinematic, Normal, Veteran, Brutal). Each level sets how tight the constraints are (P2), not how competent the AI is (P1).
 - **Test install:** an isolated game copy at `C:\Games\TI-ImprovedAI`.
+- **Passive players (2026-10-12).** Punishing a passive player is fine. Every dial we create or turn is tracked in `docs/DIALS.md`, so a smooth difficulty curve can be built across the levels.
+- **Raid targeting (2026-10-12).** Weigh value and hate together. A faction the aliens hate intensely has its assets prioritised anywhere; at lower hate they go for the most valuable targets.
 
 ## Engineering rules
 

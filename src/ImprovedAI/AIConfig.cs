@@ -28,6 +28,7 @@ namespace ImprovedAI
         public readonly ConfigEntry<int> MaxRaidGoals;
         public readonly ConfigEntry<int> RaidImportance;
         public readonly ConfigEntry<float> RaidBombardMultiplier;
+        public readonly ConfigEntry<float> RaidHateWeight;
 
         public AIConfig(ConfigFile cfg)
         {
@@ -63,6 +64,8 @@ namespace ImprovedAI
                 "Every 7 days the aliens add attack goals on the most valuable, least defended human bases/stations anywhere (not only in alien turf).");
             MaxRaidGoals = cfg.Bind("Targeting", "MaxRaidGoals", 4, "Maximum raid goals the planner keeps open at once.");
             RaidImportance = cfg.Bind("Targeting", "RaidImportance", 16, "Importance (0-20) of raid goals; vanilla impudent-asset attacks use ~15.");
+            RaidHateWeight = cfg.Bind("Targeting", "RaidHateWeight", 1f,
+                "Raid score multiplier per war-threshold of alien hate toward the target's faction (capped at 4x the threshold).");
             RaidBombardMultiplier = cfg.Bind("Targeting", "RaidBombardMultiplier", 2f, "Raid goals want this multiple of vanilla's desired bombardment value.");
         }
 
