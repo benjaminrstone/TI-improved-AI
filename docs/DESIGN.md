@@ -57,14 +57,17 @@ Difficulty should come from what the aliens are allowed to do, not from how clev
   - **The wormhole terminus is the most valuable target in the system.** Threatening it changes everything they do, so it is their best-defended point.
   - **Late-game surge (P4) under this model** is mostly local mobilization: spend stockpiles, divert the whole drip to war, push hatcheries to maximum, strip quiet systems, and accept losses. They are burning their future.
   - The user agreed the four points above and the late-game surge (2026-10-11).
-  - **The endgame clock: widen the wormhole, or open a second one** (agreed 2026-10-11; modelled on LW2's Avatar project).
-    - **Visible progress.** The meter appears on the posture panel at sufficient intel. Below that, the player sees only a growing silence: captives refuse to discuss it, and that silence is the first clue (P6).
-    - **Player-driven setbacks.** Progress depends on specific facilities: works at the terminus, or the construction site of the second wormhole. Striking them knocks the meter back. Starving the alien economy (exotics, metals, secure territory) slows it.
-    - **A second wormhole adds a hunt.** Its site is concealed; finding it is an intel problem, and protecting it shapes alien posture.
-    - **What starts it (proposal).** The clock starts when contempt falls far enough that the aliens take humanity seriously and call for more. Its rate follows their economy. So success both starts the clock and gives you the means to slow it, matching P4's "better position, but they're going all out".
-    - **What completion means (open; user to decide).** Either:
-      - **(a) Hard clock:** a final countdown to defeat unless the terminus or new wormhole is destroyed. This gives a climactic finale, like Avatar.
-      - **(b) Soft clock:** sharply higher throughput, a permanent escalation the player must survive.
+  - **Two clocks** (user, 2026-10-11; LW2 Avatar-style).
+    1. **Steady widening (soft clock).** The Hydras are slowly widening the wormhole, so the supply drip grows over time.
+       - This is the principled cause of alien escalation over time. It replaces vanilla's opaque year-based ramps (attack-ratio growth, tech timers) with something visible and attackable.
+       - Difficulty sets the widening rate, which fits difficulty-as-constraint.
+       - Striking the widening works at the terminus slows it.
+    2. **The full terminus (hard clock, alien victory).** A huge project to build a full terminus on this side. **If it completes, the Hydras win.**
+       - **Visible meter.** It appears on the posture panel once intel is high enough. Before that, the clue is a silence: captives won't discuss it (P6).
+       - **Setbacks.** Progress depends on the construction site, which is a major structure the player must eventually assault. Strikes knock the meter back.
+       - **Coupled to the drip.** It is funded by the drip, so a wider wormhole means faster progress. Hitting the widening works slows both clocks.
+       - **Start (proposal).** It begins when contempt falls far enough that the aliens take humanity seriously and commit to the long game. Its rate follows their economy.
+       - **To investigate in M0:** how vanilla ends a campaign in defeat (TIVictoryTemplate, game-over flow), so the mod can hook an alien victory.
 - **Fix the bottleneck behind stranded resources.** Metals scarcity strangles alien building while other stocks pile up. Decide whether that is a constraint we want (then make the AI work around it: mine metals, raid human metals) or a bug (then let the AI convert its stocks).
 - **Loss aversion.** The Hydra administration counts lives. Heavy losses carry a political cost, such as slower decision cadence or a forced pause for that doctrine. The player wins by making attacks expensive, not by baiting them.
 - **Species taboos come from trauma (user, 2026-10-11).** The Hydras' own home planet was nuked. That is why they don't use nukes or long-range bombardment of planets. These taboos hold even when breaking them would win; they are not policy choices. Hypothesis: human nuclear use should land emotionally, shifting the aliens from contempt to fury (more aggressive, more willing to take losses, possibly less calculating). Nukes would then win a fight at the cost of a changed opponent.
