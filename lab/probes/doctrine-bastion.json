@@ -1,0 +1,22 @@
+{
+  "name": "doctrine-bastion",
+  "notes": "M2 step 2 gate: force focus=Bastion and compare with the other doctrine probe (raids, captures, pooling, kills).",
+  "fixture": "accel-2034-fusion-drives",
+  "runDays": 180,
+  "commands": [
+    "ai.doctrine focus=Bastion"
+  ],
+  "asserts": [
+    "events('doctrine')[-1]['doctrine']['focus'] == 'Bastion'",
+    "events('doctrine')[-1]['dials']['MaxRaidGoals'] == 0",
+    "count('goal+', type='CaptureHab') <= 4"
+  ],
+  "info": [
+    "events('doctrine')[-1]['dials']",
+    "sum(len(r['picks']) for r in events('raid'))",
+    "count('goal+', type='CaptureHab')",
+    "count('pool-ready')",
+    "count('hab-', habType='Base')",
+    "count('transfer', goal='AttackWithFleet')"
+  ]
+}

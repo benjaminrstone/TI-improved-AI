@@ -124,7 +124,7 @@ namespace ImprovedAI.AI
             if (Current == null)
                 Current = new StrategyState { campaignKey = key, source = "derived", doctrine = Derive(key, difficulty) };
             Plugin.Log.LogInfo($"[Strategy] Doctrine ({Current.source}): {Current.doctrine}");
-            Session.Journal?.Write(new { t = GameRead.Now(), kind = "doctrine", ev = "loaded", Current.source, difficulty, doctrine = Current.doctrine, key });
+            Session.Journal?.Write(new { t = GameRead.Now(), kind = "doctrine", ev = "loaded", Current.source, difficulty, doctrine = Current.doctrine, key, dials = Dials.Snapshot() });
         }
 
         /// <summary>Probe/debug override: "focus=Raider weapons=Missiles puppetry=0.2 ...".</summary>
@@ -149,7 +149,7 @@ namespace ImprovedAI.AI
             }
             Current.source = "forced";
             Current.history.Add($"{GameRead.Now()} forced: {d}");
-            Session.Journal?.Write(new { t = GameRead.Now(), kind = "doctrine", ev = "forced", doctrine = d });
+            Session.Journal?.Write(new { t = GameRead.Now(), kind = "doctrine", ev = "forced", doctrine = d, dials = Dials.Snapshot() });
             return "> doctrine " + d;
         }
 

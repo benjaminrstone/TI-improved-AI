@@ -40,7 +40,7 @@ namespace ImprovedAI.AI
             CombatStance? stand = null;
             if (ourHab && ratio >= Plugin.Cfg.DefendHabHopelessRatio.Value)
                 stand = CombatStance.Defend;
-            else if (own?.AssignedGoal() is FactionGoal_AttackWithFleet && ratio >= Plugin.Cfg.ArrivalFightRatio.Value)
+            else if (own?.AssignedGoal() is FactionGoal_AttackWithFleet && ratio >= Dials.ArrivalFightRatio)
                 stand = allowed.Contains(CombatStance.Pursue) ? CombatStance.Pursue : CombatStance.Defend;
 
             if (stand.HasValue && allowed.Contains(stand.Value))

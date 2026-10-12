@@ -48,7 +48,7 @@ namespace ImprovedAI.AI
             var anchor = goal.assignedFleet;
             if (anchor == null || anchor.transferAssigned) return;    // let vanilla assign a fleet first
 
-            float need = goal.desiredFleetCombatValue * Plugin.Cfg.PoolMargin.Value;
+            float need = goal.desiredFleetCombatValue * Dials.PoolMargin;
             float have = anchor.SpaceCombatValue() + goal.pendingFleets.Where(TIGameState.Valid).Sum(x => x.SpaceCombatValue());
             if (have >= need)
             {
@@ -84,7 +84,7 @@ namespace ImprovedAI.AI
                 if (faction.primaryHab != null && sys == faction.primaryHab.ref_system) return budget[sys] = 0f;
                 float held = faction.fleets.Where(x => x.ref_system == sys && !x.transferAssigned).Sum(x => GameRead.Safe(() => x.SpaceCombatValue()));
                 float threat = GameStateManager.AllHumanFactions().SelectMany(h => h.fleets).Where(x => x.ref_system == sys).Sum(x => ThreatMemory.Remembered(x));
-                float keep = System.Math.Max(threat * Plugin.Cfg.AlienAttackSuperiority.Value, held * Plugin.Cfg.PoolReserveFraction.Value);
+                float keep = System.Math.Max(threat * Dials.AttackSuperiority, held * Dials.PoolReserveFraction);
                 return budget[sys] = System.Math.Max(0f, held - keep);
             }
 

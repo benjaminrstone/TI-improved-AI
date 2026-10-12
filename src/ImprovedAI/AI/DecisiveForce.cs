@@ -23,7 +23,7 @@ namespace ImprovedAI.AI
         {
             if (!Plugin.Cfg.UseDecisiveForce || faction == null || !faction.IsAlienFaction || onlyConsiderTarget) return;
             if (target == null || target.deleted || target.ref_faction == null || target.ref_faction.IsAlienFaction || target.ref_system == null) return;
-            float need = DefenderThreat(faction, target, isReinforcement) * Plugin.Cfg.AlienAttackSuperiority.Value + 1f;
+            float need = DefenderThreat(faction, target, isReinforcement) * Dials.AttackSuperiority + 1f;
             if (need > __result) __result = need;
         }
 
@@ -60,8 +60,8 @@ namespace ImprovedAI.AI
     {
         private static void Postfix(TIFactionState faction, ref float __result)
         {
-            if (Plugin.Cfg.UseDecisiveForce && faction != null && faction.IsAlienFaction && __result < Plugin.Cfg.AlienAttackSuperiority.Value)
-                __result = Plugin.Cfg.AlienAttackSuperiority.Value;
+            if (Plugin.Cfg.UseDecisiveForce && faction != null && faction.IsAlienFaction && __result < Dials.AttackSuperiority)
+                __result = Dials.AttackSuperiority;
         }
     }
 
@@ -81,7 +81,7 @@ namespace ImprovedAI.AI
             if (scv >= __instance.desiredFleetCombatValue) return;              // the normal launch rule; leave it
             var target = __instance.target();
             if (target == null || target.ref_faction == null || target.ref_faction.IsAlienFaction) return;
-            float need = DecisiveForce.DefenderThreat(__instance.faction, target) * Plugin.Cfg.ShortcutSuperiority.Value;
+            float need = DecisiveForce.DefenderThreat(__instance.faction, target) * Dials.ShortcutSuperiority;
             if (scv < need) __result = false;
         }
     }

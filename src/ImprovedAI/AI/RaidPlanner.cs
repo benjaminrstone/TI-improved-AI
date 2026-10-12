@@ -44,8 +44,8 @@ namespace ImprovedAI.AI
             // Separate slot pools: attack raids vs marine captures of undefended bases (one cheap troop carrier each).
             int openAttacks = attackGoals.Count(g => _ours.Contains(GameRead.Id(g)));
             int openCaptures = captureGoals.Count(g => _ours.Contains(GameRead.Id(g)));
-            int attackSlots = Plugin.Cfg.MaxRaidGoals.Value - openAttacks;
-            int captureSlots = Plugin.Cfg.UseRaidCaptures ? Plugin.Cfg.MaxCaptureGoals.Value - openCaptures : 0;
+            int attackSlots = Dials.MaxRaidGoals - openAttacks;
+            int captureSlots = Plugin.Cfg.UseRaidCaptures ? Dials.MaxCaptureGoals - openCaptures : 0;
             int slots = System.Math.Max(0, attackSlots) + System.Math.Max(0, captureSlots);
             if (slots <= 0) return;
 
@@ -59,7 +59,7 @@ namespace ImprovedAI.AI
             foreach (var enemy in enemies)
             {
                 float hate = GameRead.Safe(() => alien.GetFactionHate(enemy));
-                float hateFactor = 1f + Plugin.Cfg.RaidHateWeight.Value * UnityEngine.Mathf.Clamp(float.IsNaN(hate) ? 0f : hate / warHate, 0f, 4f);
+                float hateFactor = 1f + Dials.RaidHateWeight * UnityEngine.Mathf.Clamp(float.IsNaN(hate) ? 0f : hate / warHate, 0f, 4f);
                 foreach (var hab in enemy.habs)
                 {
                     if (hab == null || targeted.Contains(hab) || hab.ref_system == null) continue;
@@ -87,8 +87,8 @@ namespace ImprovedAI.AI
                 // aliens a capture destroys the hab. Everything else is a normal attack.
                 bool capture = IsCapture(c.hab, c.threat);
                 TIFactionGoalState goal = capture
-                    ? alien.AddGoal(new FactionGoal_CaptureHab(alien, Plugin.Cfg.RaidImportance.Value + 1, c.hab, GoalType.None), HandleDuplicateGoalRule.ResetImportanceIfHigher)
-                    : alien.AddGoal(new FactionGoal_AttackWithFleet(alien, Plugin.Cfg.RaidImportance.Value, c.hab, requiresWar: true), HandleDuplicateGoalRule.ResetImportanceIfHigher);
+                    ? alien.AddGoal(new FactionGoal_CaptureHab(alien, Dials.RaidImportance + 1, c.hab, GoalType.None), HandleDuplicateGoalRule.ResetImportanceIfHigher)
+                    : alien.AddGoal(new FactionGoal_AttackWithFleet(alien, Dials.RaidImportance, c.hab, requiresWar: true), HandleDuplicateGoalRule.ResetImportanceIfHigher);
                 if (goal != null) _ours.Add(GameRead.Id(goal));
                 kinds.Add(goal == null ? "none" : goal.GetGoalType().ToString());
             }

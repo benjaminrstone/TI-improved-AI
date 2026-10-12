@@ -49,6 +49,26 @@ A doctrine is a combination of axis values (agreed). Each value maps to two kind
 | Command style | centralised ↔ forward | Rally point for pooling: home vs the front. Pherocyte command plugs in here later. |
 | Fleet philosophy | weapon focus × hull size × engagement style | Ship-design scoring in `GetDesiredShipToBuild` / `DesignShipsCoroutine` |
 
+**First-pass doctrine table** (built: `AI/Dials.cs`; multipliers on config dials; raid importance is additive). Everything here is a dial, tuned by soaks.
+
+| Focus | Attack superiority | Pool margin | Home reserve | Raid slots | Capture slots | Raid importance | Hate weight | Arrival fight ratio |
+|---|---|---|---|---|---|---|---|---|
+| Fortress-industrial | ×1.25 | | ×1.6 | ×0.5 | ×0.5 | −2 | | |
+| Bastion | ×1.3 | | ×2 | 0 | ×0.5 | −3 | | |
+| Puppet master | | | | ×0.5 | ×0.5 | −1 | | |
+| Quality over quantity | ×1.2 | ×1.2 | | | | | | |
+| Xenoformer | | | | ×0.5 | ×0.75 | | | |
+| Land grab | | | | | ×1.5 | | | |
+| Raider | ×0.9 | | | ×2 | ×2 | +2 | ×1.5 | |
+| Earth presence | | | | | | | | ×0.85 |
+| Hoarder | ×1.5 | ×1.6 | ×0.6 | ×0.5 | | | | |
+| Strangler | | | | ×2 | ×2 | +1 | | |
+| Divide and rule | | | | | | | ×2.5 | |
+| Blitz | ×0.75 | | ×0.5 | ×1.5 | | | | ×0.8 |
+| Hunter-killer | | | | ×0.5 | ×0.5 | | | ×0.85 |
+
+Political posture also scales raid and capture slots by ×(1.25 − 0.5 × puppetry).
+
 **Selection.**
 - Weighted random from the difficulty's pool, with weights shifted by the opening (DESIGN P3).
 - Each axis gets a value.

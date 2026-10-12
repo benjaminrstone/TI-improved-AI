@@ -1,0 +1,74 @@
+using System;
+using UnityEngine;
+
+namespace ImprovedAI.AI
+{
+    /// <summary>
+    /// The effective value of every behaviour dial: the config value (DIALS.md) scaled by the current alien doctrine
+    /// (M2 step 2). AI code reads dials only through here, so one table defines what each doctrine means and a
+    /// per-difficulty curve can later be layered in the same place.
+    /// With [Strategy] off (or no doctrine yet) every multiplier is 1 and the raw config values apply.
+    /// </summary>
+    internal static class Dials
+    {
+        private struct Mod
+        {
+            public float superiority, poolMargin, reserve, raidSlots, captureSlots, raidImportance, hateWeight, arrivalFight;
+            public static Mod One => new Mod { superiority = 1, poolMargin = 1, reserve = 1, raidSlots = 1, captureSlots = 1, raidImportance = 0, hateWeight = 1, arrivalFight = 1 };
+        }
+
+        /// <summary>
+        /// First-pass doctrine table (docs/M2-PLAN.md step 2). Multipliers on the config dials; raidImportance is additive.
+        /// Behaviour that needs new code (expansion, councilor ops, ship design, rally points) arrives in later steps.
+        /// </summary>
+        private static Mod ForFocus(StrategicFocus f)
+        {
+            var m = Mod.One;
+            switch (f)
+            {
+                case StrategicFocus.FortressIndustrial: m.superiority = 1.25f; m.reserve = 1.6f; m.raidSlots = 0.5f; m.captureSlots = 0.5f; m.raidImportance = -2; break;
+                case StrategicFocus.Bastion: m.superiority = 1.3f; m.reserve = 2f; m.raidSlots = 0; m.captureSlots = 0.5f; m.raidImportance = -3; break;
+                case StrategicFocus.PuppetMaster: m.raidSlots = 0.5f; m.captureSlots = 0.5f; m.raidImportance = -1; break;
+                case StrategicFocus.QualityOverQuantity: m.superiority = 1.2f; m.poolMargin = 1.2f; break;
+                case StrategicFocus.Xenoformer: m.raidSlots = 0.5f; m.captureSlots = 0.75f; break;
+                case StrategicFocus.LandGrab: m.captureSlots = 1.5f; break;
+                case StrategicFocus.Raider: m.raidSlots = 2f; m.captureSlots = 2f; m.raidImportance = 2; m.hateWeight = 1.5f; m.superiority = 0.9f; break;
+                case StrategicFocus.EarthPresence: m.arrivalFight = 0.85f; break;
+                case StrategicFocus.Hoarder: m.poolMargin = 1.6f; m.superiority = 1.5f; m.reserve = 0.6f; m.raidSlots = 0.5f; break;
+                case StrategicFocus.Strangler: m.raidSlots = 2f; m.captureSlots = 2f; m.raidImportance = 1; break;
+                case StrategicFocus.DivideAndRule: m.hateWeight = 2.5f; break;
+                case StrategicFocus.Blitz: m.superiority = 0.75f; m.reserve = 0.5f; m.raidSlots = 1.5f; m.arrivalFight = 0.8f; break;
+                case StrategicFocus.HunterKiller: m.raidSlots = 0.5f; m.captureSlots = 0.5f; m.arrivalFight = 0.85f; break;
+            }
+            return m;
+        }
+
+        private static Mod Current()
+        {
+            var d = AlienStrategy.Current?.doctrine;
+            if (d == null || !Plugin.Cfg.UseStrategy) return Mod.One;
+            var m = ForFocus(d.focus);
+            // Political posture: a puppet-leaning command spends less of its fleet on raids.
+            float posture = 1.25f - 0.5f * Mathf.Clamp01(d.puppetry);
+            m.raidSlots *= posture;
+            m.captureSlots *= posture;
+            return m;
+        }
+
+        public static float AttackSuperiority => Plugin.Cfg.AlienAttackSuperiority.Value * Current().superiority;
+        public static float ShortcutSuperiority => Plugin.Cfg.ShortcutSuperiority.Value * Mathf.Min(1f, Current().superiority);
+        public static float PoolMargin => Plugin.Cfg.PoolMargin.Value * Current().poolMargin;
+        public static float PoolReserveFraction => Mathf.Clamp01(Plugin.Cfg.PoolReserveFraction.Value * Current().reserve);
+        public static int MaxRaidGoals => Math.Max(0, (int)Math.Round(Plugin.Cfg.MaxRaidGoals.Value * Current().raidSlots));
+        public static int MaxCaptureGoals => Math.Max(0, (int)Math.Round(Plugin.Cfg.MaxCaptureGoals.Value * Current().captureSlots));
+        public static int RaidImportance => Mathf.Clamp(Plugin.Cfg.RaidImportance.Value + (int)Current().raidImportance, 1, 19);
+        public static float RaidHateWeight => Plugin.Cfg.RaidHateWeight.Value * Current().hateWeight;
+        public static float ArrivalFightRatio => Plugin.Cfg.ArrivalFightRatio.Value * Current().arrivalFight;
+
+        /// <summary>Snapshot for the journal, so every run records the effective dials it played with.</summary>
+        public static object Snapshot() => new
+        {
+            AttackSuperiority, ShortcutSuperiority, PoolMargin, PoolReserveFraction, MaxRaidGoals, MaxCaptureGoals, RaidImportance, RaidHateWeight, ArrivalFightRatio,
+        };
+    }
+}
