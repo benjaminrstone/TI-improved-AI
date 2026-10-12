@@ -62,6 +62,7 @@ Difficulty should come from what the aliens are allowed to do, not from how clev
        - This is the principled cause of alien escalation over time. It replaces vanilla's opaque year-based ramps (attack-ratio growth, tech timers) with something visible and attackable.
        - Difficulty sets the widening rate, which fits difficulty-as-constraint.
        - Striking the widening works at the terminus slows it.
+       - **Build on the existing ramp.** Vanilla already has one: `alienSetupStartIncome` → `alienSetupEndIncome` over `alienSetupDuration_years`, used by the 2003 scenario at 0.15 → 1.5× over 20 years (DIALS.md). Widening should extend that ramp, not replace it.
     2. **The full terminus (hard clock, alien victory).** A huge project to build a full terminus on this side. **If it completes, the Hydras win.**
        - **Visible meter.** It appears on the posture panel once intel is high enough. Before that, the clue is a silence: captives won't discuss it (P6).
        - **Setbacks.** Progress depends on the construction site, which is a major structure the player must eventually assault. Strikes knock the meter back.

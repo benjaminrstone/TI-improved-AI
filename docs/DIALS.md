@@ -46,6 +46,28 @@ These are JSON-only (`TIGlobalConfig`), with C/N/V/B values. The full table is i
 | `steadyAlienHateGainModifier_*` | 0/1/1.9/3.3 | |
 | `alienQuietDuration_years` (start template) | unset (0) | Dead in vanilla; a pacing lever. |
 
+## How the developers pace scenarios (user suggestion, 2026-10-12)
+
+All alien pacing levers live in `TIStartTimeTemplate`. C# defaults: progression modifier 1.0, everything else 0/off. The base scenarios use none of them; the Dark Skies scenarios use several.
+
+| Lever | 2022 / 2026 / 2030 | 2003 (Dark Skies) | Broken Earth (Dark Skies) |
+|---|---|---|---|
+| `alienQuietDuration_years`: quiet phase (no spontaneous attacks, ×0.6 hate) | 0 (loud from day 1) | **22.5** | 0 |
+| `alienSetupDuration_years`: length of the wormhole income ramp | 0 (full income at once) | **20** | **10** |
+| `alienSetupStartIncome` → `alienSetupEndIncome` (× wormhole drip) | — | **0.15 → 1.5** | 0.2 → 1.0 |
+| `alienProgressionModifier`: speed of all year-based alien timers | 1.0 | **0.75** | **0.75** |
+| `alienStartingProgression_years`: offset on those timers | 0 | **−5** | 0 |
+| `alienSurveillanceDelay_years` | 0 | 0 | **5** |
+| `invasionFocusedAliens`: 2 concurrent InvadeEarth goals | no | no | **yes** |
+| `TIGlobalConfig` overrides | — | — | `AI_WormholeSetupSpeed` C/N/V/B 1.5/1/0.5/**0.01**; `extraYearsToDelayAlienInvasion` 16/9/4/0; `AI_invaderArmiesLostBeforeBuildup` 0 |
+
+What this tells us:
+
+- **Base scenarios get all their alien pacing from the difficulty timers** (`years before total war`, `invasion delay`, …). There is no quiet phase and no ramp. The smoother levers exist but are unused there.
+- **2003's income ramp is already a "widening wormhole".** It runs 0.15 → 1.5× the drip over 20 years (scaled by difficulty via `AI_WormholeSetupSpeed`). P4's soft clock should be built on this ramp, extended past its end and made attackable, not invented from scratch.
+- **The developers' own difficulty levers are pacing levers** (delay, ramp, timer speed) plus focus (invasion-focused). That matches the DESIGN P2 principle.
+- **Candidate per-difficulty use for the base scenarios:** give them a ramp (e.g. 0.3 → 1.0 over 8–15 years) and a short quiet phase on lower difficulties, so early pressure eases in smoothly.
+
 ## Measurements to collect per difficulty
 
 To be filled in by soaks:
