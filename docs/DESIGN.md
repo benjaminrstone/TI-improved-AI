@@ -44,11 +44,16 @@ The AI should never lose to something that a person playing the aliens would see
 
 Difficulty should come from what the aliens are allowed to do, not from how clever they are. Each constraint needs an in-universe reason, in the spirit of the vanilla rule against nukes and kinetic strikes on Earth. Candidates, all to be validated by soaks:
 
-- **The wormhole is the supply line.** Exotics, antimatter and advanced hulls arrive at a fixed, difficulty-scaled rate (this already exists).
-  - Make it actually binding: upkeep in exotics for bases and capital ships, so force size and expansion compete for the same flow.
-  - The 7.8k-exotic stockpile in the 2039 save suggests it isn't binding today.
+- **The narrow wormhole (user, 2026-10-11).** This is the root constraint. The Hydra empire is vast, but the wormhole only lets small things through: an initial base or base supplies, a few workers, a set of eggs, and then a steady drip of exotics. The aliens in the Solar System are an **expeditionary colony that must bootstrap locally**, not an invading army.
+  - **Everything but exotics is local.** Hulls, metals, fuel and bases come from Solar System resources, so alien power depends on alien territory and mining. Their economy is a legitimate target: starve them of metals and they can't build.
+  - **Exotics are the imported edge.** They gate everything uniquely alien: exotic armor, advanced weapons, wormhole-tier hulls. Upkeep in exotics follows naturally, so bases and advanced warships compete for the same drip. (The 7.8k-exotic stockpile in the 2039 save suggests the drip isn't binding today.)
+  - **Hydra lives are scarce (candidate).** A colony grown from a few workers and eggs can't easily replace crews. That turns loss aversion into arithmetic: a lost fleet costs years of hatchery output. It could replace the arbitrary base cap (bases need staff) and gives the player targets: hatcheries, crewed capital ships, and captives, which reduce their numbers.
+  - **The wormhole terminus is the most valuable target in the system.** Threatening it changes everything they do, so it is their best-defended point.
+  - **Late-game surge (P4) under this model** is mostly local mobilization: spend stockpiles, divert the whole drip to war, push hatcheries to maximum, strip quiet systems, and accept losses. They are burning their future.
+  - **Option: widening the wormhole.** A long, visible project that, if completed, raises throughput sharply. It would give the aliens an endgame clock that the player can delay by striking the terminus.
 - **Fix the bottleneck behind stranded resources.** Metals scarcity strangles alien building while other stocks pile up. Decide whether that is a constraint we want (then make the AI work around it: mine metals, raid human metals) or a bug (then let the AI convert its stocks).
 - **Loss aversion.** The Hydra administration counts lives. Heavy losses carry a political cost, such as slower decision cadence or a forced pause for that doctrine. The player wins by making attacks expensive, not by baiting them.
+- **Species taboos come from trauma (user, 2026-10-11).** The Hydras' own home planet was nuked. That is why they don't use nukes or long-range bombardment of planets. These taboos hold even when breaking them would win; they are not policy choices. Hypothesis: human nuclear use should land emotionally, shifting the aliens from contempt to fury (more aggressive, more willing to take losses, possibly less calculating). Nukes would then win a fight at the cost of a changed opponent.
 - **Subjugation, not extermination.** The aliens want Earth's industry and population intact. That limits what they'll bombard.
 - **Imperfect intel.** Alien knowledge of human fleets comes through surveillance assets and is good but not perfect. Destroying surveillance and fitting ECM degrade it. This is the foundation that makes deception an intended mechanic (WS5).
 
