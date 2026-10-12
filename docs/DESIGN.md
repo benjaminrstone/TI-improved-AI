@@ -48,7 +48,12 @@ Difficulty should come from what the aliens are allowed to do, not from how clev
   - **Narrow in both directions, and nothing goes back.** The Hydras aren't here for Earth's resources (they want Earth as a bastion), so there is no reason to send anything home. Every ship, Hydra and exotic that comes through is committed to this front for good. The lore text describes gravity as flowing one way through the wormhole. We don't rely on that: the reason nothing goes back is purpose, not physics.
   - **Everything but exotics is local.** Hulls, metals, fuel and bases come from Solar System resources, so alien power depends on alien territory and mining. Their economy is a legitimate target: starve them of metals and they can't build.
   - **Exotics are the imported edge.** They gate everything uniquely alien: exotic armor, advanced weapons, wormhole-tier hulls. Upkeep in exotics follows naturally, so bases and advanced warships compete for the same drip. (The 7.8k-exotic stockpile in the 2039 save suggests the drip isn't binding today.)
-  - **Hydra lives are scarce (candidate).** A colony grown from a few workers and eggs can't easily replace crews. That turns loss aversion into arithmetic: a lost fleet costs years of hatchery output. It could replace the arbitrary base cap (bases need staff) and gives the player targets: hatcheries, crewed capital ships, and captives, which reduce their numbers.
+  - **Hydra population is a real resource (user, 2026-10-11), but secondary: it binds less and bites less than exotics.**
+    - Hatcheries grow it steadily. It is spent crewing ships and staffing habs.
+    - It mainly bites through heavy losses: a destroyed crewed fleet costs years of hatchery output. That gives loss aversion an arithmetic basis.
+    - It mostly acts as a price in AI decisions ("is this target worth the crews?"), not a hard cap.
+    - **Exotics upkeep stays the primary limit** on expansion and force size. Population is a soft second limit, not the replacement for the base cap.
+    - Player targets: hatcheries, crewed capital ships, and captives (each one is a Hydra fewer).
   - **The wormhole terminus is the most valuable target in the system.** Threatening it changes everything they do, so it is their best-defended point.
   - **Late-game surge (P4) under this model** is mostly local mobilization: spend stockpiles, divert the whole drip to war, push hatcheries to maximum, strip quiet systems, and accept losses. They are burning their future.
   - The user agreed the four points above and the late-game surge (2026-10-11).
