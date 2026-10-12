@@ -4,6 +4,15 @@ What is built, what the probes show, and what is next. Newest first. Every claim
 
 ## 2026-10-12: M0 done, M1 underway
 
+### M2 progress
+
+- **Step 1 done:** alien strategy state, doctrine axes, deterministic derivation per campaign, sidecar persistence (gate passed).
+- **Raider groundwork:**
+  - Fixed a vanilla bug that made every alien ship's marine value 0.
+  - Raids issue marine captures of undefended bases (captures destroy habs for aliens).
+  - E5 now passes: 11 bases destroyed in 270 days vs 1 in vanilla's 180.
+  - Fresh tier-1 mine spam is still low priority and slow to be punished (about 8 months from goal to kill).
+
 ### Infrastructure (M0)
 
 - **Plugin** (`src/ImprovedAI`), on the isolated game copy. Every AI change can be toggled in config, and `[General] VanillaAI=true` turns them all off for baselines.

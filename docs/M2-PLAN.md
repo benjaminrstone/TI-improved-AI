@@ -7,7 +7,13 @@
 
 This doc turns DESIGN P2/P3 and the disposition section into code-level steps. Each step lands behind config switches and is proven with probes or soaks before the next one starts.
 
-## Step 1: Alien strategy state and persistence
+## Step 1: Alien strategy state and persistence ✅ (2026-10-12)
+
+**Gate passed.**
+- The 2031 and 2034 saves of one campaign derive the identical doctrine.
+- Reloading a mod-made save reads it back from its sidecar.
+- The campaign key is `TIGlobalValuesState.realWorldCampaignStart` (when the campaign was created) plus the start template.
+- The user's accel campaign: FortressIndustrial / puppetry 0.62 / forward 0.91 / Particles / Motherships / Balanced.
 
 There is one `AlienStrategy` object per campaign. It holds:
 - the doctrine;
