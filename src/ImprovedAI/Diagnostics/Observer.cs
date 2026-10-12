@@ -34,6 +34,7 @@ namespace ImprovedAI.Diagnostics
                 Session.Start();
                 Plugin.Log.LogInfo($"[Diagnostics] Campaign ready at {GameRead.Date(now)}; player {GameRead.Faction(player)}.");
                 AI.ThreatMemory.Reset();
+                AI.RaidPlanner.Reset();
                 Safe(() => AI.ThreatMemory.Sample(now), "threat memory");
                 Safe(DecisionJournal.Init, "journal init");
                 Safe(Metrics.Write, "metrics");
@@ -45,6 +46,7 @@ namespace ImprovedAI.Diagnostics
             bool newMonth = now.month != _m || now.year != _y;
             _y = now.year; _m = now.month; _d = now.day;
             Safe(() => AI.ThreatMemory.Sample(now), "threat memory");
+            Safe(() => AI.RaidPlanner.Daily(now), "raid planner");
             if (Plugin.Cfg.DecisionJournal.Value) Safe(() => DecisionJournal.Daily(), "journal");
             if (newMonth && Plugin.Cfg.Metrics.Value) Safe(Metrics.Write, "metrics");
             try { OnNewDay?.Invoke(now); } catch (Exception e) { Plugin.Log.LogError($"[Diagnostics] OnNewDay: {e}"); }

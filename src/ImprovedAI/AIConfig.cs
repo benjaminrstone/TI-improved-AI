@@ -24,6 +24,9 @@ namespace ImprovedAI
         public readonly ConfigEntry<float> PoolMargin;
         public readonly ConfigEntry<float> PoolReserveFraction;
         public readonly ConfigEntry<float> AttackMaxRatioFloor;
+        public readonly ConfigEntry<bool> RaidPlanner;
+        public readonly ConfigEntry<int> MaxRaidGoals;
+        public readonly ConfigEntry<int> RaidImportance;
 
         public AIConfig(ConfigFile cfg)
         {
@@ -55,11 +58,16 @@ namespace ImprovedAI
                 "Pooling may draw defenders from a system only beyond max(local human threat x superiority, this fraction of the aliens' own force there).");
             AttackMaxRatioFloor = cfg.Bind("Commitment", "AttackMaxRatioFloor", 1.5f,
                 "Floor on an alien attack goal's max fleet/desired ratio (vanilla can drop it to 0, splitting waiting fleets).");
+            RaidPlanner = cfg.Bind("Targeting", "RaidPlanner", true,
+                "Every 7 days the aliens add attack goals on the most valuable, least defended human bases/stations anywhere (not only in alien turf).");
+            MaxRaidGoals = cfg.Bind("Targeting", "MaxRaidGoals", 4, "Maximum raid goals the planner keeps open at once.");
+            RaidImportance = cfg.Bind("Targeting", "RaidImportance", 16, "Importance (0-20) of raid goals; vanilla impudent-asset attacks use ~15.");
         }
 
         public bool UseThreatMemory => !VanillaAI.Value && ThreatMemory.Value;
         public bool UseDecisiveForce => !VanillaAI.Value && DecisiveForce.Value;
         public bool UseForcePooling => !VanillaAI.Value && ForcePooling.Value;
+        public bool UseRaidPlanner => !VanillaAI.Value && RaidPlanner.Value;
 
         /// <summary>Apply section → key → value overrides for this run only (not saved).</summary>
         public void ApplyOverrides(System.Collections.Generic.Dictionary<string, System.Collections.Generic.Dictionary<string, string>> overrides)
