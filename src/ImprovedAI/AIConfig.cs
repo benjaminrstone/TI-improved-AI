@@ -27,6 +27,7 @@ namespace ImprovedAI
         public readonly ConfigEntry<bool> RaidPlanner;
         public readonly ConfigEntry<int> MaxRaidGoals;
         public readonly ConfigEntry<int> RaidImportance;
+        public readonly ConfigEntry<float> RaidBombardMultiplier;
 
         public AIConfig(ConfigFile cfg)
         {
@@ -62,6 +63,7 @@ namespace ImprovedAI
                 "Every 7 days the aliens add attack goals on the most valuable, least defended human bases/stations anywhere (not only in alien turf).");
             MaxRaidGoals = cfg.Bind("Targeting", "MaxRaidGoals", 4, "Maximum raid goals the planner keeps open at once.");
             RaidImportance = cfg.Bind("Targeting", "RaidImportance", 16, "Importance (0-20) of raid goals; vanilla impudent-asset attacks use ~15.");
+            RaidBombardMultiplier = cfg.Bind("Targeting", "RaidBombardMultiplier", 2f, "Raid goals want this multiple of vanilla's desired bombardment value.");
         }
 
         public bool UseThreatMemory => !VanillaAI.Value && ThreatMemory.Value;

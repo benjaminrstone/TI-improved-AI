@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using HarmonyLib;
 using ImprovedAI.Diagnostics;
 using PavonisInteractive.TerraInvicta;
 
@@ -22,6 +23,7 @@ namespace ImprovedAI.AI
     internal static class RaidPlanner
     {
         private static readonly HashSet<int> _ours = new HashSet<int>();
+        internal static bool IsRaid(TIFactionGoalState g) => g != null && _ours.Contains(GameRead.Id(g));
         private static int _day;
 
         public static void Reset() { _ours.Clear(); _day = 0; }
@@ -70,6 +72,36 @@ namespace ImprovedAI.AI
                     t = GameRead.Now(), kind = "raid", open = _ours.Count,
                     picks = picks.Select(c => new { hab = c.hab.displayName, faction = GameRead.Faction(c.hab.faction), body = GameRead.Body(c.hab), system = GameRead.System(c.hab), c.value, c.threat, c.score }),
                 });
+        }
+    }
+
+    /// <summary>
+    /// Vanilla escalates the bombardment it wants after failed attacks, but counts failures per FLEET
+    /// (GetFailedAttacksOnTargetCount), and every re-launch is a fresh fleet, so the aliens never learn that a base needs
+    /// more. For the aliens, count failures per TARGET: the highest count among all their fleets.
+    /// </summary>
+    [HarmonyPatch(typeof(FactionGoal_AttackWithFleet), nameof(FactionGoal_AttackWithFleet.GetDesiredBombardmentValue), new[] { typeof(TIFactionState), typeof(TIGameState), typeof(int) })]
+    internal static class FailureMemoryPerTarget
+    {
+        private static void Prefix(TIFactionState bombardingFaction, TIGameState target, ref int failedAttackCount)
+        {
+            if (!Plugin.Cfg.UseRaidPlanner || bombardingFaction == null || !bombardingFaction.IsAlienFaction || target == null) return;
+            foreach (var f in bombardingFaction.fleets)
+            {
+                int n = 0;
+                try { n = f.GetFailedAttacksOnTargetCount(target); } catch { }
+                if (n > failedAttackCount) failedAttackCount = n;
+            }
+        }
+    }
+
+    /// <summary>Raids are meant to destroy the target: ask for RaidBombardMultiplier x vanilla's bombardment so one ship isn't sent alone.</summary>
+    [HarmonyPatch(typeof(FactionGoal_AttackWithFleet), nameof(FactionGoal_AttackWithFleet.GetDesiredBombardmentValue), new System.Type[0])]
+    internal static class RaidBombardment
+    {
+        private static void Postfix(FactionGoal_AttackWithFleet __instance, ref float __result)
+        {
+            if (__result > 0f && Plugin.Cfg.UseRaidPlanner && RaidPlanner.IsRaid(__instance)) __result *= Plugin.Cfg.RaidBombardMultiplier.Value;
         }
     }
 }
