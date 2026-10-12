@@ -29,7 +29,18 @@ There is one `AlienStrategy` object per campaign. It holds:
 - `ai.doctrine <axis>=<value> …` forces a doctrine for probes.
 - The journal records `doctrine` events (chosen, shifted, why).
 
-## Step 2: Doctrine axes as dial modifiers
+## Step 2: Doctrine axes as dial modifiers ✅ first pass (2026-10-12)
+
+**Gate passed** (2034 save, 180 days, forced focus):
+
+| | Raider | Bastion |
+|---|---|---|
+| Raid picks | 22 | 3 |
+| Capture goals | 13 | 3 |
+| Attack launches | 20 | 9 |
+| Bases killed | 3 | 1 |
+
+Still to come in this step: the doctrine-failure ("shame") shift, and the opening-weighted selection.
 
 A doctrine is a combination of axis values (agreed). Each value maps to two kinds of effect.
 

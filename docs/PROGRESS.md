@@ -6,6 +6,7 @@ What is built, what the probes show, and what is next. Newest first. Every claim
 
 ### M2 progress
 
+- **Step 2 first pass done:** doctrines scale the dials (`AI/Dials.cs`). A forced Raider and a forced Bastion play measurably differently (gate passed).
 - **Step 1 done:** alien strategy state, doctrine axes, deterministic derivation per campaign, sidecar persistence (gate passed).
 - **Raider groundwork:**
   - Fixed a vanilla bug that made every alien ship's marine value 0.
