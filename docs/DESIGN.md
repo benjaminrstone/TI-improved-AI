@@ -68,7 +68,10 @@ Difficulty should come from what the aliens are allowed to do, not from how clev
        - **Coupled to the drip.** It is funded by the drip, so a wider wormhole means faster progress. Hitting the widening works slows both clocks.
        - **Start (proposal).** It begins when contempt falls far enough that the aliens take humanity seriously and commit to the long game. Its rate follows their economy.
        - **To investigate in M0:** how vanilla ends a campaign in defeat (TIVictoryTemplate, game-over flow), so the mod can hook an alien victory.
-- **Fix the bottleneck behind stranded resources.** Metals scarcity strangles alien building while other stocks pile up. Decide whether that is a constraint we want (then make the AI work around it: mine metals, raid human metals) or a bug (then let the AI convert its stocks).
+- **Mine what you lack (user, 2026-10-11).** The aliens run short of metals while water piles up past a million, and they don't react. That is an AI failure, not a constraint. A Hydra planner that sees "1M water, 0 metals" founds metal mines.
+  - **Vanilla tries and fails.** It has a "resource base if upkeep is insecure" rule (`AlienHabPlanner` :136-174) and deficiency tracking (`resourceIncomeDeficiencies`, `AnalyzeDeficiences_Alien`). Metals still sat near zero for five years. Suspects: the base cap, and site scoring that ignores deficits.
+  - **Fix.** Weight site selection by projected stock-to-need for each resource (metals, volatiles, water, noble metals, fissiles), with base founding limited by exotics upkeep (P2), not a fixed cap.
+  - **It's a tell.** The aliens expand toward what they lack, so a player who reads their stocks can predict their next targets: a metal-rich moon or a belt cluster. Contesting those sites is a real strategy.
 - **Loss aversion.** The Hydra administration counts lives. Heavy losses carry a political cost, such as slower decision cadence or a forced pause for that doctrine. The player wins by making attacks expensive, not by baiting them.
 - **Species taboos come from trauma (user, 2026-10-11).** The Hydras' own home planet was nuked. That is why they don't use nukes or long-range bombardment of planets. These taboos hold even when breaking them would win; they are not policy choices. Hypothesis: human nuclear use should land emotionally, shifting the aliens from contempt to fury (more aggressive, more willing to take losses, possibly less calculating). Nukes would then win a fight at the cost of a changed opponent.
   - **No biological weapons (user, 2026-10-11).** [lore] The Hydras have a deep-seated fear of biological assault (Project_HydraBiowarfare). They never use bioweapons. Hypothesis: if the aliens learn of human bioweapon research (vanilla's Biowarfare → Kill the Hive path), it hits like nuclear use, an existential threat. That pushes them toward fury, and toward desperation once the path is near completion. They prioritise the labs and the factions pursuing it. This gives the player a visible risk on that victory path.
@@ -87,13 +90,39 @@ Each campaign draws a hidden **strategic doctrine** and a **fleet doctrine**, we
 - **Fortress-industrial:** expands hard and fields defensive fleets only, winning on economy unless stopped.
 - **Strangler:** blockades and raids the human economy instead of attacking Earth directly.
 
+**More strategic directions** (brainstorm, user asked to keep exploring, 2026-10-11):
+- **Puppet master.** The main effort is on Earth: Servants, mind control, expanding the Alien Administration, capturing nations. Space posture stays defensive. This leans into the mind-control angle.
+- **Divide and rule.** Uses Earth's division. Honest, binding pacts with weaker human factions isolate the strongest one. The Hydras can afford honesty because humans betray each other.
+- **Blockade.** Keeps humanity gravity-bound by targeting launch capacity, LEO stations, orbital shipyards and boost. Earth isn't attacked; its access to space is.
+- **Bastion.** Fortifies the Jupiter–Saturn line until it's nearly impregnable, and lets the terminus clock run. A counter-turtle that forces the player to attack.
+- **Blitz.** An early war before humans can tech up, accepting early losses to cripple human space industry for good. Loss aversion is deliberately overridden, which makes it a gamble the player can make expensive.
+- **Hunter-killer.** Destroys human fleets rather than assets: ambushes from silence at transfer windows (P6).
+- **Quality over quantity.** Minimal expansion. Exotics are hoarded for wormhole-tier hulls, producing a small, late, terrifying fleet.
+- **Xenoformer.** Ground operations and xenoforming on Earth (a vanilla system), with space held defensively.
+
+**Compose axes, don't pick from a list (proposal).** A doctrine is a combination of separate dimensions, which gives much more variety than a fixed set:
+- strategic focus (the lists above);
+- political posture: force versus puppetry;
+- command style: centralised versus forward (pherocyte command);
+- fleet philosophy (below).
+
+**Initial weights react to the opening.** If humans rush space, Blockade becomes more likely. If one faction dominates, Divide and rule does.
+
 **Fleet doctrines:**
 - weapon focus: missiles, beams, particle weapons, kinetics, or balanced;
-- hull philosophy: swarm, capital, motherships, or balanced.
+- hull philosophy: swarm, capital, motherships, or balanced;
+- engagement style: long-range artillery (outrange and kite), brawler (high-acceleration close-in), boarding/assault (marines, capturing habs; vanilla never lets the aliens plan hab captures), or carrier (alien fighters).
 
 **Counter-design:** fleet doctrine adapts to the human weapon mix it observes, e.g. more PD against missile-heavy players, more armor against beam-heavy players.
 
-**Expansion** is driven by doctrine and by contesting human expansion, not by the fixed Neptune → Uranus → Saturn script. The hard base cap is replaced by the upkeep constraint (P2).
+**Expansion** is driven by doctrine, by resource need, and by contesting human expansion, not by the fixed Neptune → Uranus → Saturn script. The hard base cap is replaced by the upkeep constraint (P2).
+
+**Stealthy human expansion is a valid style, but it costs something** (user, 2026-10-11). Vanilla aliens see everything within 500 AU. Instead, alien detection of each human asset is a chance, checked each period. The chance rises with:
+- the asset's signature: size, activity, drives burning;
+- nearness to alien sensors: surveillance stations, fleets, bases;
+- the alien detection effort for that faction, which grows with hate and with lower contempt.
+
+ECM on colony ships and on bases lowers the signature. An undetected asset generates no hate and can't be targeted. So a quiet Kuiper colony is achievable, but you pay for it in ECM and modules, and the aliens are actively looking. Once found, it becomes "verified" knowledge (P6). This uses the same machinery as the trust ledger and verification, so it is one system, not two.
 
 ### P4. A late-game arc
 
