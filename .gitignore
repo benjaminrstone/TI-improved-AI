@@ -1,0 +1,9 @@
+_ref/
+bin/
+obj/
+*.user
+.vs/
+lab/results/
+.claude/worktrees/
+.claude/settings.local.json
+__pycache__/
