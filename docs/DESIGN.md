@@ -93,7 +93,6 @@ Each campaign draws a hidden **strategic doctrine** and a **fleet doctrine**, we
 **More strategic directions** (brainstorm, user asked to keep exploring, 2026-10-11):
 - **Puppet master.** The main effort is on Earth: Servants, mind control, expanding the Alien Administration, capturing nations. Space posture stays defensive. This leans into the mind-control angle.
 - **Divide and rule.** Uses Earth's division. Honest, binding pacts with weaker human factions isolate the strongest one. The Hydras can afford honesty because humans betray each other.
-- **Blockade.** Keeps humanity gravity-bound by targeting launch capacity, LEO stations, orbital shipyards and boost. Earth isn't attacked; its access to space is.
 - **Bastion.** Fortifies the Jupiter–Saturn line until it's nearly impregnable, and lets the terminus clock run. A counter-turtle that forces the player to attack.
 - **Blitz.** An early war before humans can tech up, accepting early losses to cripple human space industry for good. Loss aversion is deliberately overridden, which makes it a gamble the player can make expensive.
 - **Hunter-killer.** Destroys human fleets rather than assets: ambushes from silence at transfer windows (P6).
@@ -106,7 +105,19 @@ Each campaign draws a hidden **strategic doctrine** and a **fleet doctrine**, we
 - command style: centralised versus forward (pherocyte command);
 - fleet philosophy (below).
 
-**Initial weights react to the opening.** If humans rush space, Blockade becomes more likely. If one faction dominates, Divide and rule does.
+**Rejected: Blockade** (user, 2026-10-11, for player-experience reasons). Keeping humanity gravity-bound attacks the player's ability to play at all, not just their assets. If it ever returns, it is Brutal-only.
+
+**Difficulty gates the doctrine pool** (user, 2026-10-11). The more punishing and aggressive doctrines only occur on higher difficulties. This is consistent with difficulty-as-constraint: on lower difficulties the harsher strategies are not available to the Hydra command. Draft tiers, to tune with soaks:
+
+| Tier | Doctrines added |
+|---|---|
+| Cinematic | Fortress-industrial, Bastion, Puppet master, Quality over quantity, Xenoformer |
+| Normal | Inner-system land grab, Raider, Early Earth presence, Hoarder, Strangler, Divide and rule |
+| Veteran / Brutal | Blitz, Hunter-killer. Weights shift toward the aggressive end of every axis |
+
+Each tier includes the doctrines of the tiers below it. **Strangler stays on Normal** because it is the answer to free turtling (E10). It hits remote and economic assets, which the player can defend or contest, not the player's access to space. Watch it in playtests for the same agency problem.
+
+**Initial weights react to the opening.** If humans rush space, Raider and Strangler become more likely. If one faction dominates, Divide and rule does.
 
 **Fleet doctrines:**
 - weapon focus: missiles, beams, particle weapons, kinetics, or balanced;
