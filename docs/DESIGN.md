@@ -99,6 +99,52 @@ The player must be able to read and answer the AI:
 - alien behaviour follows from its constraints, so a player who understands it can exploit it;
 - the decision journal (TESTING.md) shows why the AI did something, for us and optionally for players.
 
+### P6. The information game: Hydras conceal, humans deceive
+
+**Root.** [lore] A Hydra would rather go silent than be caught lying; failed deception is a deep shame (Project_TheirPurpose). The user called this the core of the alien character (2026-10-11). Everything below follows from it. Tags: [lore] = in the game's text, [ext] = our extrapolation.
+
+**The asymmetry.**
+- Hydras never feint, bluff, fake a signature or stage a false retreat.
+- Hydras do conceal: fleets go dark, staging happens in shadow (behind gas giants, far from human sensors), reserves stay hidden, they ambush from silence, and they withhold information. An ambush from silence is honest: they never said they weren't there.
+- Humans deceive: false signatures, decoys, bait refits (WS5).
+
+**Silence is a signal [ext].**
+- **Silence has a footprint.** Going dark means radiators in and drives cold, so a dark fleet coasts on a ballistic path. A player with deep-space sensors and some orbital reasoning can work out where it must be.
+- **Silence costs flexibility.** A dark fleet can't take new orders (ties to command friction), so it executes the plan it went dark with. Surprise is traded for adaptability.
+- **The absence is the tell.** When surveillance traffic or fleet emissions in a region stop, that silence is itself a warning. The game reports it ("Alien activity near Saturn has gone quiet") and the player learns to read it. This is the quiet before the storm, made into a mechanic.
+
+**Honest signals [ext from lore].**
+- **Ultimatums are real.** When the Hydras say "withdraw from Callisto or we will attack", they will. An honest opponent tells you where its lines are. The player can call the threat, knowing it's real. Legibility comes nearly free through the existing notification system.
+- **Pacts are binding on their side.** Hydras keep their word (vanilla has `FactionGoal_NonAggressionPact`). A human faction that breaks a pact is never trusted again: no more pacts, and maximum verification of its signals.
+
+**The trust ledger [ext].** The Hydras know humans lie. Each human faction carries a trust value in the alien mind.
+- **Discovered deceptions lower trust.** A bait refit recognised, a disguise seen through, a decoy unmasked: each one makes the aliens demand fresher, closer verification before they believe anything from that faction.
+- **Deception therefore has diminishing returns.** It works the first time and gets harder each time after. This answers the refit-bait loop without banning refits: the first bait may work, the fifth won't.
+- **Discovery is also an affront.** A discovered deception may shift disposition toward fury, like nuclear use.
+
+**Verification before commitment [ext].**
+- **Two grades of knowledge.** Alien knowledge of a human asset is either *verified* (seen by their own scouts or sensors recently, at a given range) or *reported* (Servant intel or stale data).
+- **Uncertainty plus loss aversion means caution.** Unverified targets get a pessimistic estimate: either a bigger fleet or a scout first.
+- **Scouting is honest and visible.** A Hydra scout arriving is a tell that an attack is being considered.
+- **Counterplay:**
+  - **Kill the scout:** this delays the strike, but a blinded Hydra assumes the worst. Blinding them buys time and invites a larger eventual blow.
+  - **Let it look:** they see the truth, which may be what you want them to see.
+- This is how the user's ECM-disguise idea becomes an intended mechanic: a disguise holds until a verifying look gets close enough, with odds set by time, range and tech.
+
+**Deception by proxy [ext from lore].** Hydras won't lie, but their human Servants and the Alien Administration will, and the Hydras tolerate it. Alien-side deception exists only through humans: false reports, planted intel, Servant councilors. Exposing Servants is the counterplay. This ties into the vanilla councilor game.
+
+**Captives: truth or silence [lore].**
+- **They can't lie,** so interrogation yields true answers or silence.
+- **The pattern of silences is intelligence.** A report might read "answered: current doctrine is Strangler; silent on: wormhole defenses, Titan." Silence marks what they're hiding: a project, a secret staging area, the widening of the wormhole.
+- **Captives are scarce and they're bait.** The Hydras don't abandon their own [ext], so where you keep them becomes a target.
+
+**Shame drives doctrinal inertia [ext].**
+- **Failure is shameful,** like failed deception, so an alien leadership persists with a failing doctrine longer than is optimal. That is the root of P3's inertia, and an exploitable flaw.
+- **Collapse is visible.** Past a threshold the doctrine is publicly abandoned and leadership changes: an intel event and a new posture.
+- **Players can read and steer it.** A player who understands this can keep a failing alien doctrine alive by not handing it the decisive defeat that would force the change.
+
+**Pherocyte truth-sense [ext, speculative].** Hydra falsehoods carry a chemical signature [lore]; perhaps Hydras also read human chemistry up close. That would explain why disguises fail at close range and why Hydra ground operations and boarding are hard to fool. It is a possible in-universe justification for "verification needs proximity".
+
 ## Workstreams
 
 | WS | Name | Purpose | Depends on | Kind |
@@ -108,7 +154,7 @@ The player must be able to read and answer the AI:
 | WS2 | Operations & targeting | Economic targets anywhere, raid sizing, faster reaction, surveillance escort. Fixes E5, E7. | WS0, WS1 | Harmony |
 | WS3 | Strategy & doctrines | Doctrine system, contested expansion planner, counter-design, late-game escalation. Fixes E9, E10. | WS1, WS2 | Harmony + JSON |
 | WS4 | Constraints & economy | Wormhole flow, exotics upkeep, metals bottleneck, difficulty redefined as constraints. Balances WS1–3 so a smart AI is beatable. | WS1–3, soaks | JSON + Harmony |
-| WS5 | Intel & deception | Intel-gated alien perception, ECM signatures/disguise as an intended mechanic | WS1 | Harmony + JSON |
+| WS5 | Information game (P6) | Verified vs reported alien knowledge, trust ledger, scouting before strikes, dark fleets and silence tells, ultimatums, captives, human deception (ECM signatures and disguise) | WS1 | Harmony + JSON + UI text |
 | WS6 | Station defenses | Range parity, HP and hitbox, station ECM, siege behaviour | WS0 (combat lab) | JSON + Harmony |
 | WS7 | Tech extension | Mk4/5 weapons, armor and radiators; military repeatables; alien escalation to match | WS4 | JSON |
 | WS8 | Fleet controls | Station-keeping on a leader ("hold formation"), tighten/loosen formation, pre-battle setup improvements | — | Harmony + UI |
