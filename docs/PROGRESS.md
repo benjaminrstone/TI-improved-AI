@@ -26,7 +26,17 @@ What is built, what the probes show, and what is next. Newest first. Every claim
 | **Decisive force** (`AI/DecisiveForce.cs`) | Attack requirement = (remembered defenders + half the target faction's other fleets in the system) × 2 | Neutral: vanilla already launched at ≥2× real defenders in the 2031 hot war (E3 vanilla passes). Kept as the basis for the guard below. |
 | **Same-system shortcut guard** (E14) | Fleets already in the target's system may skip the desired-strength rule only if they beat the full expected threat | Observed in vanilla: a 907-SCV fleet attacked a station needing 1,861 and was destroyed 6/6. Built; not yet probed. |
 | **Force pooling** (`AI/ForcePooling.cs`) | Each 4-day tick, focus ONE attack goal and pool idle and assembly fleets, plus defenders beyond a per-system budget (local human threat × 2, or a 25% reserve), into its fleet | **E9 passes.** Vanilla launched nothing at Jupiter in a year. The mod gathered 14.5k for the Yasui Station attack and launched at Jupiter. The force still assembles slowly: most alien fleets are in transit or busy (logged as donor rejection reasons). |
-| **Raid planner** (`AI/RaidPlanner.cs`) | Every 7 days, attack goals on the best value/threat human bases and stations anywhere, during war | Raids launch and bombard, but 1–2-ship raids didn't destroy bases. Added per-target failure memory and 2× raid bombardment; being probed. **E5 still fails.** |
+| **Raid planner** (`AI/RaidPlanner.cs`) | Every 7 days, attack goals on the best value/threat human bases and stations anywhere, during war; per-target failure memory; raids want 2× bombardment | Raids launch and bombard, but **cannot destroy bases**. **E5 still fails.** See below. |
+
+### Why undefended mines are safe (E5): a mechanical finding
+
+Stations die easily. An attacker docks and runs `DestroyHabOperation`, which needs no marines against a station. That is why Earth and Luna stations fall constantly (15 of the passive Resistance's in 6 months with the mod).
+
+**Bases (all mines) can only be destroyed by assault** (`DestroyHabOperation` requires `AssaultCombatValue > 0`, i.e. marines) **or by sustained bombardment.**
+- A single alien raider (one ship already exceeds even 2× the bombardment requirement) bombards for 14 days, then leaves to resupply.
+- Alien raid fleets carry no marines; their assault carriers are reserved for InvadeEarth.
+
+So the exploit is a missing *capability*, not just targeting. The fix is the **Raider doctrine** (DESIGN P3, the user's "long-range drop pods to pick up outposts without marines or PD"): raid fleets that carry assault ships or drop pods, and AI that builds and assigns them. Moved to M2 rather than hacked into M1.
 
 ### Corrections along the way
 
