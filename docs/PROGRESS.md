@@ -43,7 +43,25 @@ So the exploit is a missing *capability*, not just targeting. The fix is the **R
 - **E3 "just enough" was a misreading.** The launch ratio to the *desired* SCV hides vanilla's own margin. Against real defenders, vanilla attacks are decisive and won 6/6 in the 2031 probe. E3 is now a regression guard.
 - **E1's first fixture was wrong.** The user's campaign uses no missiles, so draining ammo changed little. The probe now spawns a missile swarm (borrowing another faction's design) and measures alien perception directly, because vanilla didn't attack Earth after the drain at all.
 
-### First soak (L2): 2 years from the 2031 hot-war save, vanilla vs mod
+### Repeated soaks: 3 × 1 year from 2031, vanilla vs mod (supersedes the single 2-year runs below)
+
+| 1 year from Nov 2031, mean [min–max] | Vanilla | Mod (M1 + courage, per-ship memory) |
+|---|---|---|
+| Alien battles (won) | 14.0 (11.7) | 13.0 (11.7) |
+| Alien ships lost | 13.7 [11–16] | 12.0 [12–12] |
+| Human ships lost to aliens | 35.7 [31–40] | 25.7 [22–32] |
+| Alien attack launches | 9.7 | 8.3 |
+| Human habs destroyed | 28.3 [26–30] | 25.7 [20–37] |
+| Alien SCV at end | 20.3k | 21.5k |
+
+**Correction.** In the 2031 hot war, M1 behaves about like vanilla over a year. The dramatic single 2-year run below (39 vs 9 launches, 0 losses) was mostly run-to-run variance. Single runs cannot settle balance; use `tools/soaks.ps1` + `tools/aggregate.py`.
+
+What does hold up:
+- the targeted fixes: E1 perception, E9 late-game pooling;
+- mod runs do pool (about 3 ready strikes per year) and raid (about 21 picks);
+- but before the marine fix, raids couldn't kill bases, so they changed little.
+
+### First soak (L2): 2 years from the 2031 hot-war save, vanilla vs mod (single run each; see correction above)
 
 | Over 2 game years (Nov 2031 → Nov 2033) | Vanilla | Mod (M1) |
 |---|---|---|
