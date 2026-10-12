@@ -13,6 +13,9 @@ namespace ImprovedAI.Harness
     ///   ai.foundoutposts &lt;faction&gt; &lt;region&gt; &lt;count&gt; [mine]
     ///       Found tier-1 outposts (optionally with a mining complex) at free hab sites, one per body.
     ///       region: innerbelt | midbelt | outerbelt | belt | centaur | kbo | body:&lt;name&gt;
+    ///   ai.spawnfleet &lt;faction&gt; &lt;system&gt; &lt;count&gt; [missile|best|design:&lt;dataName&gt;]
+    ///       Build a fleet of N copies of one of the faction's designs, docked at its hab in that system (or in Earth
+    ///       orbit). "missile" = its strongest design armed with missiles (default), "best" = strongest design.
     ///   ai.drainammo &lt;faction&gt; &lt;system&gt;
     ///       Empty every magazine on that faction's fleets in a system (e.g. Earth). Weapons without ammo count as
     ///       inoperable, so missile fleets drop to ~0 SCV: the "unresupplied bait" trick (EXPLOITS E1).
@@ -29,6 +32,9 @@ namespace ImprovedAI.Harness
                 {
                     case "ai.foundoutposts":
                         output.Add(FoundOutposts(parts[1], parts[2], int.Parse(parts[3]), parts.Length > 4 && parts[4].Equals("mine", StringComparison.OrdinalIgnoreCase)));
+                        break;
+                    case "ai.spawnfleet":
+                        output.Add(SpawnFleet(parts[1], parts[2], int.Parse(parts[3]), parts.Length > 4 ? parts[4] : "missile"));
                         break;
                     case "ai.drainammo":
                         output.Add(DrainAmmo(parts[1], parts[2]));
@@ -67,6 +73,39 @@ namespace ImprovedAI.Harness
                 return b => string.Equals(b.displayName, n, StringComparison.OrdinalIgnoreCase) || string.Equals(b.templateName, n, StringComparison.OrdinalIgnoreCase);
             }
             throw new ArgumentException("unknown region " + region);
+        }
+
+        private static string SpawnFleet(string factionName, string system, int count, string pick)
+        {
+            var faction = Faction(factionName);
+            var designs = faction.shipDesigns.Where(d => d != null).ToList();
+            bool HasMissiles(TISpaceShipTemplate d) => d.noseWeapons.Concat(d.hullWeapons).Any(w => w?.moduleTemplate?.ref_weapon is TIMissileTemplate);
+            TISpaceShipTemplate design;
+            if (pick.StartsWith("design:", StringComparison.OrdinalIgnoreCase))
+                design = designs.FirstOrDefault(d => string.Equals(d.dataName, pick.Substring(7), StringComparison.OrdinalIgnoreCase));
+            else
+                design = (pick.Equals("best", StringComparison.OrdinalIgnoreCase) ? designs : designs.Where(HasMissiles))
+                    .OrderByDescending(d => GameRead.Safe(() => d.TemplateSpaceCombatValue())).FirstOrDefault();
+            if (design == null) throw new ArgumentException($"no {pick} design for {factionName}");
+
+            TIGameState location = faction.habs.Where(h => string.Equals(GameRead.System(h), system, StringComparison.OrdinalIgnoreCase))
+                .OrderByDescending(h => h.IsStation).ThenByDescending(h => h.tier).FirstOrDefault();
+            if (location == null && system.Equals("Earth", StringComparison.OrdinalIgnoreCase)) location = GameStateManager.Earth().interfaceOrbits.First();
+            if (location == null) throw new ArgumentException($"no {factionName} hab in {system}");
+
+            var ships = new List<TISpaceShipState>();
+            for (int i = 0; i < count; i++)
+            {
+                var ship = (TISpaceShipState)design.CreateGameState();
+                ship.InitWithTemplate(design);
+                ship.CompleteShipInitialization();
+                ship.SetDisplayName(TISpaceAssetState.GetRandomAssetName(ship, faction));
+                ships.Add(ship);
+            }
+            var fleet = TISpaceFleetState.CreateAtRunTime(faction, ships, location, null);
+            float scv = GameRead.Safe(() => fleet.SpaceCombatValue());
+            Session.Journal?.Write(new { t = GameRead.Now(), kind = "inject", cmd = "spawnfleet", faction = factionName, system, count, design = design.dataName, designName = design.displayName, fleet = fleet.displayName, scv, at = GameRead.Name(location) });
+            return $"> spawned {fleet.displayName}: {count} x {design.displayName} ({design.dataName}) at {GameRead.Name(location)}, SCV {scv:F0}";
         }
 
         private static string DrainAmmo(string factionName, string system)

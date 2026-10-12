@@ -96,6 +96,7 @@ namespace ImprovedAI.Harness
         private readonly List<string> _exceptions = new List<string>();
         private int _exceptionCount;
         private readonly List<string> _terminal = new List<string>();
+        private readonly List<string> _scheduled = new List<string>();
         private Autopilot _autopilot;
 
         private void Start()
@@ -180,8 +181,11 @@ namespace ImprovedAI.Harness
         {
             if (Run.commands == null || Run.commands.Count == 0) return;
             var gameCommands = new List<string>();
-            foreach (var cmd in Run.commands)
+            foreach (var raw in Run.commands)
             {
+                // "@N command" runs N game days after the start (see OnNewDay).
+                string cmd = raw.Trim();
+                if (cmd.StartsWith("@")) { _scheduled.Add(cmd); continue; }
                 Plugin.Log.LogInfo($"[Harness] command: {cmd}");
                 _terminal.Add("$ " + cmd);
                 if (!HarnessCommands.TryRun(cmd, _terminal)) gameCommands.Add(cmd);
@@ -207,6 +211,27 @@ namespace ImprovedAI.Harness
             {
                 terminal.controller.OnOutput -= outp;
                 terminal.controller.OnOutputError -= err;
+            }
+        }
+
+        private void RunScheduled()
+        {
+            if (_scheduled.Count == 0) return;
+            double days = DaysElapsed();
+            foreach (var line in _scheduled.ToList())
+            {
+                int sp = line.IndexOf(' ');
+                if (sp < 0 || !double.TryParse(line.Substring(1, sp - 1), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var at)) { _scheduled.Remove(line); continue; }
+                if (days < at) continue;
+                _scheduled.Remove(line);
+                string cmd = line.Substring(sp + 1).Trim();
+                Plugin.Log.LogInfo($"[Harness] scheduled (day {days:F0}): {cmd}");
+                _terminal.Add($"$ [day {days:F0}] {cmd}");
+                if (!HarnessCommands.TryRun(cmd, _terminal))
+                {
+                    try { GlobalInstaller.container.Resolve<Terminal>().controller.ParseCommand(cmd); }
+                    catch (Exception e) { _terminal.Add("! " + e.Message); }
+                }
             }
         }
 
@@ -242,6 +267,7 @@ namespace ImprovedAI.Harness
                 File.WriteAllText(Path.Combine(Run.outDir, "heartbeat.json"), Jsonl.Serialize(Status("running")));
             }
 
+            RunScheduled();
             if (DaysElapsed() >= Run.runDays) Finish("days-elapsed");
             else if (now - _readyAt > Run.maxRealSeconds) Finish("real-time-limit");
         }

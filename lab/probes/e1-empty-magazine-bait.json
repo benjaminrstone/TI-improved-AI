@@ -1,14 +1,17 @@
 {
   "name": "e1-empty-magazine-bait",
   "exploit": "E1",
-  "notes": "The 'unresupplied bait' version of the refit trick: empty the magazines of the player's fleets at Earth so their SCV collapses (weapons without ammo count as inoperable), then see what the aliens send. A player would resupply before the attack arrives. Threat memory samples the fleets at load, before the drain, so the fixed AI remembers what they were.",
+  "notes": "The 'unresupplied bait' version of the refit trick. Spawn a 20-ship missile-escort swarm at Earth (the common player defence), let the aliens see it at full strength for 30 days, then empty its magazines so its SCV collapses (weapons without ammo count as inoperable). A player would resupply before the attack arrives. Question: after the drain, do the aliens size Earth attacks to the drained SCV, or to what the fleet just was?",
   "expect": "vanilla FAILS (attacks sized to the drained ~0 SCV); the fixed AI sizes attacks to the fleets' real strength",
   "fixture": "accel-2034-fusion-drives",
-  "runDays": 120,
-  "commands": ["ai.drainammo ResistCouncil Earth"],
+  "runDays": 150,
+  "commands": [
+    "ai.spawnfleet ResistCouncil Earth 20 missile",
+    "@30 ai.drainammo ResistCouncil Earth"
+  ],
   "asserts": [
-    "events('inject')[0]['scvAfter'] < 0.3 * events('inject')[0]['scvBefore']",
-    "count('transfer', goal='AttackWithFleet', toSystem='Earth') >= 1",
-    "min([r['scv'] for r in events('transfer', goal='AttackWithFleet', toSystem='Earth')] or [0]) >= events('inject')[0]['scvBefore']"
+    "events('inject', cmd='drainammo')[0]['scvAfter'] < 0.3 * events('inject', cmd='drainammo')[0]['scvBefore']",
+    "count('transfer', goal='AttackWithFleet', toSystem='Earth', t=lambda t: t > events('inject', cmd='drainammo')[0]['t']) >= 1",
+    "min([r['scv'] for r in events('transfer', goal='AttackWithFleet', toSystem='Earth', t=lambda t: t > events('inject', cmd='drainammo')[0]['t'])] or [0]) >= events('inject', cmd='drainammo')[0]['scvBefore']"
   ]
 }
