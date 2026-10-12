@@ -183,7 +183,8 @@ Status: [ext], user interested 2026-10-11, to be developed.
 **Tiers.**
 - **A (cheap, high value):** a command gate on our adaptive behaviours. Motherships and the primary base are nodes. Standing orders outside their range. Decapitation reverts fleets.
 - **B:** doctrine propagation delay, an alien command module, the AI deciding where to forward-deploy command, status in fleet tooltips and on the posture panel.
-- **C:** physical couriers carrying intent between nodes and remote fleets. These are small, fast, interceptable ships; intercepting them keeps a theatre on stale orders. Also tactical-combat effects: in-command fleets get the better combat AI.
+- **C:** tactical-combat effects: in-command fleets get the better combat AI.
+- **Rejected: physical couriers** (user, 2026-10-11).
 
 ### Disposition: contempt × hate (the danger meter)
 
@@ -265,10 +266,10 @@ The player must be able to read and answer the AI:
 **Captives: truth or silence [lore].**
 - **They can't lie,** so interrogation yields true answers or silence.
 - **The pattern of silences is intelligence.** A report might read "answered: current doctrine is Strangler; silent on: wormhole defenses, Titan." Silence marks what they're hiding: a project, a secret staging area, the widening of the wormhole.
-- **"They don't abandon their own" is a candidate, not a decision** (user curious but not sold, 2026-10-11).
-  - **Risk:** a guaranteed rescue reflex is a predictable lever that players would farm as bait, the very thing P1 removes.
-  - **If built,** it obeys loss aversion and verification: they come for their own when the odds are good, and go silent otherwise.
-  - **Smallest test:** a crash-site race on vanilla's existing alien crash sites. Alien recovery teams compete with human investigators trying to capture survivors. Build bigger versions, such as targeting prison sites, only if that proves its worth.
+- **"They don't abandon their own", tied to interrogation** (user mildly likes it, 2026-10-11).
+  - **The loop.** Captives give ongoing, as-of-capture intel. Fresh captives keep that view current (P5), so the player is pulled to keep capturing Hydras. Each capture, and each captive held, draws alien attention: recovery attempts, and strikes on where captives are held. Intel versus exposure is a risk/reward loop the player controls.
+  - **Guard against farmed bait.** Their response obeys loss aversion and verification. They come for their own when the odds are acceptable and go silent otherwise. Response strength scales with how many captives you hold and what those captives know, not with a fixed reflex.
+  - **Smallest test first.** A crash-site race on vanilla's existing alien crash sites: alien recovery teams compete with human investigators trying to capture survivors.
 
 **Shame drives doctrinal inertia [ext].**
 - **Failure is shameful,** like failed deception, so the Hydra command persists with a failing doctrine longer than is optimal. That is the root of P3's inertia, and an exploitable flaw.
