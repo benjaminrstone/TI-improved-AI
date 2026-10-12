@@ -1,0 +1,14 @@
+{
+  "name": "e5-undefended-mines",
+  "exploit": "E5",
+  "notes": "Spam 15 undefended mining outposts across the main belt during the hot war and see whether the aliens punish it. Vanilla only retaliates against 'impudent' assets in alien turf and adds at most one base target per month.",
+  "expect": "vanilla FAILS (few or no mines lost); the fixed AI raids undefended economic targets anywhere",
+  "fixture": "accel-2034-fusion-drives",
+  "runDays": 180,
+  "commands": ["ai.foundoutposts ResistCouncil belt 15 mine"],
+  "asserts": [
+    "events('inject')[0]['count'] == 15",
+    "count('goal+', type='AttackWithFleet', targetFaction='ResistCouncil', targetType='TIHabState') >= 3",
+    "count('hab-', faction='ResistCouncil', habType='Base') >= 5"
+  ]
+}

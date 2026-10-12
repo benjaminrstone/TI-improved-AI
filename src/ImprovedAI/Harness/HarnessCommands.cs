@@ -1,0 +1,89 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using ImprovedAI.Diagnostics;
+using PavonisInteractive.TerraInvicta;
+
+namespace ImprovedAI.Harness
+{
+    /// <summary>
+    /// Scenario-injection commands for probes, for things the game's debug terminal can't do. In a probe's
+    /// "commands", lines starting with "ai." run here; everything else goes to the game's terminal.
+    ///
+    ///   ai.foundoutposts &lt;faction&gt; &lt;region&gt; &lt;count&gt; [mine]
+    ///       Found tier-1 outposts (optionally with a mining complex) at free hab sites, one per body.
+    ///       region: innerbelt | midbelt | outerbelt | belt | centaur | kbo | body:&lt;name&gt;
+    /// </summary>
+    internal static class HarnessCommands
+    {
+        public static bool TryRun(string line, List<string> output)
+        {
+            if (!line.StartsWith("ai.", StringComparison.OrdinalIgnoreCase)) return false;
+            var parts = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            try
+            {
+                switch (parts[0].ToLowerInvariant())
+                {
+                    case "ai.foundoutposts":
+                        output.Add(FoundOutposts(parts[1], parts[2], int.Parse(parts[3]), parts.Length > 4 && parts[4].Equals("mine", StringComparison.OrdinalIgnoreCase)));
+                        break;
+                    default:
+                        output.Add("! unknown harness command " + parts[0]);
+                        break;
+                }
+            }
+            catch (Exception e)
+            {
+                output.Add($"! {line}: {e.GetType().Name}: {e.Message}");
+                Plugin.Log.LogError($"[Harness] {line}: {e}");
+            }
+            return true;
+        }
+
+        private static TIFactionState Faction(string name) =>
+            GameStateManager.AllFactions().FirstOrDefault(f => f.templateName.Equals(name, StringComparison.OrdinalIgnoreCase))
+            ?? throw new ArgumentException("no faction " + name);
+
+        private static Func<TISpaceBodyState, bool> Region(string region)
+        {
+            switch (region.ToLowerInvariant())
+            {
+                case "innerbelt": return b => b.innerMainBeltAsteroid(false);
+                case "midbelt": return b => b.midMainBeltAsteroid(false);
+                case "outerbelt": return b => b.outerMainBeltAsteroid(false);
+                case "belt": return b => b.innerMainBeltAsteroid(false) || b.midMainBeltAsteroid(false) || b.outerMainBeltAsteroid(false);
+                case "centaur": return b => b.centaur(false);
+                case "kbo": return b => b.kuiperBeltObject(false);
+            }
+            if (region.StartsWith("body:", StringComparison.OrdinalIgnoreCase))
+            {
+                string n = region.Substring(5);
+                return b => string.Equals(b.displayName, n, StringComparison.OrdinalIgnoreCase) || string.Equals(b.templateName, n, StringComparison.OrdinalIgnoreCase);
+            }
+            throw new ArgumentException("unknown region " + region);
+        }
+
+        private static string FoundOutposts(string factionName, string region, int count, bool mine)
+        {
+            var faction = Faction(factionName);
+            var inRegion = Region(region);
+            var sites = GameStateManager.IterateByClass<TIHabSiteState>()
+                .Where(s => s.hab == null && s.parentBody != null && inRegion(s.parentBody))
+                .GroupBy(s => s.parentBody)
+                .OrderBy(g => g.Key.displayName, StringComparer.Ordinal)
+                .Select(g => g.OrderBy(s => s.displayName, StringComparer.Ordinal).First())
+                .Take(count)
+                .ToList();
+            var founded = new List<string>();
+            foreach (var site in sites)
+            {
+                var hab = GameStateManager.CreateNewGameState<TIHabState>();
+                hab.InitializeNewHab(faction, site, faction, 1, 0.05f);
+                if (mine) hab.ConstructFoundingModule(faction.IsAlienFaction ? "AlienOutpostMiningComplex" : "OutpostMiningComplex", 0, 1, 0.05f);
+                founded.Add(GameRead.Body(site));
+            }
+            Session.Journal?.Write(new { t = GameRead.Now(), kind = "inject", cmd = "foundoutposts", faction = factionName, region, count = founded.Count, mine, bodies = founded });
+            return $"> founded {founded.Count}/{count} {(mine ? "mining " : "")}outposts for {factionName} in {region}: {string.Join(", ", founded)}";
+        }
+    }
+}

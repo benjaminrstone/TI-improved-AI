@@ -177,6 +177,14 @@ namespace ImprovedAI.Harness
         private void RunCommands()
         {
             if (Run.commands == null || Run.commands.Count == 0) return;
+            var gameCommands = new List<string>();
+            foreach (var cmd in Run.commands)
+            {
+                Plugin.Log.LogInfo($"[Harness] command: {cmd}");
+                _terminal.Add("$ " + cmd);
+                if (!HarnessCommands.TryRun(cmd, _terminal)) gameCommands.Add(cmd);
+            }
+            if (gameCommands.Count == 0) return;
             Terminal terminal = null;
             try { terminal = GlobalInstaller.container.Resolve<Terminal>(); }
             catch (Exception e) { Plugin.Log.LogError($"[Harness] No terminal: {e.Message}"); }
@@ -187,10 +195,8 @@ namespace ImprovedAI.Harness
             terminal.controller.OnOutputError += err;
             try
             {
-                foreach (var cmd in Run.commands)
+                foreach (var cmd in gameCommands)
                 {
-                    _terminal.Add("$ " + cmd);
-                    Plugin.Log.LogInfo($"[Harness] terminal: {cmd}");
                     try { terminal.controller.ParseCommand(cmd); }
                     catch (Exception e) { _terminal.Add("! " + e.Message); }
                 }

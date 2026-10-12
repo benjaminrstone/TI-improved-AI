@@ -111,7 +111,7 @@ namespace ImprovedAI.Diagnostics
                     Emit(new
                     {
                         t, kind = "transfer", id, fleet = snap.name, snap.ships, snap.scv,
-                        from = old?.where ?? snap.where, to = GameRead.Name(traj.destination), toBody = GameRead.Body(traj.destination),
+                        from = old?.where ?? snap.where, to = GameRead.Name(traj.destination), toBody = GameRead.Body(traj.destination), toSystem = GameRead.System(traj.destination),
                         goal = goal?.GetGoalType().ToString(), goalImp = goal?.importance, goalTarget = GameRead.Name(gt),
                         desiredScv = goal == null ? (float?)null : GameRead.Safe(() => goal.desiredFleetCombatValue),
                     });

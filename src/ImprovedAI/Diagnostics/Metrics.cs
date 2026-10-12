@@ -59,6 +59,9 @@ namespace ImprovedAI.Diagnostics
                 scv = (float)Math.Round(f.fleets.Sum(x => GameRead.Safe(() => x.SpaceCombatValue())), 1),
                 hate = (alien == null || f == alien) ? (float?)null : GameRead.Safe(() => alien.GetFactionHate(f)),
                 cps = f.controlPoints?.Count,
+                scvBySystem = f.fleets.GroupBy(x => GameRead.System(x) ?? "?")
+                    .ToDictionary(g => g.Key, g => (float)Math.Round(g.Sum(x => GameRead.Safe(() => x.SpaceCombatValue())), 1)),
+                habsBySystem = habs.GroupBy(h => GameRead.System(h) ?? "?").ToDictionary(g => g.Key, g => g.Count()),
             };
         }
 

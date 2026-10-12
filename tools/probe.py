@@ -11,11 +11,17 @@ Asserts are Python expressions evaluated with these names in scope:
   events(kind, **match)     those records
   faction(row, name)        the faction entry in a metrics row (name = template name, e.g. "AlienCouncil")
   first, last               first and last metrics rows
+  median, mean              from statistics; plus len/sum/min/max/any/all/abs/round/sorted/set
 Exit code 0 if every assert passes, 2 otherwise.
 """
 import json
 import os
+import statistics
 import sys
+
+
+SAFE_BUILTINS = {"len": len, "sum": sum, "min": min, "max": max, "any": any, "all": all, "abs": abs, "round": round,
+                 "sorted": sorted, "set": set, "median": statistics.median, "mean": statistics.mean}
 
 
 def load_jsonl(path):
@@ -59,7 +65,7 @@ def main(probe_path, run_dir):
     outcomes = []
     for expr in probe.get("asserts", []):
         try:
-            ok = bool(eval(expr, {"__builtins__": {"len": len, "sum": sum, "min": min, "max": max, "any": any, "all": all, "abs": abs, "round": round, "sorted": sorted, "set": set}}, scope))
+            ok = bool(eval(expr, dict(scope, __builtins__=SAFE_BUILTINS)))  # one namespace, so comprehensions see it
             err = None
         except Exception as e:  # an assert that can't evaluate is a failure, with the reason shown
             ok, err = False, f"{type(e).__name__}: {e}"

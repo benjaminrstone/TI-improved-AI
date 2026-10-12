@@ -1,0 +1,12 @@
+{
+  "name": "e9-jupiter-plateau",
+  "exploit": "E9",
+  "notes": "Load the save where the player has just taken Jupiter and run a year. Vanilla has no escalation tied to losing a gas giant: fleets trickle back piecemeal or not at all.",
+  "expect": "vanilla FAILS (no counteroffensive of meaningful size); the fixed AI mobilises and strikes Jupiter in force",
+  "fixture": "accel-2039-clean-jupiter",
+  "runDays": 365,
+  "asserts": [
+    "count('transfer', goal='AttackWithFleet', toSystem='Jupiter') >= 1",
+    "max([r['scv'] for r in events('transfer', toSystem='Jupiter')] or [0]) >= 1.5 * faction(first, 'ResistCouncil').get('scvBySystem', {}).get('Jupiter', 0)"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "e3-attack-sizing",
+  "exploit": "E3",
+  "notes": "Aliens size attacks to just beat the defenders' current combat value (FactionGoal_AttackWithFleet.ComputeDesiredFleetCombatValueForAttack, capped near 1.25x on Normal early), so fleets arrive in bite-sized chunks. Measured from the journal: fleet SCV / desired SCV at launch, for alien AttackWithFleet transfers.",
+  "expect": "vanilla FAILS the concentration assert (median launch ratio ~1.1-1.4); the fixed AI launches decisive, concentrated strikes",
+  "fixture": "accel-2031-hot-war",
+  "runDays": 180,
+  "asserts": [
+    "count('transfer', goal='AttackWithFleet') >= 3",
+    "median([r['scv'] / r['desiredScv'] for r in events('transfer', goal='AttackWithFleet') if r.get('desiredScv')]) >= 2.0"
+  ]
+}
