@@ -132,7 +132,7 @@ namespace ImprovedAI.Diagnostics
                     {
                         t, kind = "transfer", id, fleet = snap.name, snap.ships, snap.scv,
                         from = old?.where ?? snap.where, to = GameRead.Name(traj.destination), toBody = GameRead.Body(traj.destination), toSystem = GameRead.System(traj.destination),
-                        goal = goal?.GetGoalType().ToString(), goalImp = goal?.importance, goalTarget = GameRead.Name(gt),
+                        goal = goal?.GetGoalType().ToString(), goalImp = goal?.importance, goalTarget = GameRead.Name(gt), targetFaction = GameRead.Faction(gt?.ref_faction),
                         desiredScv = goal == null ? (float?)null : GameRead.Safe(() => goal.desiredFleetCombatValue),
                         // What the alien expects to meet at the goal target (remembered defenders + half the system), for launch-ratio analysis.
                         defThreat = (gt == null || gt.ref_faction == null || gt.ref_faction.IsAlienFaction || gt.ref_system == null) ? (float?)null

@@ -65,6 +65,27 @@ namespace ImprovedAI.AI
         }
     }
 
+    /// <summary>
+    /// Vanilla lets an alien fleet already in the target's system launch below the goal's desired strength if it beats
+    /// GetPerceivedEnemySpaceAssetStrength_AndItsDefenders (only defenders right at the target) by 1.25x. That is how a
+    /// fleet fresh from a win at Earth attacked a station with a docked swarm nearby at 1/3 of the needed strength and
+    /// was wiped out (EXPLOITS E14). Hold that shortcut to the full expected threat at the target.
+    /// </summary>
+    [HarmonyPatch(typeof(FactionGoal_AttackWithFleet), nameof(FactionGoal_AttackWithFleet.ReadyForTransferToTarget))]
+    internal static class NoUnderstrengthShortcut
+    {
+        private static void Postfix(FactionGoal_AttackWithFleet __instance, TISpaceFleetState fleet, ref bool __result)
+        {
+            if (!__result || !Plugin.Cfg.UseDecisiveForce || fleet == null || !__instance.faction.IsAlienFaction) return;
+            float scv = fleet.SpaceCombatValue();
+            if (scv >= __instance.desiredFleetCombatValue) return;              // the normal launch rule; leave it
+            var target = __instance.target();
+            if (target == null || target.ref_faction == null || target.ref_faction.IsAlienFaction) return;
+            float need = DecisiveForce.DefenderThreat(__instance.faction, target) * Plugin.Cfg.AlienAttackSuperiority.Value;
+            if (scv < need) __result = false;
+        }
+    }
+
     /// <summary>Perceived strength of a human fleet, as the aliens see it, uses threat memory.</summary>
     [HarmonyPatch(typeof(TIFactionState), nameof(TIFactionState.GetPerceivedEnemyFleetStrength))]
     internal static class PerceivedStrengthMemory

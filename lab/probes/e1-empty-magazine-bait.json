@@ -13,9 +13,10 @@
     "events('inject', cmd='drainammo')[0]['scvAfter'] < 0.35 * events('inject', cmd='drainammo')[0]['scvBefore']",
     "[r for r in events('perceive') if r['t'] < events('inject', cmd='drainammo')[0]['t']][-1]['systems']['Earth']['perceived'] > 0",
     "min(r['systems'].get('Earth', {}).get('perceived', 0) for r in events('perceive') if r['t'] > events('inject', cmd='drainammo')[0]['t']) >= 0.8 * [r for r in events('perceive') if r['t'] < events('inject', cmd='drainammo')[0]['t']][-1]['systems']['Earth']['perceived']",
-    "all(r['scv'] >= events('inject', cmd='drainammo')[0]['scvBefore'] for r in events('transfer', goal='AttackWithFleet', toSystem='Earth', t=lambda t: t > events('inject', cmd='drainammo')[0]['t']))"
+    "all(r['scv'] >= events('inject', cmd='drainammo')[0]['scvBefore'] for r in events('transfer', goal='AttackWithFleet', toSystem='Earth', targetFaction='ResistCouncil', t=lambda t: t > events('inject', cmd='drainammo')[0]['t']))"
   ],
   "baseline": {
-    "vanilla-2026-10-12": "drain 2752 -> 833 SCV; no alien attack on Earth in the 120 days after (a 20-ship swarm deterred them); perception not yet recorded"
+    "vanilla-2026-10-12": "drain 2752 -> 833 SCV; no alien attack on Earth in the 120 days after (a 20-ship swarm deterred them); perception not yet recorded",
+    "vanilla-2026-10-12b": "perceived Earth strength 4,248 -> 1,262 after the drain (follows true SCV): bait works on vanilla. Mod (threat memory): held at 4,104 vs true 828."
   }
 }
