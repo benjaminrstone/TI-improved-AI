@@ -195,7 +195,10 @@ The player must be able to read and answer the AI:
 **Captives: truth or silence [lore].**
 - **They can't lie,** so interrogation yields true answers or silence.
 - **The pattern of silences is intelligence.** A report might read "answered: current doctrine is Strangler; silent on: wormhole defenses, Titan." Silence marks what they're hiding: a project, a secret staging area, the widening of the wormhole.
-- **Captives are scarce and they're bait.** The Hydras don't abandon their own [ext], so where you keep them becomes a target.
+- **"They don't abandon their own" is a candidate, not a decision** (user curious but not sold, 2026-10-11).
+  - **Risk:** a guaranteed rescue reflex is a predictable lever that players would farm as bait, the very thing P1 removes.
+  - **If built,** it obeys loss aversion and verification: they come for their own when the odds are good, and go silent otherwise.
+  - **Smallest test:** a crash-site race on vanilla's existing alien crash sites. Alien recovery teams compete with human investigators trying to capture survivors. Build bigger versions, such as targeting prison sites, only if that proves its worth.
 
 **Shame drives doctrinal inertia [ext].**
 - **Failure is shameful,** like failed deception, so the Hydra command persists with a failing doctrine longer than is optimal. That is the root of P3's inertia, and an exploitable flaw.
