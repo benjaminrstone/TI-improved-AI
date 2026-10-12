@@ -50,6 +50,7 @@ namespace ImprovedAI.Diagnostics
             Safe(() => AI.RaidPlanner.Daily(now), "raid planner");
             if (Plugin.Cfg.DecisionJournal.Value) Safe(() => DecisionJournal.Daily(), "journal");
             if (newMonth && Plugin.Cfg.Metrics.Value) Safe(Metrics.Write, "metrics");
+            if (newMonth) Safe(AI.Disposition.Monthly, "disposition");
             try { OnNewDay?.Invoke(now); } catch (Exception e) { Plugin.Log.LogError($"[Diagnostics] OnNewDay: {e}"); }
         }
 

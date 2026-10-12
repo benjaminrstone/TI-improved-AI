@@ -23,7 +23,7 @@ namespace ImprovedAI.AI
         {
             if (!Plugin.Cfg.UseDecisiveForce || faction == null || !faction.IsAlienFaction || onlyConsiderTarget) return;
             if (target == null || target.deleted || target.ref_faction == null || target.ref_faction.IsAlienFaction || target.ref_system == null) return;
-            float need = DefenderThreat(faction, target, isReinforcement) * Dials.AttackSuperiority + 1f;
+            float need = DefenderThreat(faction, target, isReinforcement) * Dials.AttackSuperiority * Disposition.SuperiorityFactor(target.ref_faction) + 1f;
             if (need > __result) __result = need;
         }
 

@@ -1,0 +1,15 @@
+{
+  "name": "contempt-arc",
+  "notes": "M2 step 5 gate: from the save where the player holds Jupiter, alien contempt for the Resistance should fall (Jupiter presence and any lost battles or habs teach respect), and launch sizing should follow it.",
+  "fixture": "accel-2039-clean-jupiter",
+  "runDays": 150,
+  "asserts": [
+    "count('disposition') >= 3",
+    "[f['contempt'] for f in events('disposition')[-1]['factions'] if f['faction']=='ResistCouncil'][0] <= [f['contempt'] for f in events('disposition')[0]['factions'] if f['faction']=='ResistCouncil'][0] - 0.1"
+  ],
+  "info": [
+    "[(r['t'], round([f['contempt'] for f in r['factions'] if f['faction']=='ResistCouncil'][0], 2)) for r in events('disposition')]",
+    "[(r['t'], r['why'], round(r['after'], 2)) for r in events('contempt')][:12]",
+    "count('transfer', goal='AttackWithFleet')"
+  ]
+}

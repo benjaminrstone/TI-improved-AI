@@ -17,6 +17,8 @@ namespace ImprovedAI
         public readonly ConfigEntry<string> LogDir;
         public readonly ConfigEntry<bool> VanillaAI;
         public readonly ConfigEntry<bool> Strategy;
+        public readonly ConfigEntry<bool> Disposition;
+        public readonly ConfigEntry<float> StartingContempt;
         public readonly ConfigEntry<bool> ThreatMemory;
         public readonly ConfigEntry<float> ThreatMemoryDays;
         public readonly ConfigEntry<bool> DecisiveForce;
@@ -54,6 +56,9 @@ namespace ImprovedAI
                 "Master switch: true turns every AI change off (diagnostics still run). Used for vanilla baselines.");
             Strategy = cfg.Bind("Strategy", "Enabled", true,
                 "Alien strategy state (doctrine, later contempt/clocks), derived per campaign and kept in a <save>.improvedai.json sidecar.");
+            Disposition = cfg.Bind("Strategy", "Disposition", true,
+                "Per-human-faction alien contempt (falls when the faction beats alien expectations); scales attack sizing against that faction.");
+            StartingContempt = cfg.Bind("Strategy", "StartingContempt", 0.8f, "Initial alien contempt for every human faction (0..1).");
             ThreatMemory = cfg.Bind("Perception", "ThreatMemory", true,
                 "Aliens judge human fleets by their best recent per-ship SCV, not the currently fitted design (defeats bait refits / empty magazines).");
             ThreatMemoryDays = cfg.Bind("Perception", "ThreatMemoryDays", 180f,
@@ -93,6 +98,7 @@ namespace ImprovedAI
         }
 
         public bool UseStrategy => !VanillaAI.Value && Strategy.Value;
+        public bool UseDisposition => UseStrategy && Disposition.Value;
         public bool UseThreatMemory => !VanillaAI.Value && ThreatMemory.Value;
         public bool UseDecisiveForce => !VanillaAI.Value && DecisiveForce.Value;
         public bool UseForcePooling => !VanillaAI.Value && ForcePooling.Value;
