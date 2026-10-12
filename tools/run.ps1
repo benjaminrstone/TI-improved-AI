@@ -10,6 +10,8 @@
 param(
     [string]$Probe,
     [string]$Fixture,
+    # Load this save instead of a fixture (e.g. a run's final.gz); its .improvedai.json sidecar is copied along.
+    [string]$SavePath,
     [double]$Days = 30,
     [string]$Name,
     [int]$TimeoutMinutes = 0,
@@ -33,8 +35,8 @@ if ($Probe) {
     if ($p.commands) { $spec.commands = @($p.commands) }
     if ($p.config) { $spec.config = $p.config }
 }
-if (-not $Fixture) { throw 'Give -Probe or -Fixture' }
-if (-not $Name) { $Name = $Fixture }
+if (-not $Fixture -and -not $SavePath) { throw 'Give -Probe, -Fixture or -SavePath' }
+if (-not $Name) { $Name = if ($Fixture) { $Fixture } else { [IO.Path]::GetFileNameWithoutExtension($SavePath) } }
 if ($Vanilla) {
     $Name = "$Name-vanilla"
     $cfg = @{}

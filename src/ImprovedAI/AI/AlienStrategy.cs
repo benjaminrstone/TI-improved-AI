@@ -68,14 +68,11 @@ namespace ImprovedAI.AI
 
         internal static string CampaignKey()
         {
-            var time = GameStateManager.Time();
-            var start = time.template;
-            var now = TITimeState.Now();
-            var alien = GameStateManager.AlienFaction();
-            // The start date is "now - daysInCampaign"; combined with the template and the alien faction's ID this is
-            // stable for the whole life of a campaign and differs between campaigns.
-            int startDay = now.year * 372 + now.month * 31 + now.day - time.daysInCampaign;
-            return $"{start?.dataName}|{startDay}|{GameRead.Id(alien)}";
+            // TIGlobalValuesState.realWorldCampaignStart is the real-world time the campaign was created: identical in
+            // every save of one campaign, different between campaigns (checked on the user's saves, 2026-10-12).
+            var t = TIGlobalValuesState.GlobalValues.realWorldCampaignStart;
+            string created = t == null ? "?" : $"{t.year:D4}{t.month:D2}{t.day:D2}T{t.hour:D2}{t.minute:D2}{t.second:D2}.{t.millisecond:D3}";
+            return $"{GameStateManager.Time().template?.dataName}|{created}";
         }
 
         private static int StableHash(string s)
