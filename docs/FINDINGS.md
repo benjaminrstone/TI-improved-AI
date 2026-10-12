@@ -91,11 +91,18 @@ Each item below names the mechanism and what the player sees.
    - picks the max-SCV design if importance ≥ 10, otherwise the lightest;
    - drops designs it can't afford in exotics or antimatter.
    - There is no fleet-level doctrine and no counter-design. A possible typo, `"AlienBattleCruiser"`, means a branch probably finds no hull.
-10. **Station defenses are weak by construction.**
+10. **Vanilla bug: alien ships can never assault a base.**
+    - `TIUtilityModuleTemplate.marineOpsValue` counts a module's marine value only if its *first* special rule is Assault or MarineOpsDefenseOnly.
+    - The aliens' only assault module, `SalamanderTerrorUnitPod`, lists `["Crashdown","Assault",…]`, so every alien ship has assault value 0.
+    - Bases can only die to marines (`DestroyHabOperation` / `AssaultHabOperation` need assault > 0) or sustained bombardment. Undefended human bases, including mines, are therefore effectively immune to alien fleets.
+    - Every human marine module lists Assault first.
+    - Related: when the aliens "capture" a hab, `TIHabState.CaptureHab` *destroys* it (alien branch, `:1987`). They never own human habs.
+    - Vanilla also never lets the aliens plan captures (`SelectHabToCapture` returns null for them).
+11. **Station defenses are weak by construction.**
     - Station batteries reach 600/700/850 km (T1/T2/T3), against 800–1000 km for nose weapons.
     - HP is tiny, the hit sphere is huge (`tier*480*scale`), and station ECM is hard-coded to 0 (`TIHabModuleTemplate.ECMValue`).
     - Surface bases never enter tactical combat. They resolve in the bombardment layer at 200–600 km altitude against 2000 km lasers, with near-certain hits and 60× point-defense multipliers. That is why they feel strong.
-11. **Weapon and armor tech ends early.** Weapons, armor and radiators stop at about 0.5M cumulative RP. Only drives and power plants go on, to about 3.4M (the Protium Converter Torch). The repeatable FutureTech projects have no military effects.
+12. **Weapon and armor tech ends early.** Weapons, armor and radiators stop at about 0.5M cumulative RP. Only drives and power plants go on, to about 3.4M (the Protium Converter Torch). The repeatable FutureTech projects have no military effects.
 
 ## 3. Difficulty
 

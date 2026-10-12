@@ -33,6 +33,8 @@ namespace ImprovedAI
         public readonly ConfigEntry<int> RaidImportance;
         public readonly ConfigEntry<float> RaidBombardMultiplier;
         public readonly ConfigEntry<float> RaidHateWeight;
+        public readonly ConfigEntry<bool> RaidCaptures;
+        public readonly ConfigEntry<bool> AlienMarineFix;
 
         public AIConfig(ConfigFile cfg)
         {
@@ -78,6 +80,10 @@ namespace ImprovedAI
             RaidImportance = cfg.Bind("Targeting", "RaidImportance", 16, "Importance (0-20) of raid goals; vanilla impudent-asset attacks use ~15.");
             RaidHateWeight = cfg.Bind("Targeting", "RaidHateWeight", 1f,
                 "Raid score multiplier per war-threshold of alien hate toward the target's faction (capped at 4x the threshold).");
+            RaidCaptures = cfg.Bind("Targeting", "RaidCaptures", true,
+                "Raids on undefended bases become alien CaptureHab goals (marine assault; for aliens a capture destroys the base).");
+            AlienMarineFix = cfg.Bind("Fixes", "AlienMarineValue", true,
+                "Fix vanilla bug: the alien Salamander pod lists Crashdown before Assault, so its marine value reads 0 and aliens can never assault a base.");
             RaidBombardMultiplier = cfg.Bind("Targeting", "RaidBombardMultiplier", 2f, "Raid goals want this multiple of vanilla's desired bombardment value.");
         }
 
@@ -86,6 +92,8 @@ namespace ImprovedAI
         public bool UseForcePooling => !VanillaAI.Value && ForcePooling.Value;
         public bool UseRaidPlanner => !VanillaAI.Value && RaidPlanner.Value;
         public bool UseStanceCourage => !VanillaAI.Value && StanceCourage.Value;
+        public bool UseAlienMarineFix => !VanillaAI.Value && AlienMarineFix.Value;
+        public bool UseRaidCaptures => UseRaidPlanner && RaidCaptures.Value && UseAlienMarineFix;
 
         /// <summary>Apply section → key → value overrides for this run only (not saved).</summary>
         public void ApplyOverrides(System.Collections.Generic.Dictionary<string, System.Collections.Generic.Dictionary<string, string>> overrides)

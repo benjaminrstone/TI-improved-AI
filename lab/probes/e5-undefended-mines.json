@@ -10,7 +10,7 @@
   ],
   "asserts": [
     "events('inject')[0]['count'] == 15",
-    "count('goal+', type='AttackWithFleet', targetBody=lambda b: b in events('inject')[0]['bodies']) >= 3",
+    "count('goal+', type=lambda t: t in ('AttackWithFleet', 'CaptureHab'), targetBody=lambda b: b in events('inject')[0]['bodies']) >= 3",
     "count('hab-', faction='ResistCouncil', habType='Base', body=lambda b: b in events('inject')[0]['bodies']) >= 5"
   ],
   "baseline": {

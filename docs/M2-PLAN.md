@@ -59,9 +59,16 @@ A doctrine is a combination of axis values (agreed). Each value maps to two kind
 
 **Planned route.** Vanilla never lets the aliens plan hab captures (`SelectHabToCapture` returns null for them). The Raider doctrine turns undefended human bases into alien **capture** goals (`FactionGoal_CaptureHab`), which uses the game's existing assault machinery: marines, assault value, assault success chance.
 
-This is the "drop pods take any outpost without marines or PD" idea:
-- a captured mine becomes an alien mine, which feeds the metals fix in step 6;
-- recapturing it is counterplay.
+This is the "drop pods take any outpost without marines or PD" idea.
+
+**Correction (capture survey, 2026-10-12):**
+- For the aliens, `TIHabState.CaptureHab` *destroys* the hab; they never own human habs.
+- A **vanilla bug** zeroes the alien marine pod's value (Crashdown is listed before Assault), so alien ships could never assault anything.
+
+**Built (v1):**
+- `Fixes/AlienMarineValue`.
+- The raid planner issues `FactionGoal_CaptureHab` for undefended bases off Earth/Luna.
+- `AlienCaptureInProgress` stops vanilla's mission-control check discarding those goals.
 
 **To investigate first:**
 - how `FactionGoal_CaptureHab` sizes and staffs fleets;

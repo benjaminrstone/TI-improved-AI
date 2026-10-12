@@ -37,12 +37,15 @@ namespace ImprovedAI.AI
             if (alien == null || !AIEvaluators.ShouldAliensGoLoud()) return;
 
             var attackGoals = alien.GoalsOfType(GoalType.AttackWithFleet).OfType<FactionGoal_AttackWithFleet>().ToList();
-            var live = new HashSet<int>(attackGoals.Where(g => g.importance > 0).Select(g => GameRead.Id(g)));
+            var captureGoals = alien.GoalsOfType(GoalType.CaptureHab).OfType<FactionGoal_CaptureHab>().ToList();
+            var live = new HashSet<int>(attackGoals.Where(g => g.importance > 0).Select(g => GameRead.Id(g))
+                .Concat(captureGoals.Where(g => g.importance > 0).Select(g => GameRead.Id(g))));
             _ours.RemoveWhere(id => !live.Contains(id));
             int slots = Plugin.Cfg.MaxRaidGoals.Value - _ours.Count;
             if (slots <= 0) return;
 
-            var targeted = new HashSet<TIGameState>(attackGoals.Where(g => g.importance > 0).Select(g => g.target()).Where(t => t != null));
+            var targeted = new HashSet<TIGameState>(attackGoals.Where(g => g.importance > 0).Select(g => g.target())
+                .Concat(captureGoals.Where(g => g.importance > 0).Select(g => g.target())).Where(t => t != null));
             var enemies = alien.GoalsOfType(GoalType.WarOnFaction).OfType<FactionGoal_WarOnFaction>()
                 .Select(g => g.targetFaction).Where(f => f != null && !f.IsAlienFaction).Distinct().ToList();
 
@@ -65,16 +68,24 @@ namespace ImprovedAI.AI
             }
 
             var picks = candidates.OrderByDescending(c => c.score).Take(slots).ToList();
+            var kinds = new List<string>();
             foreach (var c in picks)
             {
-                var goal = alien.AddGoal(new FactionGoal_AttackWithFleet(alien, Plugin.Cfg.RaidImportance.Value, c.hab, requiresWar: true),
-                    HandleDuplicateGoalRule.ResetImportanceIfHigher) as FactionGoal_AttackWithFleet;
+                // Undefended bases (not on Earth/Luna, where captures need no fleet) are taken by marine assault: for the
+                // aliens a capture destroys the hab. Everything else is a normal attack.
+                string body = GameRead.Body(c.hab);
+                bool capture = Plugin.Cfg.UseRaidCaptures && c.hab.IsBase && c.threat <= 0.5f && body != "Earth" && body != "Luna";
+                TIFactionGoalState goal = capture
+                    ? alien.AddGoal(new FactionGoal_CaptureHab(alien, Plugin.Cfg.RaidImportance.Value + 1, c.hab, GoalType.None), HandleDuplicateGoalRule.ResetImportanceIfHigher)
+                    : alien.AddGoal(new FactionGoal_AttackWithFleet(alien, Plugin.Cfg.RaidImportance.Value, c.hab, requiresWar: true), HandleDuplicateGoalRule.ResetImportanceIfHigher);
                 if (goal != null) _ours.Add(GameRead.Id(goal));
+                kinds.Add(goal == null ? "none" : goal.GetGoalType().ToString());
             }
             if (picks.Count > 0)
                 Session.Journal?.Write(new
                 {
                     t = GameRead.Now(), kind = "raid", open = _ours.Count,
+                    kinds,
                     picks = picks.Select(c => new { hab = c.hab.displayName, faction = GameRead.Faction(c.hab.faction), body = GameRead.Body(c.hab), system = GameRead.System(c.hab), c.value, c.threat, c.score }),
                 });
         }
@@ -107,6 +118,18 @@ namespace ImprovedAI.AI
         private static void Postfix(FactionGoal_AttackWithFleet __instance, ref float __result)
         {
             if (__result > 0f && Plugin.Cfg.UseRaidPlanner && RaidPlanner.IsRaid(__instance)) __result *= Plugin.Cfg.RaidBombardMultiplier.Value;
+        }
+    }
+
+    /// <summary>Alien capture goals stay in progress while a fleet is assigned: vanilla also requires spare mission
+    /// control for the captured hab, which is meaningless for the aliens (a capture destroys it).</summary>
+    [HarmonyPatch(typeof(FactionGoal_CaptureHab), nameof(FactionGoal_CaptureHab.InProgress))]
+    internal static class AlienCaptureInProgress
+    {
+        private static void Postfix(FactionGoal_CaptureHab __instance, ref bool __result)
+        {
+            if (!__result && Plugin.Cfg.UseRaidCaptures && __instance.faction != null && __instance.faction.IsAlienFaction
+                && TIGameState.Valid(__instance.assignedFleet)) __result = true;
         }
     }
 }
