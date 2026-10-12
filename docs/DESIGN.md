@@ -99,7 +99,7 @@ Each campaign draws a hidden **strategic doctrine** and a **fleet doctrine**, we
 - **Quality over quantity.** Minimal expansion. Exotics are hoarded for wormhole-tier hulls, producing a small, late, terrifying fleet.
 - **Xenoformer.** Ground operations and xenoforming on Earth (a vanilla system), with space held defensively.
 
-**Compose axes, don't pick from a list (proposal).** A doctrine is a combination of separate dimensions, which gives much more variety than a fixed set:
+**Compose axes, don't pick from a list (agreed with the user, 2026-10-11).** A doctrine is a combination of separate dimensions, which gives much more variety than a fixed set:
 - strategic focus (the lists above);
 - political posture: force versus puppetry;
 - command style: centralised versus forward (pherocyte command);
