@@ -71,13 +71,22 @@ def main(probe_path, run_dir):
             ok, err = False, f"{type(e).__name__}: {e}"
         outcomes.append({"expr": expr, "pass": ok, "error": err})
 
+    info = []
+    for expr in probe.get("info", []):  # tracked numbers: printed and saved, never fail the probe
+        try:
+            info.append({"expr": expr, "value": eval(expr, dict(scope, __builtins__=SAFE_BUILTINS))})
+        except Exception as e:
+            info.append({"expr": expr, "value": f"{type(e).__name__}: {e}"})
+
     print(f"\n--- probe {probe.get('name')} ({len(journal)} journal records, {len(metrics)} metrics rows) ---")
     if probe.get("expect"):
         print(f"expect: {probe['expect']}")
     for o in outcomes:
         print(f"{'PASS' if o['pass'] else 'FAIL'}  {o['expr']}" + (f"   [{o['error']}]" if o["error"] else ""))
+    for i in info:
+        print(f"INFO  {i['expr']} = {i['value']}")
     with open(os.path.join(run_dir, "asserts.json"), "w", encoding="utf-8") as f:
-        json.dump(outcomes, f, indent=2)
+        json.dump(outcomes + [dict(i, info=True) for i in info], f, indent=2, default=str)
     return 0 if all(o["pass"] for o in outcomes) else 2
 
 

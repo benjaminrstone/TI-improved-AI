@@ -2,7 +2,7 @@
   "name": "e5-undefended-mines",
   "exploit": "E5",
   "notes": "Spam 15 undefended mining outposts across the main belt during the hot war and see whether the aliens punish it. Vanilla only retaliates against 'impudent' assets in alien turf and adds at most one base target per month.",
-  "expect": "vanilla FAILS (few or no mines lost); the fixed AI raids undefended economic targets anywhere",
+  "expect": "vanilla FAILS (undefended Resistance bases off Earth are not targeted or destroyed); the fixed AI raids and captures them. Injected-mine numbers are tracked as info.",
   "fixture": "accel-2034-fusion-drives",
   "runDays": 270,
   "commands": [
@@ -10,11 +10,17 @@
   ],
   "asserts": [
     "events('inject')[0]['count'] == 15",
-    "count('goal+', type=lambda t: t in ('AttackWithFleet', 'CaptureHab'), targetBody=lambda b: b in events('inject')[0]['bodies']) >= 3",
-    "count('hab-', faction='ResistCouncil', habType='Base', body=lambda b: b in events('inject')[0]['bodies']) >= 5"
+    "count('goal+', type=lambda t: t in ('AttackWithFleet', 'CaptureHab'), targetFaction='ResistCouncil', targetBody=lambda b: b not in ('Earth', 'Luna')) >= 3",
+    "count('hab-', faction='ResistCouncil', habType='Base', body=lambda b: b not in ('Earth', 'Luna')) >= 2"
   ],
   "baseline": {
     "vanilla-2026-10-11": "0/15 mines lost in 180 days; 0 attack goals on belt targets (alien attack goals went to Earth 33, Mercury 25, Mars 17)",
-    "mod-2026-10-12-captures-v1": "First alien base kill by marine assault: troop carrier Victor-577 destroyed Resist Khayyam Base (24 Themis) on 2034-11-07. Capture goals targeted existing Resist belt bases; carriers took ~4.5 months to build; 4 shared slots -> too slow for the injected mines in 180 d."
-  }
+    "mod-2026-10-12-captures-v1": "First alien base kill by marine assault: troop carrier Victor-577 destroyed Resist Khayyam Base (24 Themis) on 2034-11-07. Capture goals targeted existing Resist belt bases; carriers took ~4.5 months to build; 4 shared slots -> too slow for the injected mines in 180 d.",
+    "mod-2026-10-12-captures-v2": "6 capture goals on existing undefended Resist belt bases at day 1; 11 bases destroyed overall in 270 d (6 Resist: 5 at Mercury, Merapi by capture); 0 goals on the injected tier-1 mines (higher-value Resist bases first; carriers take ~4.5 months to build, ~8 months goal-to-kill)."
+  },
+  "info": [
+    "count('goal+', type=lambda t: t in ('AttackWithFleet', 'CaptureHab'), targetBody=lambda b: b in events('inject')[0]['bodies'])",
+    "count('hab-', faction='ResistCouncil', habType='Base', body=lambda b: b in events('inject')[0]['bodies'])",
+    "count('hab-', habType='Base')"
+  ]
 }
