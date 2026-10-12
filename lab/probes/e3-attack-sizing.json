@@ -2,7 +2,7 @@
   "name": "e3-attack-sizing",
   "exploit": "E3",
   "notes": "Do alien attacks arrive with decisive force? Measured as fleet SCV at launch / defThreat, where defThreat is what the target can bring: remembered SCV of fleets defending it plus half of that faction's other fleets in the system (DecisiveForce.DefenderThreat). Also checks combat outcomes: alien attacks should mostly win.",
-  "expect": "vanilla attacks launch at ~1.4x the defenders within 1000 km at current SCV and lose more fights; the fixed AI launches at >= 2x expected threat",
+  "expect": "vanilla PASSES in this chapter (not reproduced): kept as a regression guard so mod changes don't make attacks less decisive or less successful",
   "fixture": "accel-2031-hot-war",
   "runDays": 180,
   "asserts": [
@@ -12,6 +12,7 @@
   ],
   "baseline": {
     "vanilla-2026-10-11": "median launch ratio 1.21 (5 attacks, 2031-32); 1.05 over 13 attacks in the 2034 run",
-    "note-2026-10-12": "the earlier 'launch ratio' (scv/desiredScv) understated vanilla's margin: desiredScv already includes ~1.4x superiority + a small-target bonus. Re-baseline with defThreat (run.ps1 -Vanilla)."
+    "note-2026-10-12": "the earlier 'launch ratio' (scv/desiredScv) understated vanilla's margin: desiredScv already includes ~1.4x superiority + a small-target bonus. Re-baseline with defThreat (run.ps1 -Vanilla).",
+    "vanilla-2026-10-12": "PASS: median launch SCV / defThreat >= 2; aliens won 6/6 fights they started (passive player)"
   }
 }
