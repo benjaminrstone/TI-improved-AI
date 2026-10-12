@@ -121,7 +121,17 @@ Bias the alien ship designer and the build picker toward the doctrine's weapon c
 
 **Probe:** in a soak, the fleet composition (weapon classes, hull mix) differs measurably between two forced doctrines.
 
-## Step 5: Disposition: contempt × hate
+## Step 5: Disposition: contempt × hate ✅ v1 (2026-10-12)
+
+**Built** (`AI/Disposition.cs`):
+- contempt per faction in the sidecar, seeded from vanilla's learned `perceivedEnemyFleetStrengthFactor`;
+- lessons from battles and hab losses, plus a monthly outer-system presence lesson;
+- attack superiority × (1.25 − 0.5 × contempt);
+- `disposition` and `contempt` journal records.
+
+**Gate passed:** 2039 Resistance starts at 0.40 and falls to 0.30 in 5 months.
+
+**Still to come:** fury (nukes, discovered deception), verification effort (WS5), and desperation feeding P4 escalation.
 
 **Contempt** is per human faction, from 0 to 1. It starts high (contempt). Its effects:
 - **Force sizing:** high contempt means smaller attacks and lower `AlienAttackSuperiority`. These are the careless raids, the player's opening to ambush.

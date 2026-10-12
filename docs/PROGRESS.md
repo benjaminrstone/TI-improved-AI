@@ -6,6 +6,11 @@ What is built, what the probes show, and what is next. Newest first. Every claim
 
 ### M2 progress
 
+- **Step 5 v1 done (disposition):**
+  - Per-faction alien contempt is seeded from vanilla's learned respect (`perceivedEnemyFleetStrengthFactor`).
+  - It falls with alien losses, failed attacks, alien habs destroyed, and presence at Jupiter or beyond; it rises with clean alien wins.
+  - It scales attack sizing against that faction.
+  - Gate passed: from the 2039 save, Resistance contempt starts at 0.40 (others 0.58–0.80) and falls to 0.30 over 5 months.
 - **Step 2 first pass done:** doctrines scale the dials (`AI/Dials.cs`). A forced Raider and a forced Bastion play measurably differently (gate passed).
 - **Step 1 done:** alien strategy state, doctrine axes, deterministic derivation per campaign, sidecar persistence (gate passed).
 - **Raider groundwork:**
