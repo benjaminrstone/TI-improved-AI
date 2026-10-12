@@ -71,10 +71,30 @@ namespace ImprovedAI.AI
                 .ThenByDescending(f => f.SpaceCombatValue())
                 .ToList();
 
+            // Per-system release budget: what the aliens hold there beyond max(local human threat x superiority,
+            // reserve fraction of their own force). The primary system keeps everything.
+            var budget = new Dictionary<TISpaceBodyState, float>();
+            float Budget(TISpaceBodyState sys)
+            {
+                if (sys == null) return 0f;
+                if (budget.TryGetValue(sys, out var b)) return b;
+                if (faction.primaryHab != null && sys == faction.primaryHab.ref_system) return budget[sys] = 0f;
+                float held = faction.fleets.Where(x => x.ref_system == sys && !x.transferAssigned).Sum(x => GameRead.Safe(() => x.SpaceCombatValue()));
+                float threat = GameStateManager.AllHumanFactions().SelectMany(h => h.fleets).Where(x => x.ref_system == sys).Sum(x => ThreatMemory.Remembered(x));
+                float keep = System.Math.Max(threat * Plugin.Cfg.AlienAttackSuperiority.Value, held * Plugin.Cfg.PoolReserveFraction.Value);
+                return budget[sys] = System.Math.Max(0f, held - keep);
+            }
+
             var sent = new List<object>();
             foreach (var d in donors)
             {
                 if (have >= need) break;
+                float dv = d.SpaceCombatValue();
+                if (d.AssignedGoal() is FactionGoal_DefendWithFleet)
+                {
+                    if (Budget(d.ref_system) < dv) continue;
+                    budget[d.ref_system] -= dv;
+                }
                 var from = d.AssignedGoal();
                 faction.AddGoal(new FactionGoal_JoinFleet(faction, anchor), HandleDuplicateGoalRule.ResetImportance, d);
                 float v = d.SpaceCombatValue();
@@ -96,9 +116,11 @@ namespace ImprovedAI.AI
             if (g == null || g is FactionGoal_AssembleFleet) return true;
             if (g is FactionGoal_DefendWithFleet d)
             {
-                if (d.importance >= 20 || d.EarmarkedFleetMC > 0 || d.IsPrimarySystemDefender) return false;
+                // Release is limited by the per-system budget in the caller (local threat, reserve), not by the defend
+                // goal's own desired value, which vanilla sizes from the strongest enemy anywhere and so never shows surplus.
+                if (d.importance >= 20 || d.IsPrimarySystemDefender) return false;
                 if (faction.primaryHab != null && d.target() == faction.primaryHab) return false;
-                return f.SpaceCombatValue() > d.desiredFleetCombatValue * Plugin.Cfg.DefenderSurplusFactor.Value;
+                return true;
             }
             return false;
         }

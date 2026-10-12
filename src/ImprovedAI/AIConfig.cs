@@ -22,7 +22,7 @@ namespace ImprovedAI
         public readonly ConfigEntry<float> AlienAttackSuperiority;
         public readonly ConfigEntry<bool> ForcePooling;
         public readonly ConfigEntry<float> PoolMargin;
-        public readonly ConfigEntry<float> DefenderSurplusFactor;
+        public readonly ConfigEntry<float> PoolReserveFraction;
         public readonly ConfigEntry<float> AttackMaxRatioFloor;
 
         public AIConfig(ConfigFile cfg)
@@ -51,8 +51,8 @@ namespace ImprovedAI
                 "Aliens pool idle fleets and surplus defenders into ONE focus attack at a time, instead of one starving fleet per goal.");
             PoolMargin = cfg.Bind("Commitment", "PoolMargin", 1.1f,
                 "Pool until the focus fleet reaches this multiple of its goal's desired SCV.");
-            DefenderSurplusFactor = cfg.Bind("Commitment", "DefenderSurplusFactor", 1.25f,
-                "A defending fleet may be pooled only if its SCV exceeds this multiple of its own goal's desired SCV.");
+            PoolReserveFraction = cfg.Bind("Commitment", "PoolReserveFraction", 0.25f,
+                "Pooling may draw defenders from a system only beyond max(local human threat x superiority, this fraction of the aliens' own force there).");
             AttackMaxRatioFloor = cfg.Bind("Commitment", "AttackMaxRatioFloor", 1.5f,
                 "Floor on an alien attack goal's max fleet/desired ratio (vanilla can drop it to 0, splitting waiting fleets).");
         }
