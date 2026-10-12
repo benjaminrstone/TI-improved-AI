@@ -1,0 +1,48 @@
+# Progress log
+
+What is built, what the probes show, and what is next. Newest first. Every claim here is backed by a run in `lab/results/` (gitignored); probe definitions live in `lab/probes/`.
+
+## 2026-10-12: M0 done, M1 underway
+
+### Infrastructure (M0)
+
+- **Plugin** (`src/ImprovedAI`), on the isolated game copy. Every AI change can be toggled in config, and `[General] VanillaAI=true` turns them all off for baselines.
+- **Diagnostics.** `ai-log.txt` (the developers' own AI trace, revived), `journal.jsonl` and `metrics.jsonl`. The journal records:
+  - goals, launches, fleets and habs;
+  - battles with outcomes;
+  - force pooling and raids;
+  - weekly alien perception of the player's fleets;
+  - attack-fleet operations.
+- **Harness.** About 19–22 game days per real minute, roughly 20 minutes per game year. Saves load in 55–65 s.
+  - It finalizes the councilor mission phase if the Autopilot leaves it stuck. That stall cost one run 2 hours before the fix.
+  - Probe setup commands: `ai.foundoutposts`, `ai.spawnfleet`, `ai.drainammo`, and scheduled `@N` commands.
+- **Tools.** `tools/run.ps1`, `tools/probes.ps1`, `tools/probe.py` (asserts) and `tools/summarize.py` (prints a run's story).
+
+### AI changes (M1, alien-only)
+
+| Change | What it does | Evidence |
+|---|---|---|
+| **Threat memory** (`AI/ThreatMemory.cs`) | Judges human fleets by their best recent per-ship SCV (180 days), not the current loadout | **E1 passes the perception check.** After a 20-ship missile swarm's magazines were emptied, vanilla's estimate fell 4,248 → 1,262 (bait works). The mod's estimate held at 4,104 against a true 828. |
+| **Decisive force** (`AI/DecisiveForce.cs`) | Attack requirement = (remembered defenders + half the target faction's other fleets in the system) × 2 | Neutral: vanilla already launched at ≥2× real defenders in the 2031 hot war (E3 vanilla passes). Kept as the basis for the guard below. |
+| **Same-system shortcut guard** (E14) | Fleets already in the target's system may skip the desired-strength rule only if they beat the full expected threat | Observed in vanilla: a 907-SCV fleet attacked a station needing 1,861 and was destroyed 6/6. Built; not yet probed. |
+| **Force pooling** (`AI/ForcePooling.cs`) | Each 4-day tick, focus ONE attack goal and pool idle and assembly fleets, plus defenders beyond a per-system budget (local human threat × 2, or a 25% reserve), into its fleet | **E9 passes.** Vanilla launched nothing at Jupiter in a year. The mod gathered 14.5k for the Yasui Station attack and launched at Jupiter. The force still assembles slowly: most alien fleets are in transit or busy (logged as donor rejection reasons). |
+| **Raid planner** (`AI/RaidPlanner.cs`) | Every 7 days, attack goals on the best value/threat human bases and stations anywhere, during war | Raids launch and bombard, but 1–2-ship raids didn't destroy bases. Added per-target failure memory and 2× raid bombardment; being probed. **E5 still fails.** |
+
+### Corrections along the way
+
+- **E3 "just enough" was a misreading.** The launch ratio to the *desired* SCV hides vanilla's own margin. Against real defenders, vanilla attacks are decisive and won 6/6 in the 2031 probe. E3 is now a regression guard.
+- **E1's first fixture was wrong.** The user's campaign uses no missiles, so draining ammo changed little. The probe now spawns a missile swarm (borrowing another faction's design) and measures alien perception directly, because vanilla didn't attack Earth after the drain at all.
+
+### Watch list
+
+- **Aggression against a passive player.** With the mod, the passive Resistance lost 15 Earth stations in 6 months of the 2034 save, against 3 in vanilla. Chapter playtests need to check this is "pressure", not "unfair".
+- **Pooling speed.** Assembling 14k at Saturn took about 9 months of game time. A war-winning response to losing Jupiter (P4) needs mobilisation, not just pooling.
+- **Raid targeting.** The raid planner prefers other factions' tier-2 mining bases (value 9) over the player's tier-1 mines (value 4), so the injected mines still drew no goals. Is that the right priority? It needs a design call.
+
+### Next
+
+1. Get raids to destroy bases (E5); decide the raid priorities.
+2. Probe the E14 guard.
+3. Re-run all probes on one build: a full regression pass.
+4. The first soak (L2): 2–3 game years from 2031 with the mod vs vanilla, comparing curves.
+5. Then M2: doctrines, the disposition model (contempt × hate) and the wormhole economy.
