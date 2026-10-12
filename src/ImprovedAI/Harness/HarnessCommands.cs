@@ -13,6 +13,9 @@ namespace ImprovedAI.Harness
     ///   ai.foundoutposts &lt;faction&gt; &lt;region&gt; &lt;count&gt; [mine]
     ///       Found tier-1 outposts (optionally with a mining complex) at free hab sites, one per body.
     ///       region: innerbelt | midbelt | outerbelt | belt | centaur | kbo | body:&lt;name&gt;
+    ///   ai.drainammo &lt;faction&gt; &lt;system&gt;
+    ///       Empty every magazine on that faction's fleets in a system (e.g. Earth). Weapons without ammo count as
+    ///       inoperable, so missile fleets drop to ~0 SCV: the "unresupplied bait" trick (EXPLOITS E1).
     /// </summary>
     internal static class HarnessCommands
     {
@@ -26,6 +29,9 @@ namespace ImprovedAI.Harness
                 {
                     case "ai.foundoutposts":
                         output.Add(FoundOutposts(parts[1], parts[2], int.Parse(parts[3]), parts.Length > 4 && parts[4].Equals("mine", StringComparison.OrdinalIgnoreCase)));
+                        break;
+                    case "ai.drainammo":
+                        output.Add(DrainAmmo(parts[1], parts[2]));
                         break;
                     default:
                         output.Add("! unknown harness command " + parts[0]);
@@ -61,6 +67,28 @@ namespace ImprovedAI.Harness
                 return b => string.Equals(b.displayName, n, StringComparison.OrdinalIgnoreCase) || string.Equals(b.templateName, n, StringComparison.OrdinalIgnoreCase);
             }
             throw new ArgumentException("unknown region " + region);
+        }
+
+        private static string DrainAmmo(string factionName, string system)
+        {
+            var faction = Faction(factionName);
+            int fleets = 0, ships = 0;
+            float before = 0, after = 0;
+            foreach (var fleet in faction.fleets.Where(f => string.Equals(GameRead.System(f), system, StringComparison.OrdinalIgnoreCase)))
+            {
+                fleets++;
+                before += GameRead.Safe(() => fleet.SpaceCombatValue());
+                foreach (var ship in fleet.ships)
+                {
+                    if (ship.ammo == null || ship.ammo.Count == 0) continue;
+                    ships++;
+                    foreach (var k in ship.ammo.Keys.ToList()) ship.ammo[k] = 0;
+                    ship.spaceCombatValueDataDirty = true;
+                }
+                after += GameRead.Safe(() => fleet.SpaceCombatValue());
+            }
+            Session.Journal?.Write(new { t = GameRead.Now(), kind = "inject", cmd = "drainammo", faction = factionName, system, fleets, ships, scvBefore = before, scvAfter = after });
+            return $"> drained {ships} ships in {fleets} {factionName} fleets at {system}: SCV {before:F0} -> {after:F0}";
         }
 
         private static string FoundOutposts(string factionName, string region, int count, bool mine)

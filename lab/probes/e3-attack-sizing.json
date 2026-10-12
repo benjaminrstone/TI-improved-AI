@@ -1,15 +1,17 @@
 {
   "name": "e3-attack-sizing",
   "exploit": "E3",
-  "notes": "Aliens size attacks to just beat the defenders' current combat value (FactionGoal_AttackWithFleet.ComputeDesiredFleetCombatValueForAttack, capped near 1.25x on Normal early), so fleets arrive in bite-sized chunks. Measured from the journal: fleet SCV / desired SCV at launch, for alien AttackWithFleet transfers.",
-  "expect": "vanilla FAILS the concentration assert (median launch ratio ~1.1-1.4); the fixed AI launches decisive, concentrated strikes",
+  "notes": "Do alien attacks arrive with decisive force? Measured as fleet SCV at launch / defThreat, where defThreat is what the target can bring: remembered SCV of fleets defending it plus half of that faction's other fleets in the system (DecisiveForce.DefenderThreat). Also checks combat outcomes: alien attacks should mostly win.",
+  "expect": "vanilla attacks launch at ~1.4x the defenders within 1000 km at current SCV and lose more fights; the fixed AI launches at >= 2x expected threat",
   "fixture": "accel-2031-hot-war",
   "runDays": 180,
   "asserts": [
     "count('transfer', goal='AttackWithFleet') >= 3",
-    "median([r['scv'] / r['desiredScv'] for r in events('transfer', goal='AttackWithFleet') if r.get('desiredScv')]) >= 2.0"
+    "median([r['scv'] / r['defThreat'] for r in events('transfer', goal='AttackWithFleet') if r.get('defThreat')]) >= 2.0",
+    "count('combat', attacker='AlienCouncil', occurred=True) == 0 or count('combat', attacker='AlienCouncil', occurred=True, winner='AlienCouncil') >= 0.75 * count('combat', attacker='AlienCouncil', occurred=True)"
   ],
   "baseline": {
-    "vanilla-2026-10-11": "median launch ratio 1.21 (5 attacks, 2031-32); 1.05 over 13 attacks in the 2034 run"
+    "vanilla-2026-10-11": "median launch ratio 1.21 (5 attacks, 2031-32); 1.05 over 13 attacks in the 2034 run",
+    "note-2026-10-12": "the earlier 'launch ratio' (scv/desiredScv) understated vanilla's margin: desiredScv already includes ~1.4x superiority + a small-target bonus. Re-baseline with defThreat (run.ps1 -Vanilla)."
   }
 }

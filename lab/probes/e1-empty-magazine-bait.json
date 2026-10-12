@@ -1,0 +1,14 @@
+{
+  "name": "e1-empty-magazine-bait",
+  "exploit": "E1",
+  "notes": "The 'unresupplied bait' version of the refit trick: empty the magazines of the player's fleets at Earth so their SCV collapses (weapons without ammo count as inoperable), then see what the aliens send. A player would resupply before the attack arrives. Threat memory samples the fleets at load, before the drain, so the fixed AI remembers what they were.",
+  "expect": "vanilla FAILS (attacks sized to the drained ~0 SCV); the fixed AI sizes attacks to the fleets' real strength",
+  "fixture": "accel-2034-fusion-drives",
+  "runDays": 120,
+  "commands": ["ai.drainammo ResistCouncil Earth"],
+  "asserts": [
+    "events('inject')[0]['scvAfter'] < 0.3 * events('inject')[0]['scvBefore']",
+    "count('transfer', goal='AttackWithFleet', toSystem='Earth') >= 1",
+    "min([r['scv'] for r in events('transfer', goal='AttackWithFleet', toSystem='Earth')] or [0]) >= events('inject')[0]['scvBefore']"
+  ]
+}
