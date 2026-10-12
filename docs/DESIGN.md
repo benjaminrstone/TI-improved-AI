@@ -92,6 +92,28 @@ The final phase should feel different (higher stakes, decisive battles), not mer
 - **A longer human tech ladder.** Extend weapons, armor and radiators past the current ceiling, and add military repeatables, so "turtle and research" is a real strategy with a real cost.
 - **Pressure on turtles.** The economic-strangulation and expansion doctrines make sitting at Earth expensive.
 
+### Disposition: contempt × hate (the danger meter)
+
+The user agreed this framing on 2026-10-11. The alien attitude toward each human faction has two axes.
+
+- **Hate** is how much they want to hurt you. It is vanilla `factionHate`, unchanged in meaning. It drives war, retaliation and target priority.
+- **Contempt** is how little they think you can hurt them. It is new. [lore] The Hydras regard humanity as beneath notice (Project_HydraDiplomacy). It drives:
+  - force sizing and concentration;
+  - how much verification they bother with;
+  - whether they hold reserves;
+  - how readily they commit their exotics-tier assets.
+
+| | Low hate | High hate |
+|---|---|---|
+| **High contempt** | *Management.* Proportional, minimal responses (early game). | *Punitive but careless.* Angry raids sized by underestimation: the window for ambushes. |
+| **Low contempt** | *Wary.* Watchful and deterrence-minded; avoids you and keeps pacts. | *Deadly.* Concentrated, verified, all-in. Late game and desperation (P4). |
+
+- **What moves contempt down:** outcomes that beat their expectations. Winning fights they expected to win, kills, holding their territory, demonstrated tech. Surprise is what teaches respect.
+- **What moves it back up:** losses that confirm their view.
+- **Fury** is a spike in hate plus less calculation. It comes from human nuclear use and discovered deceptions.
+- **It's visible.** The player sees an estimate of both axes. Vanilla already shows estimated hate. Reading the meter is part of the game: provoking hate while still held in contempt is the dangerous corner, and a "Wary" alien can be bargained with.
+- **Open question:** should difficulty set starting contempt and how fast it erodes? Arrogance as a constraint is arguably in the spirit of P2, but it tunes a flaw rather than a resource.
+
 ### P5. Legibility and counterplay
 
 The player must be able to read and answer the AI:
