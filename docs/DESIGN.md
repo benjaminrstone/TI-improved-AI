@@ -121,7 +121,7 @@ Status: [ext], user interested 2026-10-11, to be developed.
 **Consequences that fall out of this:**
 - **Big coordinated offensives require bringing command forward.** Concentrated strikes at Earth or Mars need a mothership in theatre. That is a strategic decision for the aliens (doctrine: centralised versus forward command), a visible signal to the player, and a target.
 - **Decapitation is real counterplay.** Kill the mothership mid-operation and the fleets in that theatre fall back to standing orders: they finish the last plan rigidly, or withdraw per doctrine. The game reports it ("Alien fleets near Mars appear to be operating without direction").
-- **Doctrinal inertia becomes physical.** When leadership changes doctrine (shame, see P6), remote fleets keep the old doctrine until command reaches them. That opens a readable window.
+- **Doctrinal inertia becomes physical.** When the Hydra command changes doctrine (shame, see P6), remote fleets keep the old doctrine until command reaches them. That opens a readable window.
 - **Concealment interacts with command.** A fleet gone dark can't receive new intent either (P6), so the aliens have to choose between going dark and staying adaptable.
 
 **Tiers.**
@@ -198,8 +198,9 @@ The player must be able to read and answer the AI:
 - **Captives are scarce and they're bait.** The Hydras don't abandon their own [ext], so where you keep them becomes a target.
 
 **Shame drives doctrinal inertia [ext].**
-- **Failure is shameful,** like failed deception, so an alien leadership persists with a failing doctrine longer than is optimal. That is the root of P3's inertia, and an exploitable flaw.
-- **Collapse is visible.** Past a threshold the doctrine is publicly abandoned and leadership changes: an intel event and a new posture.
+- **Failure is shameful,** like failed deception, so the Hydra command persists with a failing doctrine longer than is optimal. That is the root of P3's inertia, and an exploitable flaw.
+- **Collapse is visible.** Past a threshold the command abandons the doctrine and adopts a new one: an intel event and a new posture.
+- **One will, no internal factions (user, 2026-10-11).** The Hydras are a single, unified threat. Doctrine changes are one command revising its course, never rival factions. Earth is the divided side. A unified intelligence bending divided humans leans into the mind-control angle (Servants, pherocyte control).
 - **Players can read and steer it.** A player who understands this can keep a failing alien doctrine alive by not handing it the decisive defeat that would force the change.
 
 **Pherocyte truth-sense [ext, speculative].** Hydra falsehoods carry a chemical signature [lore]; perhaps Hydras also read human chemistry up close. That would explain why disguises fail at close range and why Hydra ground operations and boarding are hard to fool. It is a possible in-universe justification for "verification needs proximity".
