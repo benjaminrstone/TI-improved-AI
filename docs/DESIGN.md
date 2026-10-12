@@ -119,6 +119,14 @@ The player must be able to read and answer the AI:
 - **M3, a late game worth playing.** WS3 escalation, WS7 tech extension, WS6 stations. Full user campaign.
 - **WS8 controls** are independent and can land at any point. It's a good parallel track for a separate session.
 
+## Decisions
+
+The user made these on 2026-10-11:
+
+- **Scope:** aliens only. The human AI factions stay vanilla for now. Soaks will show whether they get steamrolled.
+- **Difficulty:** reuse the vanilla levels (Cinematic, Normal, Veteran, Brutal). Each level sets how tight the constraints are (P2), not how competent the AI is (P1).
+- **Test install:** an isolated game copy at `C:\Games\TI-ImprovedAI`.
+
 ## Engineering rules
 
 - **Ship structure.** One BepInEx plugin and one JSON mod. Every feature sits behind its own config switch, so A/B tests and probes can toggle them.
