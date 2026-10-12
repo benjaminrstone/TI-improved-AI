@@ -94,6 +94,41 @@ The final phase should feel different (higher stakes, decisive battles), not mer
 - **A longer human tech ladder.** Extend weapons, armor and radiators past the current ceiling, and add military repeatables, so "turtle and research" is a real strategy with a real cost.
 - **Pressure on turtles.** The economic-strangulation and expansion doctrines make sitting at Earth expensive.
 
+### Pherocyte command
+
+Status: [ext], user interested 2026-10-11, to be developed.
+
+**Root.** [lore] Hydra speech is simple, and its meaning and intent travel chemically through pherocytes (Project_HydraLanguage). Radio carries the words but not the intent. [ext] So real command (adaptive, intent-driven decisions) needs a senior Hydra physically present. Fleets far from command run on **standing orders**.
+
+**Command nodes.**
+- **Motherships.** Mobile command, using the existing alien hull. They become precious operational assets and the natural decapitation target.
+- **The primary base,** and possibly a new alien command module (JSON) on other habs.
+- **Possibly alien councilors** for operations on Earth.
+- **Range:** the same planetary system or region as a node. That is discrete and easy for the player to read. Pherocytes are physical, so range is about presence, not signal strength.
+
+**In command vs on standing orders.**
+
+| | In command | Standing orders |
+|---|---|---|
+| Plan | Made with full intent: the WS1 sizing and concentration fixes apply when a plan is made | Executes the plan it last received, rigidly |
+| In transit | Re-evaluates; can abort, divert or reinforce | Continues as planned |
+| Opportunities | Takes targets of opportunity, retreats intelligently | Follows doctrine-fixed rules (e.g. a fixed retreat threshold) |
+| Multi-fleet operations | Coordinated, synchronised arrivals | Not possible; each fleet acts alone |
+| Doctrine change | Immediate | Arrives only when command reaches the fleet (see below) |
+
+**Rigid, not dumb.** Standing orders are a good plan executed without adaptation, never the vanilla idiot ball.
+
+**Consequences that fall out of this:**
+- **Big coordinated offensives require bringing command forward.** Concentrated strikes at Earth or Mars need a mothership in theatre. That is a strategic decision for the aliens (doctrine: centralised versus forward command), a visible signal to the player, and a target.
+- **Decapitation is real counterplay.** Kill the mothership mid-operation and the fleets in that theatre fall back to standing orders: they finish the last plan rigidly, or withdraw per doctrine. The game reports it ("Alien fleets near Mars appear to be operating without direction").
+- **Doctrinal inertia becomes physical.** When leadership changes doctrine (shame, see P6), remote fleets keep the old doctrine until command reaches them. That opens a readable window.
+- **Concealment interacts with command.** A fleet gone dark can't receive new intent either (P6), so the aliens have to choose between going dark and staying adaptable.
+
+**Tiers.**
+- **A (cheap, high value):** a command gate on our adaptive behaviours. Motherships and the primary base are nodes. Standing orders outside their range. Decapitation reverts fleets.
+- **B:** doctrine propagation delay, an alien command module, the AI deciding where to forward-deploy command, intel events and fleet-tooltip status.
+- **C:** physical couriers carrying intent between nodes and remote fleets. These are small, fast, interceptable ships; intercepting them keeps a theatre on stale orders. Also tactical-combat effects: in-command fleets get the better combat AI.
+
 ### Disposition: contempt × hate (the danger meter)
 
 The user agreed this framing on 2026-10-11. The alien attitude toward each human faction has two axes.
