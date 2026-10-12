@@ -124,6 +124,7 @@ namespace ImprovedAI.AI
             if (Current == null)
                 Current = new StrategyState { campaignKey = key, source = "derived", doctrine = Derive(key, difficulty) };
             Plugin.Log.LogInfo($"[Strategy] Doctrine ({Current.source}): {Current.doctrine}");
+            Disposition.OnCampaignReady();
             Session.Journal?.Write(new { t = GameRead.Now(), kind = "doctrine", ev = "loaded", Current.source, difficulty, doctrine = Current.doctrine, key, dials = Dials.Snapshot() });
         }
 

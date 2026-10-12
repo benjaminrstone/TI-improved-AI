@@ -22,8 +22,29 @@ namespace ImprovedAI.AI
             if (!On || human == null) return Plugin.Cfg.StartingContempt.Value;
             var map = AlienStrategy.Current.contempt;
             string k = GameRead.Faction(human);
-            if (!map.TryGetValue(k, out var v)) map[k] = v = Plugin.Cfg.StartingContempt.Value;
+            if (!map.TryGetValue(k, out var v)) map[k] = v = Initial(human);
             return v;
+        }
+
+        /// <summary>
+        /// Starting contempt for a faction with no recorded history (new game, or a save made without the mod): seeded from
+        /// what vanilla has already learned. perceivedEnemyFleetStrengthFactor (0.67..1.5, nudged after every battle) is
+        /// the aliens' learned respect: 1.0 -> StartingContempt, 1.5 (they have learned to fear you) -> StartingContempt - 0.4.
+        /// </summary>
+        public static float Initial(TIFactionState human)
+        {
+            float factor = 1f;
+            try { factor = GameStateManager.AlienFaction().GetPerceivedEnemyFleetStrengthFactor(human); } catch { }
+            return Mathf.Clamp01(Plugin.Cfg.StartingContempt.Value - 0.8f * (factor - 1f));
+        }
+
+        /// <summary>At load: make sure every human faction has a value, and record where each starts.</summary>
+        public static void OnCampaignReady()
+        {
+            if (!On) return;
+            var rows = GameStateManager.AllHumanFactions().Where(h => h != null)
+                .Select(h => new { faction = GameRead.Faction(h), contempt = Contempt(h) }).ToList();
+            Session.Journal?.Write(new { t = GameRead.Now(), kind = "disposition", ev = "initial", factions = rows });
         }
 
         public static void Shift(TIFactionState human, float delta, string why)
