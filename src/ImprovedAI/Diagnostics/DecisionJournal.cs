@@ -14,7 +14,7 @@ namespace ImprovedAI.Diagnostics
     internal static class DecisionJournal
     {
         private class GoalSnap { public string type; public int imp; public bool inProgress; }
-        private class FleetSnap { public string name; public int ships; public float scv; public int destId; public string where; }
+        private class FleetSnap { public string name; public int ships; public float scv; public int destId; public string where; public string ops; }
         private class HabSnap { public string faction, type, body; public int tier; }
 
         private static Dictionary<int, GoalSnap> _goals = new Dictionary<int, GoalSnap>();
@@ -118,7 +118,13 @@ namespace ImprovedAI.Diagnostics
                 {
                     name = f.displayName, ships = f.ships?.Count ?? 0, scv = GameRead.Safe(() => f.SpaceCombatValue()),
                     destId = destId, where = GameRead.Body(f),
+                    ops = f.currentOperations == null ? "" : string.Join(",", f.currentOperations.Select(o => o.operationDataName + ">" + GameRead.Name(o.target))),
                 };
+
+                _fleets.TryGetValue(id, out var prev);
+                // What attack fleets actually do (bombard, destroy hab, assault...), whenever it changes.
+                if (emit && prev != null && prev.ops != snap.ops && snap.ops.Length > 0 && f.AssignedGoal() is FactionGoal_AttackWithFleet ag)
+                    Emit(new { t, kind = "op", id, fleet = snap.name, snap.ships, snap.scv, at = snap.where, ops = snap.ops, goalTarget = GameRead.Name(ag.target()) });
                 if (!_fleets.TryGetValue(id, out var old))
                 {
                     if (emit) Emit(new { t, kind = "fleet+", id, fleet = snap.name, snap.ships, snap.scv, at = snap.where });
