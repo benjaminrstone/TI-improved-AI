@@ -32,6 +32,9 @@ Direction key:
 | Targeting / RaidImportance | 16 | `+` | How raids compete with other goals for fleets. |
 | Targeting / RaidHateWeight | 1.0 | `+` | How strongly hate focuses raids on one faction. |
 | Targeting / RaidBombardMultiplier | 2.0 | = | |
+| Targeting / RaidCaptures | on | `+` | Marine captures (= destruction) of undefended bases off Earth/Luna |
+| Targeting / MaxCaptureGoals | 6 | `+` | Capture tempo (one cheap troop carrier each) |
+| Fixes / AlienMarineValue | on | = | Vanilla bug fix (alien marine pod read as 0) |
 
 ## Vanilla difficulty knobs we expect to retune
 

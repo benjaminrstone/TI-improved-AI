@@ -41,7 +41,12 @@ namespace ImprovedAI.AI
             var live = new HashSet<int>(attackGoals.Where(g => g.importance > 0).Select(g => GameRead.Id(g))
                 .Concat(captureGoals.Where(g => g.importance > 0).Select(g => GameRead.Id(g))));
             _ours.RemoveWhere(id => !live.Contains(id));
-            int slots = Plugin.Cfg.MaxRaidGoals.Value - _ours.Count;
+            // Separate slot pools: attack raids vs marine captures of undefended bases (one cheap troop carrier each).
+            int openAttacks = attackGoals.Count(g => _ours.Contains(GameRead.Id(g)));
+            int openCaptures = captureGoals.Count(g => _ours.Contains(GameRead.Id(g)));
+            int attackSlots = Plugin.Cfg.MaxRaidGoals.Value - openAttacks;
+            int captureSlots = Plugin.Cfg.UseRaidCaptures ? Plugin.Cfg.MaxCaptureGoals.Value - openCaptures : 0;
+            int slots = System.Math.Max(0, attackSlots) + System.Math.Max(0, captureSlots);
             if (slots <= 0) return;
 
             var targeted = new HashSet<TIGameState>(attackGoals.Where(g => g.importance > 0).Select(g => g.target())
@@ -67,14 +72,20 @@ namespace ImprovedAI.AI
                 }
             }
 
-            var picks = candidates.OrderByDescending(c => c.score).Take(slots).ToList();
+            bool IsCapture(TIHabState h, float threat)
+            {
+                string b = GameRead.Body(h);
+                return Plugin.Cfg.UseRaidCaptures && h.IsBase && threat <= 0.5f && b != "Earth" && b != "Luna";
+            }
+            var ordered = candidates.OrderByDescending(c => c.score).ToList();
+            var picks = ordered.Where(c => IsCapture(c.hab, c.threat)).Take(System.Math.Max(0, captureSlots))
+                .Concat(ordered.Where(c => !IsCapture(c.hab, c.threat)).Take(System.Math.Max(0, attackSlots))).ToList();
             var kinds = new List<string>();
             foreach (var c in picks)
             {
                 // Undefended bases (not on Earth/Luna, where captures need no fleet) are taken by marine assault: for the
                 // aliens a capture destroys the hab. Everything else is a normal attack.
-                string body = GameRead.Body(c.hab);
-                bool capture = Plugin.Cfg.UseRaidCaptures && c.hab.IsBase && c.threat <= 0.5f && body != "Earth" && body != "Luna";
+                bool capture = IsCapture(c.hab, c.threat);
                 TIFactionGoalState goal = capture
                     ? alien.AddGoal(new FactionGoal_CaptureHab(alien, Plugin.Cfg.RaidImportance.Value + 1, c.hab, GoalType.None), HandleDuplicateGoalRule.ResetImportanceIfHigher)
                     : alien.AddGoal(new FactionGoal_AttackWithFleet(alien, Plugin.Cfg.RaidImportance.Value, c.hab, requiresWar: true), HandleDuplicateGoalRule.ResetImportanceIfHigher);
