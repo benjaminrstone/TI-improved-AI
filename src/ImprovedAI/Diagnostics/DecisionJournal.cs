@@ -23,21 +23,41 @@ namespace ImprovedAI.Diagnostics
 
         public static void Init()
         {
-            _goals.Clear(); _fleets.Clear(); _habs.Clear();
+            _goals.Clear(); _fleets.Clear(); _habs.Clear(); _day = 0;
             Daily(emit: false);
             Emit(new { kind = "init", goals = _goals.Count, alienFleets = _fleets.Count, habs = _habs.Count });
         }
 
         private static void Emit(object rec) => Session.Journal?.Write(rec);
 
+        private static int _day;
+
         public static void Daily(bool emit = true)
         {
             var alien = GameStateManager.AlienFaction();
             if (alien == null) return;
             string t = GameRead.Now();
+            if (emit && _day++ % 7 == 0)
+                try { Perception(alien, t); } catch (Exception e) { Plugin.Log.LogWarning($"[Journal] perception: {e.Message}"); }
             try { DiffGoals(alien, t, emit); } catch (Exception e) { Plugin.Log.LogWarning($"[Journal] goals: {e.Message}"); }
             try { DiffFleets(alien, t, emit); } catch (Exception e) { Plugin.Log.LogWarning($"[Journal] fleets: {e.Message}"); }
             try { DiffHabs(t, emit); } catch (Exception e) { Plugin.Log.LogWarning($"[Journal] habs: {e.Message}"); }
+        }
+
+        /// <summary>Weekly: how strong the aliens believe the player's fleets are, by system, next to their true SCV.</summary>
+        private static void Perception(TIFactionState alien, string t)
+        {
+            var player = GameControl.control.activePlayer;
+            if (player == null) return;
+            var bySystem = new Dictionary<string, float[]>();
+            foreach (var f in player.fleets)
+            {
+                string sys = GameRead.System(f) ?? "?";
+                if (!bySystem.TryGetValue(sys, out var v)) bySystem[sys] = v = new float[2];
+                v[0] += GameRead.Safe(() => f.SpaceCombatValue());
+                v[1] += GameRead.Safe(() => alien.GetPerceivedEnemyFleetStrength(f));
+            }
+            Emit(new { t, kind = "perceive", faction = GameRead.Faction(player), systems = bySystem.ToDictionary(kv => kv.Key, kv => new { scv = kv.Value[0], perceived = kv.Value[1] }) });
         }
 
         private static void DiffGoals(TIFactionState alien, string t, bool emit)
