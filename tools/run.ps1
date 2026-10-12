@@ -103,12 +103,23 @@ try {
     # Unity stores window/monitor prefs under one registry key that the Steam install shares; restore it afterwards
     # so a harness run never changes how the user's own game opens.
     $regPath = 'HKCU:\Software\Pavonis Interactive\TerraInvicta'
+    # A killed launcher can't restore in its finally block, so the backup is also kept on disk and restored first.
+    $regBackupFile = Join-Path $HarnessDir 'display-registry-backup.json'
+    if ((Test-Path $regBackupFile) -and (Test-Path $regPath)) {
+        $stale = Get-Content $regBackupFile -Raw | ConvertFrom-Json
+        foreach ($p in $stale.PSObject.Properties) { Set-ItemProperty -Path $regPath -Name $p.Name -Value ([int]$p.Value) -Type DWord }
+        Write-Host 'Restored display settings left over from an interrupted run.'
+    }
     $regBackup = @{}
     if (Test-Path $regPath) {
         $key = Get-Item $regPath
         foreach ($n in $key.GetValueNames()) {
             if ($n -match '^(Screenmanager|UnitySelectMonitor)') { $regBackup[$n] = @{ v = $key.GetValue($n); k = $key.GetValueKind($n) } }
         }
+    }
+    if ($regBackup.Count -gt 0) {
+        $flat = @{}; foreach ($n in $regBackup.Keys) { $flat[$n] = $regBackup[$n].v }
+        $flat | ConvertTo-Json | Set-Content -Path $regBackupFile -Encoding utf8
     }
     Add-Type -Namespace TIAI -Name Win -MemberDefinition '[DllImport("user32.dll")] public static extern System.IntPtr GetForegroundWindow(); [DllImport("user32.dll")] public static extern bool SetForegroundWindow(System.IntPtr h);' -ErrorAction SilentlyContinue
     $userWindow = [TIAI.Win]::GetForegroundWindow()
@@ -133,6 +144,7 @@ try {
         Remove-Item $runFile -ErrorAction SilentlyContinue
         if (-not (& $ours) -and (Test-Path $regPath)) {
             foreach ($n in $regBackup.Keys) { Set-ItemProperty -Path $regPath -Name $n -Value $regBackup[$n].v -Type $regBackup[$n].k }
+            Remove-Item $regBackupFile -ErrorAction SilentlyContinue
         }
     }
 

@@ -20,6 +20,10 @@ namespace ImprovedAI
         public readonly ConfigEntry<float> ThreatMemoryDays;
         public readonly ConfigEntry<bool> DecisiveForce;
         public readonly ConfigEntry<float> AlienAttackSuperiority;
+        public readonly ConfigEntry<bool> ForcePooling;
+        public readonly ConfigEntry<float> PoolMargin;
+        public readonly ConfigEntry<float> DefenderSurplusFactor;
+        public readonly ConfigEntry<float> AttackMaxRatioFloor;
 
         public AIConfig(ConfigFile cfg)
         {
@@ -43,10 +47,19 @@ namespace ImprovedAI
                 "Aliens size attacks to win decisively against remembered defenders and nearby fleets, not to just beat current SCV.");
             AlienAttackSuperiority = cfg.Bind("Commitment", "AlienAttackSuperiority", 2.0f,
                 "Required ratio of attacking fleet SCV to expected defender strength.");
+            ForcePooling = cfg.Bind("Commitment", "ForcePooling", true,
+                "Aliens pool idle fleets and surplus defenders into ONE focus attack at a time, instead of one starving fleet per goal.");
+            PoolMargin = cfg.Bind("Commitment", "PoolMargin", 1.1f,
+                "Pool until the focus fleet reaches this multiple of its goal's desired SCV.");
+            DefenderSurplusFactor = cfg.Bind("Commitment", "DefenderSurplusFactor", 1.25f,
+                "A defending fleet may be pooled only if its SCV exceeds this multiple of its own goal's desired SCV.");
+            AttackMaxRatioFloor = cfg.Bind("Commitment", "AttackMaxRatioFloor", 1.5f,
+                "Floor on an alien attack goal's max fleet/desired ratio (vanilla can drop it to 0, splitting waiting fleets).");
         }
 
         public bool UseThreatMemory => !VanillaAI.Value && ThreatMemory.Value;
         public bool UseDecisiveForce => !VanillaAI.Value && DecisiveForce.Value;
+        public bool UseForcePooling => !VanillaAI.Value && ForcePooling.Value;
 
         /// <summary>Apply section → key → value overrides for this run only (not saved).</summary>
         public void ApplyOverrides(System.Collections.Generic.Dictionary<string, System.Collections.Generic.Dictionary<string, string>> overrides)

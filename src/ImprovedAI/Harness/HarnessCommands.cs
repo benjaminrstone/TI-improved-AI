@@ -81,12 +81,19 @@ namespace ImprovedAI.Harness
             var designs = faction.shipDesigns.Where(d => d != null).ToList();
             bool HasMissiles(TISpaceShipTemplate d) => d.noseWeapons.Concat(d.hullWeapons).Any(w => w?.moduleTemplate?.ref_weapon is TIMissileTemplate);
             TISpaceShipTemplate design;
-            if (pick.StartsWith("design:", StringComparison.OrdinalIgnoreCase))
-                design = designs.FirstOrDefault(d => string.Equals(d.dataName, pick.Substring(7), StringComparison.OrdinalIgnoreCase));
-            else
-                design = (pick.Equals("best", StringComparison.OrdinalIgnoreCase) ? designs : designs.Where(HasMissiles))
+            // Prefer the faction's own designs; fall back to other human factions' (e.g. a laser/coilgun player has no missile boats).
+            var others = GameStateManager.AllHumanFactions().Where(f => f != faction).SelectMany(f => f.shipDesigns.Where(d => d != null)).ToList();
+            TISpaceShipTemplate Choose(List<TISpaceShipTemplate> pool)
+            {
+                if (pick.StartsWith("design:", StringComparison.OrdinalIgnoreCase))
+                    return pool.FirstOrDefault(d => string.Equals(d.dataName, pick.Substring(7), StringComparison.OrdinalIgnoreCase));
+                return (pick.Equals("best", StringComparison.OrdinalIgnoreCase) ? pool : pool.Where(HasMissiles))
                     .OrderByDescending(d => GameRead.Safe(() => d.TemplateSpaceCombatValue())).FirstOrDefault();
-            if (design == null) throw new ArgumentException($"no {pick} design for {factionName}");
+            }
+            design = Choose(designs) ?? Choose(others);
+            if (design == null)
+                throw new ArgumentException($"no {pick} design for {factionName}; designs: " + string.Join("; ", designs.Select(d =>
+                    d.dataName + "[" + string.Join(",", d.noseWeapons.Concat(d.hullWeapons).Select(w => w?.moduleTemplate?.ref_weapon?.GetType().Name + ":" + w?.moduleTemplate?.dataName)) + "]")));
 
             TIGameState location = faction.habs.Where(h => string.Equals(GameRead.System(h), system, StringComparison.OrdinalIgnoreCase))
                 .OrderByDescending(h => h.IsStation).ThenByDescending(h => h.tier).FirstOrDefault();
