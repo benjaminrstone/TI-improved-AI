@@ -19,6 +19,8 @@ namespace ImprovedAI
         public readonly ConfigEntry<bool> Strategy;
         public readonly ConfigEntry<bool> Disposition;
         public readonly ConfigEntry<float> StartingContempt;
+        public readonly ConfigEntry<string> ContemptDifficultyOffset;
+        public readonly ConfigEntry<string> ContemptLearning;
         public readonly ConfigEntry<bool> ThreatMemory;
         public readonly ConfigEntry<float> ThreatMemoryDays;
         public readonly ConfigEntry<bool> DecisiveForce;
@@ -58,7 +60,11 @@ namespace ImprovedAI
                 "Alien strategy state (doctrine, later contempt/clocks), derived per campaign and kept in a <save>.improvedai.json sidecar.");
             Disposition = cfg.Bind("Strategy", "Disposition", true,
                 "Per-human-faction alien contempt (falls when the faction beats alien expectations); scales attack sizing against that faction.");
-            StartingContempt = cfg.Bind("Strategy", "StartingContempt", 0.8f, "Initial alien contempt for every human faction (0..1).");
+            StartingContempt = cfg.Bind("Strategy", "StartingContempt", 0.8f, "Initial alien contempt for every human faction (0..1), at Normal difficulty.");
+            ContemptDifficultyOffset = cfg.Bind("Strategy", "ContemptDifficultyOffset", "0.15,0,-0.1,-0.2",
+                "Added to StartingContempt per difficulty (Cinematic,Normal,Veteran,Brutal): arrogant on easy, wary on hard (user, 2026-10-12).");
+            ContemptLearning = cfg.Bind("Strategy", "ContemptLearning", "0.7,1,1.25,1.5",
+                "Multiplier on contempt LOSSES per difficulty (Cinematic,Normal,Veteran,Brutal): how fast the aliens learn respect.");
             ThreatMemory = cfg.Bind("Perception", "ThreatMemory", true,
                 "Aliens judge human fleets by their best recent per-ship SCV, not the currently fitted design (defeats bait refits / empty magazines).");
             ThreatMemoryDays = cfg.Bind("Perception", "ThreatMemoryDays", 180f,

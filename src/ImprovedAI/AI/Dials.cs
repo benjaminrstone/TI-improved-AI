@@ -65,10 +65,33 @@ namespace ImprovedAI.AI
         public static float RaidHateWeight => Plugin.Cfg.RaidHateWeight.Value * Current().hateWeight;
         public static float ArrivalFightRatio => Plugin.Cfg.ArrivalFightRatio.Value * Current().arrivalFight;
 
+        // ---- Per-difficulty dials (vanilla difficulty 1 Cinematic .. 4 Brutal) ----
+
+        internal static int Difficulty
+        {
+            get { try { return Mathf.Clamp(PavonisInteractive.TerraInvicta.TIGlobalValuesState.GlobalValues.difficulty, 1, 4); } catch { return 2; } }
+        }
+
+        /// <summary>Picks this difficulty's entry from a "C,N,V,B" config list; falls back to the Normal entry, then to <paramref name="fallback"/>.</summary>
+        internal static float ByDifficulty(string list, float fallback)
+        {
+            var parts = (list ?? "").Split(',');
+            float Parse(int i) => i < parts.Length && float.TryParse(parts[i].Trim(), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var v) ? v : float.NaN;
+            float x = Parse(Difficulty - 1);
+            if (float.IsNaN(x)) x = Parse(1);
+            return float.IsNaN(x) ? fallback : x;
+        }
+
+        /// <summary>Starting contempt before vanilla's learned respect is applied: arrogant on easy, wary on hard.</summary>
+        public static float StartingContempt => Mathf.Clamp01(Plugin.Cfg.StartingContempt.Value + ByDifficulty(Plugin.Cfg.ContemptDifficultyOffset.Value, 0f));
+        /// <summary>Multiplier on contempt losses: how fast the aliens learn respect.</summary>
+        public static float ContemptLearning => Mathf.Max(0f, ByDifficulty(Plugin.Cfg.ContemptLearning.Value, 1f));
+
         /// <summary>Snapshot for the journal, so every run records the effective dials it played with.</summary>
         public static object Snapshot() => new
         {
             AttackSuperiority, ShortcutSuperiority, PoolMargin, PoolReserveFraction, MaxRaidGoals, MaxCaptureGoals, RaidImportance, RaidHateWeight, ArrivalFightRatio,
+            Difficulty, StartingContempt, ContemptLearning,
         };
     }
 }

@@ -4,7 +4,7 @@ Every knob the mod adds or turns, with its current value and its intended direct
 
 **Principle (DESIGN P2).** Difficulty sets the aliens' *constraints* (supply, reach, how far they may concentrate, which doctrines they may use), not how smart they are.
 
-**Status:** every mod dial is one value today, shared by all difficulties (the plugin config in `BepInEx/config/com.improvedai.terrainvicta.cfg`). Per-difficulty tables come once soaks on several difficulties exist.
+**Status:** the contempt dials are per difficulty (a "C,N,V,B" list); every other mod dial is one value today, shared by all difficulties (the plugin config in `BepInEx/config/com.improvedai.terrainvicta.cfg`). Per-difficulty tables come once soaks on several difficulties exist.
 
 Direction key:
 - `+` means this dial should rise with difficulty.
@@ -15,6 +15,9 @@ Direction key:
 
 | Section / key | Now | Direction | What it changes |
 |---|---|---|---|
+| Strategy / StartingContempt | 0.8 | (base) | Starting contempt at Normal, before vanilla's learned respect. |
+| Strategy / ContemptDifficultyOffset | +0.15 / 0 / −0.1 / −0.2 | `−` | **Per difficulty (C/N/V/B).** Added to StartingContempt (user, 2026-10-12). |
+| Strategy / ContemptLearning | 0.7 / 1 / 1.25 / 1.5 | `+` | **Per difficulty.** Multiplier on contempt losses: how fast the aliens learn respect. |
 | Perception / ThreatMemory | on | = | Remembering a fleet's best recent showing is competence, not difficulty. |
 | Perception / ThreatMemoryDays | 180 | `+` (maybe) | A shorter memory leaves more room for deception at low difficulty. |
 | Commitment / DecisiveForce | on | = | |

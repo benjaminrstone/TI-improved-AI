@@ -207,7 +207,7 @@ The user agreed this framing on 2026-10-11. The alien attitude toward each human
 - **What moves it back up:** losses that confirm their view.
 - **Fury** is a spike in hate plus less calculation. It comes from human nuclear use and discovered deceptions.
 - **It's visible.** The player sees an estimate of both axes. Vanilla already shows estimated hate. Reading the meter is part of the game: provoking hate while still held in contempt is the dangerous corner, and a "Wary" alien can be bargained with.
-- **Open question:** should difficulty set starting contempt and how fast it erodes? Arrogance as a constraint is arguably in the spirit of P2, but it tunes a flaw rather than a resource.
+- **Difficulty sets starting contempt and how fast it erodes** (user, 2026-10-12): arrogant and slow to learn on Cinematic, wary and quick to learn on Brutal.
 
 ### P5. Legibility and counterplay
 
@@ -323,6 +323,10 @@ The user made these on 2026-10-11:
   - Alien fleets defend their bases and stations (there are Hydras aboard), unless the odds are hopeless.
   - Attack fleets that arrive to roughly even odds fight rather than burn fuel going home.
 - **Raid targeting (2026-10-12).** Weigh value and hate together. A faction the aliens hate intensely has its assets prioritised anywhere; at lower hate they go for the most valuable targets.
+- **Fresh mine spam (2026-10-12).** Leave it as is. Fresh tier-1 mines get a grace period (about 8 months from goal to kill) because raids hit bigger bases first.
+- **Contempt by difficulty (2026-10-12).** Yes. Difficulty sets both the starting contempt (higher on easy: arrogant, careless raids) and how fast it erodes (faster on hard). Dials `ContemptDifficultyOffset` and `ContemptLearning` (DIALS.md).
+- **Terminus (2026-10-12).** Completing the full terminus is a hard alien victory (game over), LW2 Avatar-style: a visible meter, knocked back by strikes on the construction site.
+- **Chapter playtest (2026-10-12).** Build the one-command playtest setup after M2 steps 4 and 6 land, so there is more to feel.
 
 ## Engineering rules
 

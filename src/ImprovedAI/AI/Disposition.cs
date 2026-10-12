@@ -19,7 +19,7 @@ namespace ImprovedAI.AI
 
         public static float Contempt(TIFactionState human)
         {
-            if (!On || human == null) return Plugin.Cfg.StartingContempt.Value;
+            if (!On || human == null) return Dials.StartingContempt;
             var map = AlienStrategy.Current.contempt;
             string k = GameRead.Faction(human);
             if (!map.TryGetValue(k, out var v)) map[k] = v = Initial(human);
@@ -30,12 +30,15 @@ namespace ImprovedAI.AI
         /// Starting contempt for a faction with no recorded history (new game, or a save made without the mod): seeded from
         /// what vanilla has already learned. perceivedEnemyFleetStrengthFactor (0.67..1.5, nudged after every battle) is
         /// the aliens' learned respect: 1.0 -> StartingContempt, 1.5 (they have learned to fear you) -> StartingContempt - 0.4.
+        /// StartingContempt is per difficulty (Dials), and the learned part scales with how fast this difficulty learns.
         /// </summary>
         public static float Initial(TIFactionState human)
         {
             float factor = 1f;
             try { factor = GameStateManager.AlienFaction().GetPerceivedEnemyFleetStrengthFactor(human); } catch { }
-            return Mathf.Clamp01(Plugin.Cfg.StartingContempt.Value - 0.8f * (factor - 1f));
+            float learned = 0.8f * (factor - 1f);
+            if (learned > 0f) learned *= Dials.ContemptLearning;
+            return Mathf.Clamp01(Dials.StartingContempt - learned);
         }
 
         /// <summary>At load: make sure every human faction has a value, and record where each starts.</summary>
@@ -50,6 +53,7 @@ namespace ImprovedAI.AI
         public static void Shift(TIFactionState human, float delta, string why)
         {
             if (!On || human == null || human.IsAlienFaction || Math.Abs(delta) < 1e-4f) return;
+            if (delta < 0f) delta *= Dials.ContemptLearning;
             float before = Contempt(human);
             float after = Mathf.Clamp01(before + delta);
             AlienStrategy.Current.contempt[GameRead.Faction(human)] = after;
