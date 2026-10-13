@@ -30,7 +30,7 @@ State at the end of the second working session. Read this first, then `docs/M2-P
 | 6. Economy (mine what they lack; base cap → exotics upkeep) | ✅ v2, probe gate passed (single run; soak pending): bases 13 → 18, the cap self-limits as exotics drain, new bases yield 34% metals + nobles against 24% in alien income. v1: bases 13 → 19, then the cap self-limited as exotics fell. Generic picks went metal-rich; the "insecure upkeep" rule kept founding water moons; v2 redirects it. See M2-PLAN step 6. |
 
 **Also not started:**
-- the doctrine "shame" shift;
+- the doctrine "shame" shift: **v1 built 2026-10-13**, gate probe `doctrine-shame-shift` runs in the pending regression pass;
 - opening-weighted doctrine selection;
 - fury;
 - desperation → P4 escalation;

@@ -90,6 +90,16 @@ Political posture also scales raid and capture slots by ×(1.25 − 0.5 × puppe
 - Past a shame threshold, shift one axis.
 - The shift is visible through behaviour now, and through captives and the posture panel later.
 
+**Built (v1, 2026-10-13, `AI/DoctrineShift.cs`):**
+- **Ledger.** One row per month: alien ships lost vs human ships destroyed (alien-vs-human battles), alien habs lost vs human habs destroyed (a hab counts as 5 ships).
+- **Shame.** Monthly, over 6 months: loss share = lost / (lost + destroyed). Shame grows by (share − 0.55) when there were at least 4 ship-equivalents, and decays by 0.05/month otherwise. Losing 80% of exchanges shifts in about 4 months; losing 60%, in years.
+- **Shift.** At shame 1.0 the strategic focus is abandoned. The new one comes from the difficulty pool, the opposite temperament weighted ×3 (aggressive: Raider, Strangler, Blitz, Hunter-killer, Earth presence, Land grab). The choice is deterministic per campaign and shift count. Shame and the ledger reset; fleet axes and posture stay; the shift triggers a redesign.
+- **Persistence:** `shame`, `shifts` and `ledger` in the sidecar.
+- **Journal:** `shame` (monthly) and `doctrine` `ev=shifted`.
+- **Harness:** `ai.ledger <lost> <destroyed> [habsLost] [habsDestroyed]`, `ai.shame <x>`.
+- **Probe:** `doctrine-shame-shift` (injected defeats). `doctrine-raider` and `doctrine-bastion` assert no shift without them.
+- **Open:** opening-weighted selection (see HANDOFF open questions).
+
 ## Step 3: The Raider capability (fixes E5)
 
 **Finding.** Bases die only to marines (`DestroyHabOperation` needs `AssaultCombatValue > 0`) or to sustained bombardment. Alien raid fleets carry neither.

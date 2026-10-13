@@ -18,6 +18,13 @@ Direction key:
 | Strategy / StartingContempt | 0.8 | (base) | Starting contempt at Normal, before vanilla's learned respect. |
 | Strategy / ContemptDifficultyOffset | +0.15 / 0 / −0.1 / −0.2 | `−` | **Per difficulty (C/N/V/B).** Added to StartingContempt (user, 2026-10-12). |
 | Strategy / ContemptLearning | 0.7 / 1 / 1.25 / 1.5 | `+` | **Per difficulty.** Multiplier on contempt losses: how fast the aliens learn respect. |
+| Strategy / DoctrineShift | on | = | Doctrinal shame (P6). |
+| Strategy / ShameWindowMonths | 6 | = | Months judged. |
+| Strategy / ShameHabWeight | 5 | = | A hab counts as 5 ships. |
+| Strategy / ShameMinActivity | 4 | = | Minimum fighting before the doctrine is judged. |
+| Strategy / ShameTolerance | 0.55 | `−` (maybe) | Loss share above which shame grows. Lower means the command abandons failing plans sooner (more adaptive). |
+| Strategy / ShameRate / ShameDecay / ShameThreshold | 1 / 0.05 / 1 | `+` rate (maybe) | Speed of inertia. A slower shift is a bigger exploitable flaw, which fits lower difficulties. |
+| Strategy / ShiftOppositeWeight | 3 | = | Prefer the opposite temperament on a shift. |
 | Perception / ThreatMemory | on | = | Remembering a fleet's best recent showing is competence, not difficulty. |
 | Perception / ThreatMemoryDays | 180 | `+` (maybe) | A shorter memory leaves more room for deception at low difficulty. |
 | Commitment / DecisiveForce | on | = | |

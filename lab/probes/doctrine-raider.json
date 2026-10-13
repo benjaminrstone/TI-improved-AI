@@ -9,7 +9,8 @@
   "asserts": [
     "events('doctrine')[-1]['doctrine']['focus'] == 'Raider'",
     "events('doctrine')[-1]['dials']['MaxCaptureGoals'] > 6",
-    "count('goal+', type='CaptureHab') >= 6"
+    "count('goal+', type='CaptureHab') >= 6",
+    "count('doctrine', ev='shifted') == 0"
   ],
   "info": [
     "events('doctrine')[-1]['dials']",

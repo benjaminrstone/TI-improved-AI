@@ -41,6 +41,18 @@ namespace ImprovedAI.AI
         /// <summary>Per human faction template name, 0..1 (DESIGN "Disposition"); filled in by M2 step 5.</summary>
         public Dictionary<string, float> contempt = new Dictionary<string, float>();
         public List<string> history = new List<string>();
+        /// <summary>Doctrinal shame (P6), 0..threshold; past the threshold the command abandons its strategic focus.</summary>
+        public float shame;
+        /// <summary>How many times the focus has been abandoned this campaign (seeds the next choice).</summary>
+        public int shifts;
+        /// <summary>Results under the current doctrine, one row per game month (rolling window, DoctrineShift).</summary>
+        public List<LedgerMonth> ledger = new List<LedgerMonth>();
+    }
+
+    public class LedgerMonth
+    {
+        public string month;
+        public int alienShipsLost, humanShipsKilled, alienHabsLost, humanHabsKilled;
     }
 
     /// <summary>

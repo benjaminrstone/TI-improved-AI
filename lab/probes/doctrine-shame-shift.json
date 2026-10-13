@@ -1,0 +1,27 @@
+{
+  "name": "doctrine-shame-shift",
+  "notes": "P6 doctrinal shame gate: force focus=Raider, then inject four months of lopsided exchanges (30 alien ships lost vs 5 destroyed per month) through the same ledger battles fill. Expect shame to climb ~0.3/month and the focus to be abandoned for another (opposite temperament preferred) after ~4 months, with the dials following. Real battles almost never go this badly in the fixture chapters (aliens decline bad fights), so natural shifts are judged from soaks; doctrine-raider and doctrine-bastion assert no shift without injections.",
+  "fixture": "accel-2034-fusion-drives",
+  "runDays": 160,
+  "commands": [
+    "ai.doctrine focus=Raider",
+    "ai.ledger 30 5",
+    "@31 ai.ledger 30 5",
+    "@61 ai.ledger 30 5",
+    "@92 ai.ledger 30 5",
+    "@122 ai.ledger 30 5"
+  ],
+  "asserts": [
+    "count('shame') >= 3",
+    "events('shame')[1]['after'] > events('shame')[0]['after'] > 0",
+    "count('doctrine', ev='shifted') >= 1",
+    "events('doctrine', ev='shifted')[0]['from'] == 'Raider' and events('doctrine', ev='shifted')[0]['to'] != 'Raider'",
+    "events('doctrine', ev='shifted')[0]['dials']['MaxRaidGoals'] != events('doctrine', ev='forced')[-1]['dials']['MaxRaidGoals'] or events('doctrine', ev='shifted')[0]['dials']['MaxCaptureGoals'] != events('doctrine', ev='forced')[-1]['dials']['MaxCaptureGoals']"
+  ],
+  "info": [
+    "[(e['t'], e['focus'], round(e['before'], 2), round(e['after'], 2), e['lossShare']) for e in events('shame')]",
+    "[(e['t'], e['from'], e['to'], e['why']) for e in events('doctrine', ev='shifted')]",
+    "events('doctrine', ev='shifted')[0]['dials'] if count('doctrine', ev='shifted') else None",
+    "count('goal+', type='CaptureHab')"
+  ]
+}

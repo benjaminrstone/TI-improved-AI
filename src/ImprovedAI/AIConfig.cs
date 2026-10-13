@@ -21,6 +21,15 @@ namespace ImprovedAI
         public readonly ConfigEntry<float> StartingContempt;
         public readonly ConfigEntry<string> ContemptDifficultyOffset;
         public readonly ConfigEntry<string> ContemptLearning;
+        public readonly ConfigEntry<bool> DoctrineShift;
+        public readonly ConfigEntry<int> ShameWindowMonths;
+        public readonly ConfigEntry<float> ShameHabWeight;
+        public readonly ConfigEntry<float> ShameMinActivity;
+        public readonly ConfigEntry<float> ShameTolerance;
+        public readonly ConfigEntry<float> ShameRate;
+        public readonly ConfigEntry<float> ShameDecay;
+        public readonly ConfigEntry<float> ShameThreshold;
+        public readonly ConfigEntry<float> ShiftOppositeWeight;
         public readonly ConfigEntry<bool> FleetDoctrine;
         public readonly ConfigEntry<float> WeaponFocusOdds;
         public readonly ConfigEntry<float> WeaponFitBonus;
@@ -81,6 +90,16 @@ namespace ImprovedAI
                 "Added to StartingContempt per difficulty (Cinematic,Normal,Veteran,Brutal): arrogant on easy, wary on hard (user, 2026-10-12).");
             ContemptLearning = cfg.Bind("Strategy", "ContemptLearning", "0.7,1,1.25,1.5",
                 "Multiplier on contempt LOSSES per difficulty (Cinematic,Normal,Veteran,Brutal): how fast the aliens learn respect.");
+            DoctrineShift = cfg.Bind("Strategy", "DoctrineShift", true,
+                "Doctrinal shame (P6): a strategic focus that keeps losing its exchanges is abandoned, late, for another.");
+            ShameWindowMonths = cfg.Bind("Strategy", "ShameWindowMonths", 6, "Months of results the command judges its doctrine on.");
+            ShameHabWeight = cfg.Bind("Strategy", "ShameHabWeight", 5f, "A hab lost or destroyed counts as this many ships in the exchange.");
+            ShameMinActivity = cfg.Bind("Strategy", "ShameMinActivity", 4f, "Below this many ship-equivalents lost + destroyed in the window, the doctrine is not judged.");
+            ShameTolerance = cfg.Bind("Strategy", "ShameTolerance", 0.55f, "Loss share (lost / (lost + destroyed)) above which shame grows.");
+            ShameRate = cfg.Bind("Strategy", "ShameRate", 1f, "Shame per month = (loss share - tolerance) x this.");
+            ShameDecay = cfg.Bind("Strategy", "ShameDecay", 0.05f, "Shame lost per month when the doctrine is not failing.");
+            ShameThreshold = cfg.Bind("Strategy", "ShameThreshold", 1f, "Shame at which the focus is abandoned.");
+            ShiftOppositeWeight = cfg.Bind("Strategy", "ShiftOppositeWeight", 3f, "Weight of opposite-temperament foci (aggressive <-> defensive) when shifting.");
             FleetDoctrine = cfg.Bind("Fleet", "FleetDoctrine", true,
                 "Bias alien ship designs and build picks by the doctrine's weapon focus, hull philosophy and engagement style (M2 step 4).");
             WeaponFocusOdds = cfg.Bind("Fleet", "WeaponFocusOdds", 3f,
@@ -149,6 +168,7 @@ namespace ImprovedAI
         public bool UseStrategy => !VanillaAI.Value && Strategy.Value;
         public bool UseDisposition => UseStrategy && Disposition.Value;
         public bool UseFleetDoctrine => UseStrategy && FleetDoctrine.Value;
+        public bool UseDoctrineShift => UseStrategy && DoctrineShift.Value;
         public bool UseMineWhatYouLack => !VanillaAI.Value && MineWhatYouLack.Value;
         public bool UseExoticsUpkeep => !VanillaAI.Value && ExoticsUpkeep.Value;
         public bool UseThreatMemory => !VanillaAI.Value && ThreatMemory.Value;

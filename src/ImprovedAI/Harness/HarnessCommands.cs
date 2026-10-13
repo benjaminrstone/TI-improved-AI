@@ -41,6 +41,16 @@ namespace ImprovedAI.Harness
                     case "ai.doctrine":
                         output.Add(AI.AlienStrategy.Force(line.Substring(parts[0].Length).Trim()));
                         break;
+                    case "ai.ledger":
+                        // ai.ledger <alienShipsLost> <humanShipsKilled> [alienHabsLost] [humanHabsKilled]: add to this month's doctrine ledger.
+                        AI.DoctrineShift.Record(int.Parse(parts[1]), int.Parse(parts[2]), parts.Length > 3 ? int.Parse(parts[3]) : 0, parts.Length > 4 ? int.Parse(parts[4]) : 0);
+                        output.Add($"> ledger +{parts[1]} lost / +{parts[2]} destroyed");
+                        break;
+                    case "ai.shame":
+                        if (AI.AlienStrategy.Current == null) { output.Add("! no strategy state"); break; }
+                        AI.AlienStrategy.Current.shame = float.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture);
+                        output.Add("> shame " + parts[1]);
+                        break;
                     case "ai.drainammo":
                         output.Add(DrainAmmo(parts[1], parts[2]));
                         break;
