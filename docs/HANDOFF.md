@@ -46,11 +46,15 @@ State at the end of the second working session. Read this first, then `docs/M2-P
 - Terminus completion = hard alien victory, LW2 Avatar-style.
 - Chapter playtest: build the one-command setup **after steps 4 and 6 land**. That is now next.
 
+## Decisions from 2026-10-13 (recorded in DESIGN.md)
+
+- No buying from Earth for the aliens. v1 is built (`NoEarthPurchases`); probe `econ-earth-buy` still to run on vanilla, then on the mod.
+- Exotics upkeep: bases and exotic warships should definitely compete. The widening wormhole is part of that balance, so tune the upkeep numbers together with the widening clock.
+- Doctrine selection stays seeded: no opening-weighted selection.
+
 ## Open questions for the user
 
-1. **The aliens buy materials from Earth.** When short of a space resource, vanilla lets any faction, aliens included, substitute boost plus money (`TIResourcesCost.GetBoostSubstitutedCost`). That is how they keep building on empty metals. It sits oddly with the narrow-wormhole lore. Should the aliens lose it (a much harder metals constraint), or keep it?
-2. **Exotics upkeep vs exotic warships.** At 3/base/month, 13 bases plus capital hulls cost about 53/month against a 40/month drip (Normal), so the stockpile drains slowly. Is bases competing with exotic warships the intended feel, or should the drip be raised (widening clock) first?
-3. **Opening-weighted doctrine selection.** Today the doctrine is derived from the campaign seed at load, so every save of a campaign agrees (the step 1 gate). Reacting to the opening (humans rush space → Raider and Strangler more likely; one faction dominates → Divide and rule) needs a decision point after the opening. Proposal: a provisional doctrine for the first year of a new campaign, settled once from what the humans did and then fixed in the sidecar. Saves made without the mod keep the seed derivation. Agree?
+None pending.
 
 ## Next steps (recommended order)
 

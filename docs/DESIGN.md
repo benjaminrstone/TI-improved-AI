@@ -327,6 +327,9 @@ The user made these on 2026-10-11:
 - **Contempt by difficulty (2026-10-12).** Yes. Difficulty sets both the starting contempt (higher on easy: arrogant, careless raids) and how fast it erodes (faster on hard). Dials `ContemptDifficultyOffset` and `ContemptLearning` (DIALS.md).
 - **Terminus (2026-10-12).** Completing the full terminus is a hard alien victory (game over), LW2 Avatar-style: a visible meter, knocked back by strikes on the construction site.
 - **Chapter playtest (2026-10-12).** Build the one-command playtest setup after M2 steps 4 and 6 land, so there is more to feel.
+- **No buying from Earth (2026-10-13).** The aliens lose vanilla's boost-and-money substitution for missing space resources. They build only from what they mine, plus the exotics drip. Metals become a real constraint, and alien mining a real target.
+- **Exotics upkeep (2026-10-13).** Bases and exotic warships should definitely compete for the drip. The widening wormhole is part of that balance, so the upkeep numbers are tuned together with the widening clock, not on their own.
+- **Doctrine selection stays seeded (2026-10-13).** No opening-weighted selection. Variety comes from the campaign seed and from shame shifts.
 
 ## Engineering rules
 

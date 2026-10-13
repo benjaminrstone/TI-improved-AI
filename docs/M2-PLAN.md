@@ -194,6 +194,8 @@ It **rises** slowly with alien victories. Fury (from nukes or discovered decepti
 | Metals + nobles share of new bases' yields (alien income at start: 24%) | no new bases | 28% | **34%** |
 | "Insecure upkeep" rule targets | — | water moons | Metals, NobleMetals (Triton, Beatrice) |
 
+**No buying from Earth (user decision 2026-10-13; v1 built).** A prefix on `TIResourcesCost.GetBoostSubstitutedCost` returns the plain space cost for the aliens. That method is the one funnel for ship builds, refits, repairs and hab modules. The monthly `economy` record counts alien shortfalls and refusals, plus boost and money stock and income. Probe `econ-earth-buy`: run it on vanilla first. Alien boost reads 0 in every run so far, so either they never have boost (and never actually bought), or it is all spent on substitution.
+
 The generic picks still vary between runs, because vanilla picks weighted-random from its top ~10 sites. The soak decides whether metals stop sitting near zero, and what upkeep does to alien strength.
 
 - **Mine what you lack.** Weight alien hab-site choice by projected stock-to-need for each resource. **Soak:** alien metals no longer sit near zero while water sits at a million.

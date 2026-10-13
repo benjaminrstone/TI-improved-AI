@@ -146,7 +146,50 @@ namespace ImprovedAI.AI
                 drip, upkeep, baseUpkeep = baseUp, shipUpkeep = shipUp, charged,
                 bases = Bases(alien),
                 cap,
+                // Alien cost computations this month that lacked a space resource (vanilla would price Earth boost +
+                // money for it), and how many of those the mod refused.
+                earthShortfalls = NoEarthPurchases.Shortfalls, earthBlocked = NoEarthPurchases.Blocked,
+                boost = (float)Math.Round(alien.GetCurrentResourceAmount(FactionResource.Boost), 1),
+                boostIncome = (float)Math.Round(GameRead.Safe(() => alien.GetMonthlyIncome(FactionResource.Boost)), 1),
+                money = (float)Math.Round(alien.GetCurrentResourceAmount(FactionResource.Money), 1),
+                moneyIncome = (float)Math.Round(GameRead.Safe(() => alien.GetMonthlyIncome(FactionResource.Money)), 1),
             });
+            NoEarthPurchases.Shortfalls = NoEarthPurchases.Blocked = 0;
+        }
+    }
+
+    /// <summary>
+    /// No buying from Earth (user, 2026-10-13). Vanilla prices a missing space resource as boost + money from Earth's
+    /// surface for any faction (TIResourcesCost.GetBoostSubstitutedCost: ship builds, refits, repairs, hab modules).
+    /// For the aliens that contradicts the narrow wormhole: they build only from what they mine, plus the exotics drip.
+    /// With the switch on, the alien cost stays the plain space-resource cost, so a shortfall means waiting (or mining).
+    /// Counts are kept either way (monthly "economy" record) to show how often vanilla would have bought from Earth.
+    /// </summary>
+    [HarmonyPatch(typeof(TIResourcesCost), nameof(TIResourcesCost.GetBoostSubstitutedCost))]
+    internal static class NoEarthPurchases
+    {
+        internal static int Shortfalls, Blocked;
+
+        private static bool Prefix(TIResourcesCost __instance, TIFactionState faction, List<ResourceValue> availableResources, ref TIResourcesCost __result)
+        {
+            if (faction == null || !faction.IsAlienFaction) return true;
+            bool short_ = false;
+            try
+            {
+                foreach (var rv in __instance.resourceCosts)
+                {
+                    if (rv.value <= 0f || TIResourcesCost.irreplaceableSpaceResources.Contains(rv.resource) || !TIResourcesCost.replaceableSpaceResources.Contains(rv.resource)) continue;
+                    float have = availableResources == null ? faction.GetCurrentResourceAmount(rv.resource)
+                        : availableResources.Where(a => a.resource == rv.resource).Select(a => a.value).FirstOrDefault();
+                    if (have < rv.value) { short_ = true; break; }
+                }
+            }
+            catch { }
+            if (short_) Shortfalls++;
+            if (!Plugin.Cfg.UseNoEarthPurchases) return true;
+            if (short_) Blocked++;
+            __result = new TIResourcesCost(__instance);
+            return false;
         }
     }
 

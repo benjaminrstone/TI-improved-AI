@@ -40,6 +40,7 @@ namespace ImprovedAI
         public readonly ConfigEntry<bool> MineWhatYouLack;
         public readonly ConfigEntry<float> NeedWeightMax;
         public readonly ConfigEntry<float> ResourceBaseNeedThreshold;
+        public readonly ConfigEntry<bool> NoEarthPurchases;
         public readonly ConfigEntry<bool> ExoticsUpkeep;
         public readonly ConfigEntry<float> BaseExoticsUpkeep;
         public readonly ConfigEntry<float> CapitalShipExoticsUpkeep;
@@ -119,6 +120,8 @@ namespace ImprovedAI
             NeedWeightMax = cfg.Bind("Economy", "NeedWeightMax", 4f, "Need weights per resource are clamped to [1/this, this].");
             ResourceBaseNeedThreshold = cfg.Bind("Economy", "ResourceBaseNeedThreshold", 2f,
                 "The planner's 'resource base when upkeep is insecure' rule targets resources at or above this need weight (instead of defaulting to water).");
+            NoEarthPurchases = cfg.Bind("Economy", "NoEarthPurchases", true,
+                "Aliens can't substitute boost + money from Earth for missing space resources (user, 2026-10-13): they build from what they mine.");
             ExoticsUpkeep = cfg.Bind("Economy", "ExoticsUpkeep", true,
                 "Alien bases and capital hulls cost exotics each month, and the fixed alien base cap becomes what the exotics drip and stockpile can carry.");
             BaseExoticsUpkeep = cfg.Bind("Economy", "BaseExoticsUpkeep", 3f, "Exotics per alien base per month.");
@@ -171,6 +174,7 @@ namespace ImprovedAI
         public bool UseDoctrineShift => UseStrategy && DoctrineShift.Value;
         public bool UseMineWhatYouLack => !VanillaAI.Value && MineWhatYouLack.Value;
         public bool UseExoticsUpkeep => !VanillaAI.Value && ExoticsUpkeep.Value;
+        public bool UseNoEarthPurchases => !VanillaAI.Value && NoEarthPurchases.Value;
         public bool UseThreatMemory => !VanillaAI.Value && ThreatMemory.Value;
         public bool UseDecisiveForce => !VanillaAI.Value && DecisiveForce.Value;
         public bool UseForcePooling => !VanillaAI.Value && ForcePooling.Value;
