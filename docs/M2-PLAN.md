@@ -196,6 +196,13 @@ It **rises** slowly with alien victories. Fury (from nukes or discovered decepti
 
 **No buying from Earth (user decision 2026-10-13; v1 built).** A prefix on `TIResourcesCost.GetBoostSubstitutedCost` returns the plain space cost for the aliens. That method is the one funnel for ship builds, refits, repairs and hab modules. The monthly `economy` record counts alien shortfalls and refusals, plus boost and money stock and income. Probe `econ-earth-buy`: run it on vanilla first. Alien boost reads 0 in every run so far, so either they never have boost (and never actually bought), or it is all spent on substitution.
 
+**Widening wormhole v1 (2026-10-13, `AI/Wormhole.cs`).** The P2 soft clock, built now because the user tied the upkeep balance to it.
+- The alien drip multiplier (`AI_GetExoticsMultiplier`, read only for alien exotics income) × W, where W = 1 + rate × calendar campaign years, capped at 3.
+- Rate per difficulty: 0.03 / 0.05 / 0.07 / 0.09.
+- Normal at 2034 (~8 years): W ≈ 1.4, so the drip is ≈ 56/month against ≈ 53 upkeep for 13 bases.
+- Not yet: setbacks from strikes at the terminus; the terminus project.
+- Numbers to tune with soaks (user: "not sure the current numbers are right").
+
 The generic picks still vary between runs, because vanilla picks weighted-random from its top ~10 sites. The soak decides whether metals stop sitting near zero, and what upkeep does to alien strength.
 
 - **Mine what you lack.** Weight alien hab-site choice by projected stock-to-need for each resource. **Soak:** alien metals no longer sit near zero while water sits at a million.

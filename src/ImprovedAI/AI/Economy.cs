@@ -143,7 +143,8 @@ namespace ImprovedAI.AI
                 need = Need(alien).ToDictionary(kv => kv.Key.ToString(), kv => (float)Math.Round(kv.Value, 2)),
                 shares = SpendShares(alien).ToDictionary(kv => kv.Key.ToString(), kv => (float)Math.Round(kv.Value, 3)),
                 stock = Basic.Concat(new[] { FactionResource.Exotics }).ToDictionary(r => r.ToString(), r => (float)Math.Round(alien.GetCurrentResourceAmount(r))),
-                drip, upkeep, baseUpkeep = baseUp, shipUpkeep = shipUp, charged,
+                drip, widening = (float)Math.Round(Wormhole.Widening, 3), campaignYears = (float)Math.Round(Wormhole.CampaignYears, 2),
+                upkeep, baseUpkeep = baseUp, shipUpkeep = shipUp, charged,
                 bases = Bases(alien),
                 cap,
                 // Alien cost computations this month that lacked a space resource (vanilla would price Earth boost +

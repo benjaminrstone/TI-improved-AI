@@ -41,6 +41,9 @@ namespace ImprovedAI
         public readonly ConfigEntry<float> NeedWeightMax;
         public readonly ConfigEntry<float> ResourceBaseNeedThreshold;
         public readonly ConfigEntry<bool> NoEarthPurchases;
+        public readonly ConfigEntry<bool> Widening;
+        public readonly ConfigEntry<string> WideningPerYear;
+        public readonly ConfigEntry<float> WideningMax;
         public readonly ConfigEntry<bool> ExoticsUpkeep;
         public readonly ConfigEntry<float> BaseExoticsUpkeep;
         public readonly ConfigEntry<float> CapitalShipExoticsUpkeep;
@@ -122,6 +125,11 @@ namespace ImprovedAI
                 "The planner's 'resource base when upkeep is insecure' rule targets resources at or above this need weight (instead of defaulting to water).");
             NoEarthPurchases = cfg.Bind("Economy", "NoEarthPurchases", true,
                 "Aliens can't substitute boost + money from Earth for missing space resources (user, 2026-10-13): they build from what they mine.");
+            Widening = cfg.Bind("Economy", "Widening", true,
+                "The widening wormhole (P2 soft clock): the alien exotics drip grows with campaign years.");
+            WideningPerYear = cfg.Bind("Economy", "WideningPerYear", "0.03,0.05,0.07,0.09",
+                "Drip growth per calendar campaign year, per difficulty (Cinematic,Normal,Veteran,Brutal): drip x (1 + this x years).");
+            WideningMax = cfg.Bind("Economy", "WideningMax", 3f, "Cap on the widening factor.");
             ExoticsUpkeep = cfg.Bind("Economy", "ExoticsUpkeep", true,
                 "Alien bases and capital hulls cost exotics each month, and the fixed alien base cap becomes what the exotics drip and stockpile can carry.");
             BaseExoticsUpkeep = cfg.Bind("Economy", "BaseExoticsUpkeep", 3f, "Exotics per alien base per month.");
@@ -175,6 +183,7 @@ namespace ImprovedAI
         public bool UseMineWhatYouLack => !VanillaAI.Value && MineWhatYouLack.Value;
         public bool UseExoticsUpkeep => !VanillaAI.Value && ExoticsUpkeep.Value;
         public bool UseNoEarthPurchases => !VanillaAI.Value && NoEarthPurchases.Value;
+        public bool UseWidening => !VanillaAI.Value && Widening.Value;
         public bool UseThreatMemory => !VanillaAI.Value && ThreatMemory.Value;
         public bool UseDecisiveForce => !VanillaAI.Value && DecisiveForce.Value;
         public bool UseForcePooling => !VanillaAI.Value && ForcePooling.Value;

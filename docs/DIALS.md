@@ -56,6 +56,9 @@ Direction key:
 | Economy / NeedWeightMax | 4 | = | Clamp on need weights. |
 | Economy / ResourceBaseNeedThreshold | 2 | = | The planner's "insecure upkeep" base rule targets resources at or above this need. |
 | Economy / NoEarthPurchases | on | = | Aliens can't buy missing space resources from Earth with boost + money (user, 2026-10-13). A lore constraint, the same at every level. |
+| Economy / Widening | on | = | The widening wormhole (P2 soft clock). |
+| Economy / WideningPerYear | 0.03 / 0.05 / 0.07 / 0.09 | `+` | **Per difficulty.** Drip × (1 + this × calendar campaign years). This is the difficulty lever that replaces vanilla's fixed `AI_AlienExoticMultiplier_*` growth. |
+| Economy / WideningMax | 3 | `+` | Cap on the widening factor. |
 | Economy / ExoticsUpkeep | on | = | Bases and capital hulls cost exotics; replaces the fixed base cap. |
 | Economy / BaseExoticsUpkeep | 3 / month | `−` | Lower means more bases. **Replaces vanilla `maxAlienBaseGoals_*` as the expansion limit.** The drip already scales with difficulty (`AI_AlienExoticMultiplier_*` 1/2/3/4). |
 | Economy / CapitalShipExoticsUpkeep | 0.5 / month | `−` | Large hulls. |
