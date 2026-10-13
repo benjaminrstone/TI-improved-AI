@@ -50,10 +50,11 @@ State at the end of the second working session. Read this first, then `docs/M2-P
 
 1. **The aliens buy materials from Earth.** When short of a space resource, vanilla lets any faction, aliens included, substitute boost plus money (`TIResourcesCost.GetBoostSubstitutedCost`). That is how they keep building on empty metals. It sits oddly with the narrow-wormhole lore. Should the aliens lose it (a much harder metals constraint), or keep it?
 2. **Exotics upkeep vs exotic warships.** At 3/base/month, 13 bases plus capital hulls cost about 53/month against a 40/month drip (Normal), so the stockpile drains slowly. Is bases competing with exotic warships the intended feel, or should the drip be raised (widening clock) first?
+3. **Opening-weighted doctrine selection.** Today the doctrine is derived from the campaign seed at load, so every save of a campaign agrees (the step 1 gate). Reacting to the opening (humans rush space → Raider and Strangler more likely; one faction dominates → Divide and rule) needs a decision point after the opening. Proposal: a provisional doctrine for the first year of a new campaign, settled once from what the humans did and then fixed in the sidecar. Saves made without the mod keep the seed derivation. Agree?
 
 ## Next steps (recommended order)
 
-1. **Finish the step 6 gate**, then run a **soak** (`soaks.ps1 -Fixture accel-2034-fusion-drives -Days 365 -Runs 3`, mod vs vanilla) to judge metals and alien strength. The upkeep could starve exotic warships.
+1. **Read the 2034 soak** (`soaks.ps1 -Fixture accel-2034-fusion-drives -Days 365 -Runs 3`, mod vs vanilla, started 2026-10-13; `aggregate.py "soak-accel-2034-fusion-drives-r*"`) to judge metals and alien strength. The upkeep could starve exotic warships.
 2. **Chapter playtest by the user.** `tools/playtest.ps1` is built (2026-10-13) and not yet tried in a real session. It deploys the plugin, then uses `C:\Games\TI-ImprovedAI-playtest\saves` as the save folder for that launch, so playtest saves and sidecars persist there and the Documents saves are never touched. It copies the chosen fixture in and loads it (`-Fixture`), with optional `-Doctrine "focus=…"` and `-Vanilla`. Diagnostics go to `lab\results\<stamp>-playtest-<name>\`.
    - Caveat: the game copy shares Unity's display-settings registry key with the Steam install, so resolution changes made while playtesting carry over to the Steam game.
 3. **Regression pass on one build:** `tools\probes.ps1 -All`, plus the 2031 soak (`soaks.ps1 -Fixture accel-2031-hot-war -Days 365 -Runs 3`, then `aggregate.py`).
