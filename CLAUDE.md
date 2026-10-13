@@ -21,11 +21,13 @@ A Terra Invicta mod that makes the alien opponent constrained but competent: it 
     - `ThreatMemory`, `DecisiveForce` (+ E14 shortcut guard), `ForcePooling`, `StanceCourage`
     - `RaidPlanner` (+ captures, per-target failure memory)
     - `AlienStrategy` (doctrine + sidecar), `Dials` (doctrine-scaled dial accessors; **AI code reads dials only through `Dials`**), `Disposition` (contempt)
+    - `FleetDoctrine` (weapon focus, hull size and engagement bias on alien design and build), `Economy` (need-weighted base sites, exotics upkeep instead of the fixed base cap)
   - `Fixes/`: vanilla bug fixes (`AlienMarineValue`).
   - `Diagnostics/`: AI log revival, decision journal (`journal.jsonl`), monthly metrics, combat journal, observer clock.
   - `Harness/`: unattended campaign runner (`run.json`), probe setup commands (`HarnessCommands.cs`: `ai.foundoutposts`, `ai.spawnfleet`, `ai.drainammo`, `ai.doctrine`, `@N` scheduling).
 - **`tools/`**:
   - `deploy.ps1`; `run.ps1` (one run: `-Probe`/`-Fixture`/`-SavePath`, `-Vanilla`, `-Days`, `-FinalSave`)
+  - `playtest.ps1` (the user plays a chapter with the mod: harness `interactive` mode, isolated save folder `C:\Games\TI-ImprovedAI-playtest\saves`)
   - `probes.ps1` (several probes); `soaks.ps1` (repeated vanilla/mod soaks)
   - `probe.py` (asserts + info), `summarize.py` (story of one run), `compare.py` (two runs side by side), `aggregate.py` (means over repeated soaks)
   - `saves/timeline.py` (offline save analysis)

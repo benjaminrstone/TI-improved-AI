@@ -52,7 +52,15 @@ namespace ImprovedAI.Harness
             public int targetFrameRate = -1;
             /// <summary>Give up after this many stalls in a row (each is stallSeconds without the date moving).</summary>
             public int maxConsecutiveStalls = 4;
+            /// <summary>
+            /// Chapter playtest (tools/playtest.ps1): keep the save-folder isolation and diagnostics, but a person plays.
+            /// No Autopilot, no speed forcing, no stall handling, no quit; saves allowed (into savesDir). `save` is
+            /// optional: without it the player loads from the (isolated) load menu.
+            /// </summary>
+            public bool interactive;
         }
+
+        public static bool Interactive => Active && Run.interactive;
 
         public static bool Active { get; private set; }
         public static RunRequest Run { get; private set; }
@@ -68,8 +76,9 @@ namespace ImprovedAI.Harness
             try
             {
                 Run = JsonConvert.DeserializeObject<RunRequest>(File.ReadAllText(RunFile));
-                if (string.IsNullOrEmpty(Run.save) || string.IsNullOrEmpty(Run.outDir) || string.IsNullOrEmpty(Run.savesDir))
+                if ((string.IsNullOrEmpty(Run.save) && !Run.interactive) || string.IsNullOrEmpty(Run.outDir) || string.IsNullOrEmpty(Run.savesDir))
                     throw new Exception("run.json needs save, outDir and savesDir");
+                if (Run.interactive) Run.allowSaves = true;
                 Directory.CreateDirectory(Run.outDir);
                 Directory.CreateDirectory(Run.savesDir);
                 // Everything the game reads or writes "in the save folder" (profile, autosaves, autopilot saves,
@@ -124,6 +133,12 @@ namespace ImprovedAI.Harness
         {
             try
             {
+                if (Run.interactive)
+                {
+                    // A person plays: only the optional first load is automated.
+                    if (_phase == Phase.Menu && !string.IsNullOrEmpty(Run.save)) PollMenu();
+                    return;
+                }
                 switch (_phase)
                 {
                     case Phase.Menu: PollMenu(); break;
@@ -158,6 +173,15 @@ namespace ImprovedAI.Harness
 
         private void OnCampaignReady()
         {
+            if (Run.interactive)
+            {
+                // Setup commands once, on the first campaign the player opens; nothing else is automated.
+                if (_phase == Phase.Done) return;
+                _phase = Phase.Done;
+                Plugin.Log.LogInfo($"[Harness] Playtest campaign ready at {GameRead.Now()}.");
+                RunCommands();
+                return;
+            }
             if (_phase != Phase.Loading) return;
             _phase = Phase.Running;
             _readyAt = _lastHeartbeat = _lastDateChangeAt = Time.realtimeSinceStartup;

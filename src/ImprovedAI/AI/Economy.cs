@@ -175,6 +175,52 @@ namespace ImprovedAI.AI
         }
     }
 
+    /// <summary>
+    /// The planner's "resource base when upkeep is insecure" rule (AlienHabPlanner.ManageHabGoals :136-174) founds a base
+    /// on the site producing most of the insecure resources, defaulting to WATER when none is insecure, and its
+    /// insecurity counts only ship maintenance (propellant = water). In the 2034 probe it founded a water moon every
+    /// month (Callisto, Umbriel, Tethys) while metals ran dry. Inside that planner, the list the rule uses becomes:
+    /// the vanilla-insecure resources the aliens are not swimming in, plus the resources they truly lack (need >= threshold).
+    /// The planner asks twice: first through HasUpkeepInsecurityInTheFuture (gates a 1.5x cap overshoot; left alone),
+    /// then for the rule's list (rewritten). Call order is fixed in build 1.0.53b.
+    /// </summary>
+    [HarmonyPatch(typeof(PavonisInteractive.TerraInvicta.Tasks.AlienHabPlanner), nameof(PavonisInteractive.TerraInvicta.Tasks.AlienHabPlanner.ManageHabGoals))]
+    internal static class NeedDrivenResourceBaseScope
+    {
+        [ThreadStatic] internal static int Calls;
+        [ThreadStatic] internal static bool Active;
+
+        private static void Prefix(TIFactionState faction)
+        {
+            Active = Economy.MineOn && faction != null && faction.IsAlienFaction;
+            Calls = 0;
+        }
+
+        private static Exception Finalizer(Exception __exception) { Active = false; return __exception; }
+    }
+
+    [HarmonyPatch(typeof(AIEvaluators), nameof(AIEvaluators.ResourcesExperiencingUpkeepInsecurityInTheFuture))]
+    internal static class NeedDrivenResourceBase
+    {
+        private static void Postfix(TIFactionState faction, ref IEnumerable<FactionResource> __result)
+        {
+            if (!NeedDrivenResourceBaseScope.Active || ++NeedDrivenResourceBaseScope.Calls < 2 || faction == null) return;
+            try
+            {
+                var need = Economy.Need(faction);
+                float threshold = Plugin.Cfg.ResourceBaseNeedThreshold.Value;
+                var vanilla = __result.ToList();
+                var list = vanilla.Where(r => !need.TryGetValue(r, out var w) || w >= 1f)
+                    .Union(Economy.Basic.Where(r => need[r] >= threshold)).Distinct().ToList();
+                if (list.Count == 0) return;
+                __result = list;
+                if (!list.SequenceEqual(vanilla))
+                    Session.Journal?.Write(new { t = GameRead.Now(), kind = "resource-base-need", vanilla = vanilla.Select(r => r.ToString()), now = list.Select(r => r.ToString()) });
+            }
+            catch (Exception e) { Plugin.Log.LogWarning($"[Economy] resource-base rule: {e.Message}"); }
+        }
+    }
+
     /// <summary>The fixed alien base cap (maxAlienBaseGoals_*) becomes what exotics can carry. Only AlienHabPlanner reads it.</summary>
     [HarmonyPatch(typeof(TIGlobalConfig), nameof(TIGlobalConfig.GetMaxAlienBases))]
     internal static class ExoticsBaseCap

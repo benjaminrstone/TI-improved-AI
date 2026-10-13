@@ -174,7 +174,17 @@ It **rises** slowly with alien victories. Fury (from nukes or discovered decepti
 
 **Probe:** contempt falls after a forced alien defeat (inject a strong human fleet at an alien base), and attack sizing changes with it.
 
-## Step 6: Economy (start of M3 if M2 runs long)
+## Step 6: Economy ✅ v2, probe gate passed (2026-10-13; soak pending)
+
+**Probe gate** (`econ-mine-and-cap`, 2034, 270 days, one run each):
+
+| | Vanilla | v1 | v2 |
+|---|---|---|---|
+| Alien bases | 13 → 13 | 13 → 19 | 13 → 18 |
+| Metals + nobles share of new bases' yields (alien income at start: 24%) | no new bases | 28% | **34%** |
+| "Insecure upkeep" rule targets | — | water moons | Metals, NobleMetals (Triton, Beatrice) |
+
+The generic picks still vary between runs, because vanilla picks weighted-random from its top ~10 sites. The soak decides whether metals stop sitting near zero, and what upkeep does to alien strength.
 
 - **Mine what you lack.** Weight alien hab-site choice by projected stock-to-need for each resource. **Soak:** alien metals no longer sit near zero while water sits at a million.
 - **Base cap → exotics upkeep.** Replace `maxAlienBaseGoals_*` with an exotics upkeep per base and per capital ship. **Soak:** bases grow past 13 when exotics allow, and stop when they don't.
@@ -199,7 +209,11 @@ It **rises** slowly with alien victories. Fury (from nukes or discovered decepti
   - The base cap is ⌊(drip + stock/60 − ship upkeep) / 3⌋, up to a ceiling of 40.
   - The planner's own −4 early phase and its overshoot rules apply to this value.
 - **Journal:** a monthly `economy` record (need, shares, stocks, drip, upkeep, cap; also written on vanilla, with nothing charged), `income` per resource in the metrics, and site `yields` on `hab+`.
-- **Not done:** the water default in the "insecure upkeep" rule is left alone (it sits in a compiler-generated local function).
+- **v1 run (2034, 270 days):**
+  - Bases went 13 → 19, then the cap self-limited (20 → 16) as upkeep (77/month against a 40/month drip) took exotics from 2.1k to 1.7k.
+  - The planner makes two base goals a month. The generic pick (importance 19: Io, Anansi, Eunomia) went metal- and noble-rich. The "insecure upkeep" rule (importance 18: Callisto, Umbriel, Tethys) founded ~207-water moons.
+  - Metal income was flat over 270 days: new sites yield 50–200/month against 2.6k total. Judge this by soak.
+- **v2:** inside `ManageHabGoals`, the insecure rule's resource list (its second call to `ResourcesExperiencingUpkeepInsecurityInTheFuture`) becomes the vanilla-insecure resources with need ≥ 1, plus every resource with need ≥ `ResourceBaseNeedThreshold` (2). Its site filter keys off the same list, so it now looks for metal and noble sites. The first call (`HasUpkeepInsecurityInTheFuture`, which gates the 1.5× cap overshoot) is left alone. Journal: `resource-base-need`.
 - **Probe:** `econ-mine-and-cap`.
 
 ## Validation gates

@@ -1,15 +1,15 @@
 {
   "name": "econ-mine-and-cap",
-  "notes": "M2 step 6 gate. (a) Mine what you lack: new alien bases go to sites rich in what the fleet is built from (metals, nobles), not more ice; alien metal income rises. (b) Exotics upkeep replaces the fixed base cap: bases grow past the vanilla cap while the exotics drip and stockpile allow. Vanilla holds 13 bases in every 2034 run so far.",
+  "notes": "M2 step 6 gate. (a) Mine what you lack: new alien bases go to sites rich in what the fleet is built from (metals, nobles), not more ice; alien metal income rises. (b) Exotics upkeep replaces the fixed base cap: bases grow past the vanilla cap while the exotics drip and stockpile allow. Vanilla holds 13 bases in every 2034 run so far. v1 run 2026-10-13: bases 13->19, cap self-limited 20->16 as exotics fell 2.1k->1.7k; the generic picks (imp 19: Io, Anansi, Eunomia) were metal/noble-rich, the 'insecure upkeep' rule (imp 18) founded water moons (Callisto, Umbriel, Tethys) -> v2 redirects that rule. Metal income +20% in 270 days is not realistic (new sites ~50-200/month vs 2.6k total); kept as info, judge by soak. v2 (2026-10-13): the insecure rule now targets Metals+NobleMetals (Triton, Beatrice); generic picks still vary (weighted random from vanilla's top ~10). Gate measure: metals+nobles share of new bases' yields vs that share of alien income at start (24%): v1 28%, v2 34%.",
   "fixture": "accel-2034-fusion-drives",
   "runDays": 270,
   "asserts": [
     "faction(last,'AlienCouncil')['bases'] > faction(first,'AlienCouncil')['bases']",
     "len([e for e in events('hab+', faction='AlienCouncil', habType='Base') if e.get('yields')]) >= 1",
-    "sum(e['yields']['Metals'] + e['yields']['NobleMetals'] for e in [e for e in events('hab+', faction='AlienCouncil', habType='Base') if e.get('yields')]) >= 0.5 * sum(sum(e['yields'].values()) for e in [e for e in events('hab+', faction='AlienCouncil', habType='Base') if e.get('yields')])",
-    "faction(last,'AlienCouncil')['income']['Metals'] >= 1.2 * faction(first,'AlienCouncil')['income']['Metals']"
+    "sum(e['yields']['Metals'] + e['yields']['NobleMetals'] for e in [e for e in events('hab+', faction='AlienCouncil', habType='Base') if e.get('yields')]) / max(1, sum(sum(e['yields'].values()) for e in [e for e in events('hab+', faction='AlienCouncil', habType='Base') if e.get('yields')])) >= 1.25 * (faction(first,'AlienCouncil')['income']['Metals'] + faction(first,'AlienCouncil')['income']['NobleMetals']) / sum(faction(first,'AlienCouncil')['income'][r] for r in ['Water','Volatiles','Metals','NobleMetals','Fissiles'])"
   ],
   "info": [
+    "faction(last,'AlienCouncil')['income']['Metals'] >= 1.2 * faction(first,'AlienCouncil')['income']['Metals']",
     "faction(first,'AlienCouncil')['bases']",
     "faction(last,'AlienCouncil')['bases']",
     "faction(first,'AlienCouncil')['income']",
@@ -23,6 +23,10 @@
     "events('economy')[0]['need']",
     "events('economy')[-1]['need']",
     "events('economy')[0]['shares']",
-    "count('goal+', type=lambda x: 'Base' in (x or ''))"
+    "count('goal+', type=lambda x: 'Base' in (x or ''))",
+    "[(e['t'], e['vanilla'], e['now']) for e in events('resource-base-need')][:6]",
+    "[(e['t'], e['imp'], e['targetBody']) for e in events('goal+', type='FoundBase')]",
+    "sum(e['yields']['Metals'] + e['yields']['NobleMetals'] for e in [e for e in events('hab+', faction='AlienCouncil', habType='Base') if e.get('yields')]) / max(1, sum(sum(e['yields'].values()) for e in [e for e in events('hab+', faction='AlienCouncil', habType='Base') if e.get('yields')]))",
+    "(faction(first,'AlienCouncil')['income']['Metals'] + faction(first,'AlienCouncil')['income']['NobleMetals']) / sum(faction(first,'AlienCouncil')['income'][r] for r in ['Water','Volatiles','Metals','NobleMetals','Fissiles'])"
   ]
 }

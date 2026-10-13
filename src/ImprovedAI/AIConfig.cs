@@ -30,6 +30,7 @@ namespace ImprovedAI
         public readonly ConfigEntry<float> AssaultCaptureSlots;
         public readonly ConfigEntry<bool> MineWhatYouLack;
         public readonly ConfigEntry<float> NeedWeightMax;
+        public readonly ConfigEntry<float> ResourceBaseNeedThreshold;
         public readonly ConfigEntry<bool> ExoticsUpkeep;
         public readonly ConfigEntry<float> BaseExoticsUpkeep;
         public readonly ConfigEntry<float> CapitalShipExoticsUpkeep;
@@ -97,6 +98,8 @@ namespace ImprovedAI
             MineWhatYouLack = cfg.Bind("Economy", "MineWhatYouLack", true,
                 "Alien base sites are scored by the need for what they yield (what the fleet is built from vs what is stockpiled), not mostly gross income.");
             NeedWeightMax = cfg.Bind("Economy", "NeedWeightMax", 4f, "Need weights per resource are clamped to [1/this, this].");
+            ResourceBaseNeedThreshold = cfg.Bind("Economy", "ResourceBaseNeedThreshold", 2f,
+                "The planner's 'resource base when upkeep is insecure' rule targets resources at or above this need weight (instead of defaulting to water).");
             ExoticsUpkeep = cfg.Bind("Economy", "ExoticsUpkeep", true,
                 "Alien bases and capital hulls cost exotics each month, and the fixed alien base cap becomes what the exotics drip and stockpile can carry.");
             BaseExoticsUpkeep = cfg.Bind("Economy", "BaseExoticsUpkeep", 3f, "Exotics per alien base per month.");
