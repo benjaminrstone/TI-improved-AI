@@ -2,6 +2,27 @@
 
 What is built, what the probes show, and what is next. Newest first. Every claim here is backed by a run in `lab/results/` (gitignored); probe definitions live in `lab/probes/`.
 
+## 2026-10-13: M2 steps 4 and 6, shame, widening
+
+### Soak: 3 × 1 year from the 2034 save, vanilla vs mod (build `93d5cd2`: steps 4 + 6 v2; before widening, Earth-purchase block and shame)
+
+| | Vanilla | Mod |
+|---|---|---|
+| Alien bases | 13 → 13 (3/3) | **13 → 18 (3/3)**, then the exotics cap falls to 13–14 as the stock drains (2.0k → 1.4–1.5k) |
+| New bases' metals + nobles share of yields | none founded | **0.37–0.39** (alien income 0.24) |
+| Alien metal income over the year | +1% | +4–5% |
+| Alien metals stock, median month | 4.2k / 4.6k / 10.1k | 2.2k / 0.9k / 0.6k |
+| Alien ships built | 90 / 89 / 65 | 56 / 57 / 61 |
+| Alien SCV at end | 31.6k | 30.9k (−2%) |
+| Alien battles (won) / human ships killed / alien ships lost | 18.0 (17.7) / 49 / 0.7 | 26.7 (25.7) / 70 / 5.0 |
+| Habs lost, all factions | 36.3 | 44.7 |
+
+**Reading.**
+- The base-cap half of the step 6 gate passes. Bases grow past 13 while exotics allow and stop when they don't, and they go where the aliens lack material.
+- The metals half fails within a year. Five new bases cost metals to build, and their mines repay slowly (+5% metal income by year end). Year-one expansion competes with ship building: 25–35% fewer ships, though alien strength ends only 2% lower.
+- Whether expansion pays back (metals recover, fleet grows faster) needs a 2-year soak, which should include widening and the Earth-purchase block.
+- Combat is more active under the mod, as in the 2031 soaks.
+
 ## 2026-10-12: M0 done, M1 underway
 
 ### M2 progress

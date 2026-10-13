@@ -58,7 +58,7 @@ None pending.
 
 ## Next steps (recommended order)
 
-1. **Read the 2034 soak** (`soaks.ps1 -Fixture accel-2034-fusion-drives -Days 365 -Runs 3`, mod vs vanilla, started 2026-10-13; `aggregate.py "soak-accel-2034-fusion-drives-r*"`) to judge metals and alien strength. The upkeep could starve exotic warships.
+1. **2034 soak read (PROGRESS 2026-10-13):** the base cap works; metals do not recover within a year (expansion competes with ships). Next: a **2-year** soak on the current build (widening + no Earth purchases), `soaks.ps1 -Fixture accel-2034-fusion-drives -Days 730 -Runs 3 -Tag soak2y`.
 2. **Chapter playtest by the user.** `tools/playtest.ps1` is built (2026-10-13) and not yet tried in a real session. It deploys the plugin, then uses `C:\Games\TI-ImprovedAI-playtest\saves` as the save folder for that launch, so playtest saves and sidecars persist there and the Documents saves are never touched. It copies the chosen fixture in and loads it (`-Fixture`), with optional `-Doctrine "focus=…"` and `-Vanilla`. Diagnostics go to `lab\results\<stamp>-playtest-<name>\`.
    - Caveat: the game copy shares Unity's display-settings registry key with the Steam install, so resolution changes made while playtesting carry over to the Steam game.
 3. **Regression pass on one build:** `tools\probes.ps1 -All`, plus the 2031 soak (`soaks.ps1 -Fixture accel-2031-hot-war -Days 365 -Runs 3`, then `aggregate.py`).
