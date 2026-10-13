@@ -52,7 +52,41 @@ namespace ImprovedAI.AI
             float posture = 1.25f - 0.5f * Mathf.Clamp01(d.puppetry);
             m.raidSlots *= posture;
             m.captureSlots *= posture;
+            // Engagement style: an assault-minded command keeps more marine captures going.
+            if (Plugin.Cfg.UseFleetDoctrine && d.engagement == EngagementStyle.Assault) m.captureSlots *= Plugin.Cfg.AssaultCaptureSlots.Value;
             return m;
+        }
+
+        // ---- Fleet doctrine (M2 step 4). Neutral (1 / Balanced) when [Fleet] FleetDoctrine is off. ----
+
+        private static Doctrine FleetAxes => Plugin.Cfg.UseFleetDoctrine ? AlienStrategy.Current?.doctrine : null;
+
+        public static WeaponFocus WeaponFocus => FleetAxes?.weapons ?? WeaponFocus.Balanced;
+        public static HullPhilosophy Hulls => FleetAxes?.hulls ?? HullPhilosophy.Balanced;
+        public static EngagementStyle Engagement => FleetAxes?.engagement ?? EngagementStyle.Balanced;
+
+        public static float WeaponFocusOdds => Mathf.Max(0f, Plugin.Cfg.WeaponFocusOdds.Value);
+        public static float WeaponFitBonus => Mathf.Max(0f, Plugin.Cfg.WeaponFitBonus.Value);
+        public static float MothershipFitBonus => Hulls == HullPhilosophy.Motherships ? Mathf.Max(0f, Plugin.Cfg.MothershipFitBonus.Value) : 0f;
+        public static float EngagementRoleWeight => Mathf.Max(0f, Plugin.Cfg.EngagementRoleWeight.Value);
+
+        /// <summary>
+        /// Multipliers on vanilla aiValues.fleetSmalls / fleetMediums (the Large weight is fixed at 1 in vanilla).
+        /// Swarm shifts the build mix one bias factor per size step toward small hulls; Capital and Motherships toward large.
+        /// </summary>
+        public static (float smalls, float mediums) BuildSizeWeights
+        {
+            get
+            {
+                float b = Mathf.Max(1f, Plugin.Cfg.HullSizeBias.Value);
+                switch (Hulls)
+                {
+                    case HullPhilosophy.Swarm: return (b * b, b);
+                    case HullPhilosophy.Capital:
+                    case HullPhilosophy.Motherships: return (1f / (b * b), 1f / b);
+                    default: return (1f, 1f);
+                }
+            }
         }
 
         public static float AttackSuperiority => Plugin.Cfg.AlienAttackSuperiority.Value * Current().superiority;
@@ -92,6 +126,9 @@ namespace ImprovedAI.AI
         {
             AttackSuperiority, ShortcutSuperiority, PoolMargin, PoolReserveFraction, MaxRaidGoals, MaxCaptureGoals, RaidImportance, RaidHateWeight, ArrivalFightRatio,
             Difficulty, StartingContempt, ContemptLearning,
+            WeaponFocus = WeaponFocus.ToString(), Hulls = Hulls.ToString(), Engagement = Engagement.ToString(),
+            WeaponFocusOdds, WeaponFitBonus, MothershipFitBonus, EngagementRoleWeight,
+            BuildSmalls = BuildSizeWeights.smalls, BuildMediums = BuildSizeWeights.mediums,
         };
     }
 }

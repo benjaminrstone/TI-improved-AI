@@ -1,0 +1,27 @@
+{
+  "name": "fleet-neutral",
+  "notes": "M2 step 4 control: balanced fleet axes = vanilla design and build behaviour (no redesign request, so 'redesign' is not asserted).",
+  "fixture": "accel-2034-fusion-drives",
+  "runDays": 180,
+  "commands": [
+    "ai.doctrine weapons=Balanced hulls=Balanced engagement=Balanced"
+  ],
+  "asserts": [
+    "count('fleet') >= 3",
+    "count('ship-built') >= 5"
+  ],
+  "info": [
+    "events('doctrine')[-1]['dials']",
+    "count('redesign')",
+    "count('ship-built')",
+    "{s: count('ship-built', size=s) for s in ['Small','Medium','Large','Huge']}",
+    "{w: sum(r['weapons'].count(w) for r in events('ship-built')) for w in ['Missiles','Beams','Particles','Kinetics']}",
+    "{r: count('ship-built', role=r) for r in sorted(set(x['role'] for x in events('ship-built')))}",
+    "{w: sum(d['weapons'].get(w, 0) for d in events('fleet')[0]['designs']) for w in ['Missiles','Beams','Particles','Kinetics']}",
+    "{w: sum(d['weapons'].get(w, 0) for d in events('fleet')[-1]['designs']) for w in ['Missiles','Beams','Particles','Kinetics']}",
+    "[(d['role'], d['size'], d['hull'], d['weapons']) for d in events('fleet')[-1]['designs']]",
+    "events('fleet')[0]['bySize']",
+    "events('fleet')[-1]['bySize']",
+    "events('fleet')[-1]['weapons']"
+  ]
+}

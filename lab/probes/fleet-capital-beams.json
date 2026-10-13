@@ -1,0 +1,31 @@
+{
+  "name": "fleet-capital-beams",
+  "notes": "M2 step 4 gate (B): a beam/capital/brawler fleet doctrine. Compare with fleet-swarm-missiles and fleet-neutral. Single runs 2026-10-12: Swarm built 57% small, missiles 47% of weapons, design missile mounts 51->130; Capital built 25% small, beams 38%, design beams 123->168 and kinetics 67->22; neutral 44% small, missiles/beams 31% each.",
+  "fixture": "accel-2034-fusion-drives",
+  "runDays": 180,
+  "commands": [
+    "ai.doctrine weapons=Beams hulls=Capital engagement=Brawler"
+  ],
+  "asserts": [
+    "count('fleet') >= 3",
+    "count('redesign') >= 1",
+    "count('ship-built') >= 5",
+    "sum(d['weapons'].get('Beams', 0) for d in events('fleet')[-1]['designs']) >= 1.2 * sum(d['weapons'].get('Beams', 0) for d in events('fleet')[0]['designs'])",
+    "sum(d['weapons'].get('Kinetics', 0) for d in events('fleet')[-1]['designs']) <= 0.6 * sum(d['weapons'].get('Kinetics', 0) for d in events('fleet')[0]['designs'])",
+    "sum(count('ship-built', size=s) for s in ['Medium', 'Large', 'Huge']) >= 0.6 * count('ship-built')"
+  ],
+  "info": [
+    "events('doctrine')[-1]['dials']",
+    "count('redesign')",
+    "count('ship-built')",
+    "{s: count('ship-built', size=s) for s in ['Small','Medium','Large','Huge']}",
+    "{w: sum(r['weapons'].count(w) for r in events('ship-built')) for w in ['Missiles','Beams','Particles','Kinetics']}",
+    "{r: count('ship-built', role=r) for r in sorted(set(x['role'] for x in events('ship-built')))}",
+    "{w: sum(d['weapons'].get(w, 0) for d in events('fleet')[0]['designs']) for w in ['Missiles','Beams','Particles','Kinetics']}",
+    "{w: sum(d['weapons'].get(w, 0) for d in events('fleet')[-1]['designs']) for w in ['Missiles','Beams','Particles','Kinetics']}",
+    "[(d['role'], d['size'], d['hull'], d['weapons']) for d in events('fleet')[-1]['designs']]",
+    "events('fleet')[0]['bySize']",
+    "events('fleet')[-1]['bySize']",
+    "events('fleet')[-1]['weapons']"
+  ]
+}

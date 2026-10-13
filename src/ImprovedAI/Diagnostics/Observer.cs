@@ -35,10 +35,12 @@ namespace ImprovedAI.Diagnostics
                 Plugin.Log.LogInfo($"[Diagnostics] Campaign ready at {GameRead.Date(now)}; player {GameRead.Faction(player)}.");
                 AI.ThreatMemory.Reset();
                 AI.RaidPlanner.Reset();
+                AI.Economy.Reset();
                 Safe(() => AI.ThreatMemory.Sample(now), "threat memory");
                 Safe(DecisionJournal.Init, "journal init");
                 Safe(AI.AlienStrategy.OnCampaignReady, "strategy");
                 Safe(Metrics.Write, "metrics");
+                if (Plugin.Cfg.DecisionJournal.Value) Safe(FleetComposition.Monthly, "fleet composition");
                 OnCampaignReady?.Invoke();
                 return;
             }
@@ -50,7 +52,9 @@ namespace ImprovedAI.Diagnostics
             Safe(() => AI.RaidPlanner.Daily(now), "raid planner");
             if (Plugin.Cfg.DecisionJournal.Value) Safe(() => DecisionJournal.Daily(), "journal");
             if (newMonth && Plugin.Cfg.Metrics.Value) Safe(Metrics.Write, "metrics");
+            if (newMonth && Plugin.Cfg.DecisionJournal.Value) Safe(FleetComposition.Monthly, "fleet composition");
             if (newMonth) Safe(AI.Disposition.Monthly, "disposition");
+            if (newMonth) Safe(AI.Economy.Monthly, "economy");
             try { OnNewDay?.Invoke(now); } catch (Exception e) { Plugin.Log.LogError($"[Diagnostics] OnNewDay: {e}"); }
         }
 

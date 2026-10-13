@@ -115,11 +115,37 @@ This is the "drop pods take any outpost without marines or PD" idea.
 
 **Probe:** e5-undefended-mines must pass. The aliens take or destroy ≥5 of 15 undefended belt mines within 180 days.
 
-## Step 4: Fleet doctrines (design preferences)
+## Step 4: Fleet doctrines (design preferences) ✅ v1 (2026-10-12)
+
+**Gate passed** (2034 save, 180 days, one run each; the design shifts are near-deterministic, the build mix is noisy):
+
+| | Neutral axes | Missiles / Swarm / Artillery | Beams / Capital / Brawler |
+|---|---|---|---|
+| Ships built (S / M / L) | 44 / 36 / 20% | 57 / 32 / 11% | 25 / 52 / 22% |
+| Weapons on ships built | missiles 31%, beams 31% | **missiles 47%** | **beams 38%** |
+| Design mounts, missiles / beams / kinetics (start 51 / 123 / 67) | 67 / 106 / 59 | **130** / 101 / 55 | 70 / **168** / **22** |
+
+Weak spot: Brawler barely shifted the role mix (few short-range ships built), because the attack goals' role tables give short-range roles little weight. Capital moved the build mix toward medium rather than large hulls (affordability buckets).
 
 Bias the alien ship designer and the build picker toward the doctrine's weapon class, hull size and engagement style, within what the aliens have unlocked.
 
 **Probe:** in a soak, the fleet composition (weapon classes, hull mix) differs measurably between two forced doctrines.
+
+**How vanilla designs alien ships (survey, 2026-10-12).**
+- **The role locks the weapon class.** `GetCuratedDesignScore` multiplies the role's own classes by 1e7 and divides all others by 1e7: short-range roles (LS/MS/SS) get lasers, medium-range (LM/MM/SM) magnetic or particle, long-range (LL/ML/SL) missile or plasma. Within that, the pick is weighted random (`ChooseWeapon`).
+- **Mounts limit classes.** Alien missiles fit only single hull mounts; particle weapons only nose mounts. Aliens have no naval guns.
+- **One design per role × size × exotics category** survives, the one with the best `TemplateSpaceCombatValue` (`DesignShipsCoroutine` keep and retire rules). Hulls come from a hardcoded table per role.
+- **Build pick** (`GetDesiredShipToBuild`): a role drawn from the goal's secondary-role weights, a size drawn from `aiValues.fleetSmalls`/`fleetMediums` (aliens 2/2, Large fixed at 1), then the best-SCV design of that role and size (importance ≥ 10).
+- **No alien fighters** outside surface-to-orbit squadrons, so the Carrier style has nothing to bias yet.
+- **Vanilla bug (not fixed):** the coroutine asks for hull `AlienBattleCruiser`; the data name is `AlienBattlecruiser`, so that slot falls back to the lightest valid hull.
+
+**Built (v1, `AI/FleetDoctrine.cs`, `[Fleet]` config):**
+- **Weapon focus.** While the alien designer runs, the doctrine's class gets `WeaponFocusOdds` (3) against the role's own class wherever a mount fits it. When designs are compared (keep/retire, build pick), a design counts as (1 + `WeaponFitBonus` × share of its attack weapons in the doctrine class) × its SCV, so doctrine designs survive and get built. Kinetics = magnetic, naval and plasma guns.
+- **Hull philosophy.** The build-pick size weights shift by `HullSizeBias` (2) per size step: Swarm toward small, Capital and Motherships toward large. Motherships also gives huge hulls a fit bonus (`MothershipFitBonus` 0.5). Vanilla's mothership exclusions (importance < 15, no total-war enemy) stay.
+- **Engagement style.** Artillery multiplies long-range role weights by `EngagementRoleWeight` (3), Brawler short-range ones. Assault multiplies capture slots by `AssaultCaptureSlots` (1.5). Carrier: no effect yet.
+- A doctrine load or force with any non-balanced fleet axis sets `updateShipDesignsFlag`, so the aliens redesign at the next monthly check.
+- **Journal:** a monthly `fleet` record (live ships by size, role, hull and weapon class; active designs) and a `ship-built` record per alien ship. Both run on vanilla too.
+- **Probes:** `fleet-swarm-missiles`, `fleet-capital-beams`, `fleet-neutral` (control).
 
 ## Step 5: Disposition: contempt × hate ✅ v1 (2026-10-12)
 
@@ -152,6 +178,29 @@ It **rises** slowly with alien victories. Fury (from nukes or discovered decepti
 
 - **Mine what you lack.** Weight alien hab-site choice by projected stock-to-need for each resource. **Soak:** alien metals no longer sit near zero while water sits at a million.
 - **Base cap → exotics upkeep.** Replace `maxAlienBaseGoals_*` with an exotics upkeep per base and per capital ship. **Soak:** bases grow past 13 when exotics allow, and stop when they don't.
+
+**Survey (2026-10-12).**
+- **Site choice is the whole mix.** One mine per alien base, and its output is the site's yield × the mine tier, so what a base mines is decided entirely when the site is picked.
+- **The site scorer ignores need.** `EvaluateHabModule_PercentChange` is 60% gross revenue. Stockpiles and ship-construction spend never enter it. The deficiency tracker feeds only the other scorer (`EvaluateHabSite`).
+- **Upkeep insecurity sees only ship maintenance,** whose propellant is water. So the "resource base if upkeep is insecure" rule flags water, and it defaults to water when nothing is flagged (`AlienHabPlanner` :147-150).
+- **The cap binds.** The aliens held 13 bases in every 2034 run, vanilla or mod, with no base-founding goal at all in 270 days. `GetMaxAlienBases` is read only by `AlienHabPlanner.ManageHabGoals` (:67, :136). The Jupiter, belt and Neptune → Uranus → Saturn goals bypass it.
+- **No exotics upkeep exists.** Exotics come only from `AlienWormholeFacility` (10/month × the difficulty multiplier 1/2/3/4 × the setup ramp). Exotics can't go negative and have no shortage penalty.
+- **Stocks in the fixtures:**
+  - metals 100 to 6k;
+  - nobles 5.7k (2031) falling to 0.6k (2040);
+  - water and volatiles 100k to 450k each;
+  - exotics flat at about 7.8k by 2039.
+- **Aliens buy what they lack from Earth.** `GetBoostSubstitutedCost` replaces a missing space resource with boost plus money, which is how they keep building on empty metals. This is a [lore] oddity; it is not changed yet.
+
+**Built (v1, `AI/Economy.cs`, `[Economy]` config):**
+- **Need weights.** For each basic resource: (its share of the live fleet's material cost, propellant excluded × total basic stock) / own stock, clamped to [¼, 4]. A site's score is multiplied by the production-weighted mean need of what it yields. This applies in both alien scorers.
+- **Exotics upkeep.**
+  - Each month, 3 exotics per base, 0.5 per large hull and 2 per huge hull are charged.
+  - The base cap is ⌊(drip + stock/60 − ship upkeep) / 3⌋, up to a ceiling of 40.
+  - The planner's own −4 early phase and its overshoot rules apply to this value.
+- **Journal:** a monthly `economy` record (need, shares, stocks, drip, upkeep, cap; also written on vanilla, with nothing charged), `income` per resource in the metrics, and site `yields` on `hab+`.
+- **Not done:** the water default in the "insecure upkeep" rule is left alone (it sits in a compiler-generated local function).
+- **Probe:** `econ-mine-and-cap`.
 
 ## Validation gates
 

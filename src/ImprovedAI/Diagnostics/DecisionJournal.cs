@@ -163,6 +163,18 @@ namespace ImprovedAI.Diagnostics
             return null;
         }
 
+        /// <summary>Monthly basic-resource production of a base's site (what "mine what you lack" chose), or null.</summary>
+        private static Dictionary<string, float> SiteYields(TIHabState h)
+        {
+            try
+            {
+                var site = h.habSite;
+                if (site == null) return null;
+                return AI.Economy.Basic.ToDictionary(r => r.ToString(), r => (float)Math.Round(site.GetMonthlyProduction(r), 1));
+            }
+            catch { return null; }
+        }
+
         private static void DiffHabs(string t, bool emit)
         {
             var seen = new HashSet<int>();
@@ -176,7 +188,7 @@ namespace ImprovedAI.Diagnostics
                     seen.Add(id);
                     var snap = new HabSnap { faction = GameRead.Faction(fac), type = h.habType.ToString(), tier = h.tier, body = GameRead.Body(h) };
                     if (!_habs.ContainsKey(id) && emit)
-                        Emit(new { t, kind = "hab+", id, faction = snap.faction, hab = h.displayName, habType = snap.type, snap.tier, snap.body, system = GameRead.System(h) });
+                        Emit(new { t, kind = "hab+", id, faction = snap.faction, hab = h.displayName, habType = snap.type, snap.tier, snap.body, system = GameRead.System(h), yields = SiteYields(h) });
                     _habs[id] = snap;
                 }
             }

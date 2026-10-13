@@ -1,0 +1,28 @@
+{
+  "name": "econ-mine-and-cap",
+  "notes": "M2 step 6 gate. (a) Mine what you lack: new alien bases go to sites rich in what the fleet is built from (metals, nobles), not more ice; alien metal income rises. (b) Exotics upkeep replaces the fixed base cap: bases grow past the vanilla cap while the exotics drip and stockpile allow. Vanilla holds 13 bases in every 2034 run so far.",
+  "fixture": "accel-2034-fusion-drives",
+  "runDays": 270,
+  "asserts": [
+    "faction(last,'AlienCouncil')['bases'] > faction(first,'AlienCouncil')['bases']",
+    "len([e for e in events('hab+', faction='AlienCouncil', habType='Base') if e.get('yields')]) >= 1",
+    "sum(e['yields']['Metals'] + e['yields']['NobleMetals'] for e in [e for e in events('hab+', faction='AlienCouncil', habType='Base') if e.get('yields')]) >= 0.5 * sum(sum(e['yields'].values()) for e in [e for e in events('hab+', faction='AlienCouncil', habType='Base') if e.get('yields')])",
+    "faction(last,'AlienCouncil')['income']['Metals'] >= 1.2 * faction(first,'AlienCouncil')['income']['Metals']"
+  ],
+  "info": [
+    "faction(first,'AlienCouncil')['bases']",
+    "faction(last,'AlienCouncil')['bases']",
+    "faction(first,'AlienCouncil')['income']",
+    "faction(last,'AlienCouncil')['income']",
+    "faction(first,'AlienCouncil')['res']['Metals']",
+    "faction(last,'AlienCouncil')['res']['Metals']",
+    "faction(last,'AlienCouncil')['res']['NobleMetals']",
+    "faction(last,'AlienCouncil')['res']['Exotics']",
+    "[(e['t'], e['body'], e['yields']) for e in [e for e in events('hab+', faction='AlienCouncil', habType='Base') if e.get('yields')]]",
+    "[(e['t'], e['bases'], e['cap'], round(e['drip'], 1), round(e['upkeep'], 1), e['stock']['Exotics']) for e in events('economy')]",
+    "events('economy')[0]['need']",
+    "events('economy')[-1]['need']",
+    "events('economy')[0]['shares']",
+    "count('goal+', type=lambda x: 'Base' in (x or ''))"
+  ]
+}

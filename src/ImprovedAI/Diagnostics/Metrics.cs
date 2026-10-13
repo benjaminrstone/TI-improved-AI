@@ -45,6 +45,9 @@ namespace ImprovedAI.Diagnostics
         {
             var res = new Dictionary<string, float>();
             foreach (var kv in f.resources) res[kv.Key.ToString()] = (float)Math.Round(kv.Value, 1);
+            var income = new Dictionary<string, float>();
+            foreach (var r in AI.Economy.Basic.Concat(new[] { FactionResource.Exotics }))
+                income[r.ToString()] = (float)Math.Round(GameRead.Safe(() => f.GetMonthlyIncome(r)), 1);
             var habs = f.habs;
             var ships = f.fleets.Sum(x => x.ships?.Count ?? 0);
             return new
@@ -52,6 +55,7 @@ namespace ImprovedAI.Diagnostics
                 f = GameRead.Faction(f),
                 ai = f.player?.isAI,
                 res,
+                income,
                 bases = habs.Count(h => h.IsBase),
                 stations = habs.Count(h => h.IsStation),
                 fleets = f.fleets.Count,

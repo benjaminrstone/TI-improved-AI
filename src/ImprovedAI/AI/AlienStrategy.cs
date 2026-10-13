@@ -126,6 +126,7 @@ namespace ImprovedAI.AI
             Plugin.Log.LogInfo($"[Strategy] Doctrine ({Current.source}): {Current.doctrine}");
             Disposition.OnCampaignReady();
             Session.Journal?.Write(new { t = GameRead.Now(), kind = "doctrine", ev = "loaded", Current.source, difficulty, doctrine = Current.doctrine, key, dials = Dials.Snapshot() });
+            FleetDoctrine.RequestRedesign("doctrine loaded");
         }
 
         /// <summary>Probe/debug override: "focus=Raider weapons=Missiles puppetry=0.2 ...".</summary>
@@ -151,6 +152,7 @@ namespace ImprovedAI.AI
             Current.source = "forced";
             Current.history.Add($"{GameRead.Now()} forced: {d}");
             Session.Journal?.Write(new { t = GameRead.Now(), kind = "doctrine", ev = "forced", doctrine = d, dials = Dials.Snapshot() });
+            FleetDoctrine.RequestRedesign("doctrine forced");
             return "> doctrine " + d;
         }
 

@@ -21,6 +21,21 @@ namespace ImprovedAI
         public readonly ConfigEntry<float> StartingContempt;
         public readonly ConfigEntry<string> ContemptDifficultyOffset;
         public readonly ConfigEntry<string> ContemptLearning;
+        public readonly ConfigEntry<bool> FleetDoctrine;
+        public readonly ConfigEntry<float> WeaponFocusOdds;
+        public readonly ConfigEntry<float> WeaponFitBonus;
+        public readonly ConfigEntry<float> HullSizeBias;
+        public readonly ConfigEntry<float> MothershipFitBonus;
+        public readonly ConfigEntry<float> EngagementRoleWeight;
+        public readonly ConfigEntry<float> AssaultCaptureSlots;
+        public readonly ConfigEntry<bool> MineWhatYouLack;
+        public readonly ConfigEntry<float> NeedWeightMax;
+        public readonly ConfigEntry<bool> ExoticsUpkeep;
+        public readonly ConfigEntry<float> BaseExoticsUpkeep;
+        public readonly ConfigEntry<float> CapitalShipExoticsUpkeep;
+        public readonly ConfigEntry<float> HugeShipExoticsUpkeep;
+        public readonly ConfigEntry<float> ExoticsStockHorizonMonths;
+        public readonly ConfigEntry<int> MaxAlienBasesCeiling;
         public readonly ConfigEntry<bool> ThreatMemory;
         public readonly ConfigEntry<float> ThreatMemoryDays;
         public readonly ConfigEntry<bool> DecisiveForce;
@@ -65,6 +80,31 @@ namespace ImprovedAI
                 "Added to StartingContempt per difficulty (Cinematic,Normal,Veteran,Brutal): arrogant on easy, wary on hard (user, 2026-10-12).");
             ContemptLearning = cfg.Bind("Strategy", "ContemptLearning", "0.7,1,1.25,1.5",
                 "Multiplier on contempt LOSSES per difficulty (Cinematic,Normal,Veteran,Brutal): how fast the aliens learn respect.");
+            FleetDoctrine = cfg.Bind("Fleet", "FleetDoctrine", true,
+                "Bias alien ship designs and build picks by the doctrine's weapon focus, hull philosophy and engagement style (M2 step 4).");
+            WeaponFocusOdds = cfg.Bind("Fleet", "WeaponFocusOdds", 3f,
+                "Odds of the doctrine's weapon class against the role's own preferred class, when a mount fits it (vanilla roles lock weapon class).");
+            WeaponFitBonus = cfg.Bind("Fleet", "WeaponFitBonus", 1f,
+                "When the aliens compare designs (keep/retire, build pick), a design armed entirely with the doctrine's class counts as (1 + this) x its combat value.");
+            HullSizeBias = cfg.Bind("Fleet", "HullSizeBias", 2f,
+                "Build-pick size bias: Swarm favours small hulls by this factor per size step, Capital and Motherships favour large hulls.");
+            MothershipFitBonus = cfg.Bind("Fleet", "MothershipFitBonus", 0.5f,
+                "Motherships doctrine: a huge-hull design counts as (1 + this) x its combat value when designs are compared.");
+            EngagementRoleWeight = cfg.Bind("Fleet", "EngagementRoleWeight", 3f,
+                "Artillery multiplies the weight of long-range combat roles by this; Brawler, short-range roles.");
+            AssaultCaptureSlots = cfg.Bind("Fleet", "AssaultCaptureSlots", 1.5f,
+                "Assault engagement style multiplies the marine-capture raid slots by this.");
+            MineWhatYouLack = cfg.Bind("Economy", "MineWhatYouLack", true,
+                "Alien base sites are scored by the need for what they yield (what the fleet is built from vs what is stockpiled), not mostly gross income.");
+            NeedWeightMax = cfg.Bind("Economy", "NeedWeightMax", 4f, "Need weights per resource are clamped to [1/this, this].");
+            ExoticsUpkeep = cfg.Bind("Economy", "ExoticsUpkeep", true,
+                "Alien bases and capital hulls cost exotics each month, and the fixed alien base cap becomes what the exotics drip and stockpile can carry.");
+            BaseExoticsUpkeep = cfg.Bind("Economy", "BaseExoticsUpkeep", 3f, "Exotics per alien base per month.");
+            CapitalShipExoticsUpkeep = cfg.Bind("Economy", "CapitalShipExoticsUpkeep", 0.5f, "Exotics per large-hull alien ship per month.");
+            HugeShipExoticsUpkeep = cfg.Bind("Economy", "HugeShipExoticsUpkeep", 2f, "Exotics per huge-hull alien ship (mothership) per month.");
+            ExoticsStockHorizonMonths = cfg.Bind("Economy", "ExoticsStockHorizonMonths", 60f,
+                "The base cap counts the exotics stockpile as an extra monthly budget of stock / this.");
+            MaxAlienBasesCeiling = cfg.Bind("Economy", "MaxAlienBasesCeiling", 40, "Hard ceiling on the exotics-based alien base cap.");
             ThreatMemory = cfg.Bind("Perception", "ThreatMemory", true,
                 "Aliens judge human fleets by their best recent per-ship SCV, not the currently fitted design (defeats bait refits / empty magazines).");
             ThreatMemoryDays = cfg.Bind("Perception", "ThreatMemoryDays", 180f,
@@ -105,6 +145,9 @@ namespace ImprovedAI
 
         public bool UseStrategy => !VanillaAI.Value && Strategy.Value;
         public bool UseDisposition => UseStrategy && Disposition.Value;
+        public bool UseFleetDoctrine => UseStrategy && FleetDoctrine.Value;
+        public bool UseMineWhatYouLack => !VanillaAI.Value && MineWhatYouLack.Value;
+        public bool UseExoticsUpkeep => !VanillaAI.Value && ExoticsUpkeep.Value;
         public bool UseThreatMemory => !VanillaAI.Value && ThreatMemory.Value;
         public bool UseDecisiveForce => !VanillaAI.Value && DecisiveForce.Value;
         public bool UseForcePooling => !VanillaAI.Value && ForcePooling.Value;

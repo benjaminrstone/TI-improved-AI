@@ -38,6 +38,21 @@ Direction key:
 | Targeting / RaidCaptures | on | `+` | Marine captures (= destruction) of undefended bases off Earth/Luna |
 | Targeting / MaxCaptureGoals | 6 | `+` | Capture tempo (one cheap troop carrier each) |
 | Fixes / AlienMarineValue | on | = | Vanilla bug fix (alien marine pod read as 0) |
+| Fleet / FleetDoctrine | on | = | Fleet doctrines bias alien design and build choices (M2 step 4). Variety, not difficulty. |
+| Fleet / WeaponFocusOdds | 3 | = | Doctrine weapon class vs the role's own class while designing. |
+| Fleet / WeaponFitBonus | 1.0 | = | Design-comparison bonus for doctrine-class weapons. |
+| Fleet / HullSizeBias | 2 | = | Build-mix shift per size step (Swarm small; Capital/Motherships large). |
+| Fleet / MothershipFitBonus | 0.5 | = | Motherships doctrine: huge-hull designs compare as 1.5× SCV. |
+| Fleet / EngagementRoleWeight | 3 | = | Artillery: long-range roles ×3; Brawler: short-range roles ×3. |
+| Fleet / AssaultCaptureSlots | 1.5 | `+` | Assault engagement style: more open marine captures. |
+| Economy / MineWhatYouLack | on | = | Site scoring by need (competence, not difficulty). |
+| Economy / NeedWeightMax | 4 | = | Clamp on need weights. |
+| Economy / ExoticsUpkeep | on | = | Bases and capital hulls cost exotics; replaces the fixed base cap. |
+| Economy / BaseExoticsUpkeep | 3 / month | `−` | Lower means more bases. **Replaces vanilla `maxAlienBaseGoals_*` as the expansion limit.** The drip already scales with difficulty (`AI_AlienExoticMultiplier_*` 1/2/3/4). |
+| Economy / CapitalShipExoticsUpkeep | 0.5 / month | `−` | Large hulls. |
+| Economy / HugeShipExoticsUpkeep | 2 / month | `−` | Motherships. |
+| Economy / ExoticsStockHorizonMonths | 60 | `−` | The cap counts stock/this as monthly budget. Shorter means the hoard turns into bases faster. |
+| Economy / MaxAlienBasesCeiling | 40 | `+` | Hard ceiling. |
 
 ## Vanilla difficulty knobs we expect to retune
 
