@@ -194,7 +194,7 @@ It **rises** slowly with alien victories. Fury (from nukes or discovered decepti
 | Metals + nobles share of new bases' yields (alien income at start: 24%) | no new bases | 28% | **34%** |
 | "Insecure upkeep" rule targets | — | water moons | Metals, NobleMetals (Triton, Beatrice) |
 
-**No buying from Earth (user decision 2026-10-13; v1 built).** A prefix on `TIResourcesCost.GetBoostSubstitutedCost` returns the plain space cost for the aliens. That method is the one funnel for ship builds, refits, repairs and hab modules. The monthly `economy` record counts alien shortfalls and refusals, plus boost and money stock and income. Probe `econ-earth-buy`: run it on vanilla first. Alien boost reads 0 in every run so far, so either they never have boost (and never actually bought), or it is all spent on substitution.
+**No buying from Earth (user decision 2026-10-13; v1 built).** A prefix on `TIResourcesCost.GetBoostSubstitutedCost` returns the plain space cost for the aliens. That method is the one funnel for ship builds, refits, repairs and hab modules. The monthly `economy` record counts alien shortfalls and refusals, plus boost and money stock and income. Probe `econ-earth-buy` (2026-10-13): alien boost stock and income are 0, so **vanilla aliens could never afford the substitution**. The block guards the lore and changes no behaviour.
 
 **Widening wormhole v1 (2026-10-13, `AI/Wormhole.cs`).** The P2 soft clock, built now because the user tied the upkeep balance to it.
 - The alien drip multiplier (`AI_GetExoticsMultiplier`, read only for alien exotics income) × W, where W = 1 + rate × calendar campaign years, capped at 3.

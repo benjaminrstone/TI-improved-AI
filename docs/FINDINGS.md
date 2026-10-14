@@ -100,6 +100,7 @@ Each item below names the mechanism and what the player sees.
     - Every human marine module lists Assault first.
     - Related: when the aliens "capture" a hab, `TIHabState.CaptureHab` *destroys* it (alien branch, `:1987`). They never own human habs.
     - Vanilla also never lets the aliens plan captures (`SelectHabToCapture` returns null for them).
+10b. **Aliens can't buy from Earth in practice** (2026-10-13). Vanilla prices a missing space resource as boost plus money for every faction (`TIResourcesCost.GetBoostSubstitutedCost`), but alien boost stock and income are 0, and `CanAfford` needs it in stock. Alien builds simply wait for metals and nobles. That is why alien metals oscillate near zero while ships keep coming slowly.
 11. **Station defenses are weak by construction.**
     - Station batteries reach 600/700/850 km (T1/T2/T3), against 800–1000 km for nose weapons.
     - HP is tiny, the hit sphere is huge (`tier*480*scale`), and station ECM is hard-coded to 0 (`TIHabModuleTemplate.ECMValue`).

@@ -4,6 +4,18 @@ What is built, what the probes show, and what is next. Newest first. Every claim
 
 ## 2026-10-13: M2 steps 4 and 6, shame, widening
 
+### Regression pass (`probes.ps1 -All`, build `ff5a972`: everything to date)
+
+11 of 13 probes pass:
+- **Pass:** contempt-arc, doctrine-raider, doctrine-shame-shift, e1, e3, e5, e9, econ-earth-buy, econ-mine-and-cap, fleet-capital-beams, fleet-neutral.
+- **doctrine-bastion fails** on its capture count: 5 goals against ≤ 4 (3 in its first run), with its capture-slot dial at 3 (Raider 13). Single-run variance.
+- **fleet-swarm-missiles fails** on its hull mix: 44% small against 57% in its first run, and the neutral control was also 44%. **The hull-size bias is weak.** Missiles stayed strong: design missile mounts 51 → 117, 42% of weapons built. Being retested at `HullSizeBias` 3.
+
+**What the new probes showed:**
+- **Shame:** Raider, under injected 80% losses, went 0.31 → 0.61 → 0.82 → 1.05 and then shifted to Land grab (2034-10-01). Its dials followed (capture slots 13 → 8).
+- **Widening:** factor 1.42 at 8.4 campaign years (Normal), so the drip went 40 → 56.8/month. With a 2.0k stock the exotics base cap is now 25.
+- **Earth purchases:** alien boost stock and income are 0, and money income is 0. **Vanilla aliens could never afford Earth substitution** (`CanAfford` needs the boost in stock). The block changes no behaviour; it guards the lore if a future patch gives aliens boost.
+
 ### Soak: 3 × 1 year from the 2034 save, vanilla vs mod (build `93d5cd2`: steps 4 + 6 v2; before widening, Earth-purchase block and shame)
 
 | | Vanilla | Mod |
