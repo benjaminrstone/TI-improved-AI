@@ -58,7 +58,7 @@ None pending.
 
 ## Next steps (recommended order)
 
-1. **Read the 2-year soak** (started 2026-10-13 on build `8ff3f4c`: widening, no Earth purchases, shame, `HullSizeBias` 3). Results are in `labesults\*soak2y-accel-2034-fusion-drives-r*`.
+1. **Read the 2-year soak** (started 2026-10-13 on build `8ff3f4c`: widening, no Earth purchases, shame, `HullSizeBias` 3). Results are in `lab\results\*soak2y-accel-2034-fusion-drives-r*`.
    - Run `python -I tools/aggregate.py "soak2y-accel-2034-fusion-drives-r*"`, plus the economy summary used in PROGRESS 2026-10-13 (bases, metals median, exotics, ships built).
    - Questions: do metals recover in year 2, once the new mines pay? Does widening (cap ~25) over-expand? Is alien strength up or down vs vanilla?
 2. **Tune the upkeep and widening numbers together** from that soak (user: they compete; widening is part of the balance).
