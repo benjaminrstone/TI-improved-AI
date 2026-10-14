@@ -100,4 +100,6 @@ Probe roster (`lab/probes/`):
 - **The user's campaign uses no missiles.** `ai.spawnfleet … missile` borrows another faction's design.
 - **Aliens never own human habs.** `CaptureHab` by aliens destroys the hab.
 - **Escaping.** Python heredoc string-replaces mangle Windows paths (`\f`, `\S`); use the Edit tool for those files. PowerShell 5.1 has no `??`, and `$args` is reserved.
+- **BepInEx keeps old defaults.** Once the game copy's `BepInEx/config/com.improvedai.terrainvicta.cfg` holds an entry, changing its default in `AIConfig.cs` does not change the value in use. Edit the .cfg too (or delete the line).
+- **Config overrides in probes** (`"config"` in a probe JSON) work for every type since `5ace626`. Before that, non-bool overrides silently disabled the harness.
 - **Fixture saves are all from one Normal accelerated Resistance campaign** (`lab/fixtures.json`). There are no fixtures yet for other factions, difficulties or the Dark Skies scenarios.

@@ -151,7 +151,7 @@ Bias the alien ship designer and the build picker toward the doctrine's weapon c
 
 **Built (v1, `AI/FleetDoctrine.cs`, `[Fleet]` config):**
 - **Weapon focus.** While the alien designer runs, the doctrine's class gets `WeaponFocusOdds` (3) against the role's own class wherever a mount fits it. When designs are compared (keep/retire, build pick), a design counts as (1 + `WeaponFitBonus` × share of its attack weapons in the doctrine class) × its SCV, so doctrine designs survive and get built. Kinetics = magnetic, naval and plasma guns.
-- **Hull philosophy.** The build-pick size weights shift by `HullSizeBias` (2) per size step: Swarm toward small, Capital and Motherships toward large. Motherships also gives huge hulls a fit bonus (`MothershipFitBonus` 0.5). Vanilla's mothership exclusions (importance < 15, no total-war enemy) stay.
+- **Hull philosophy.** The build-pick size weights shift by `HullSizeBias` (3 since 2026-10-13; 2 was too weak for Swarm) per size step: Swarm toward small, Capital and Motherships toward large. Motherships also gives huge hulls a fit bonus (`MothershipFitBonus` 0.5). Vanilla's mothership exclusions (importance < 15, no total-war enemy) stay.
 - **Engagement style.** Artillery multiplies long-range role weights by `EngagementRoleWeight` (3), Brawler short-range ones. Assault multiplies capture slots by `AssaultCaptureSlots` (1.5). Carrier: no effect yet.
 - A doctrine load or force with any non-balanced fleet axis sets `updateShipDesignsFlag`, so the aliens redesign at the next monthly check.
 - **Journal:** a monthly `fleet` record (live ships by size, role, hull and weapon class; active designs) and a `ship-built` record per alien ship. Both run on vanilla too.

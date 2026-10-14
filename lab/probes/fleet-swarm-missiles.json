@@ -1,6 +1,6 @@
 {
   "name": "fleet-swarm-missiles",
-  "notes": "M2 step 4 gate (A): a missile/swarm/artillery fleet doctrine. Compare with fleet-capital-beams and fleet-neutral (same fixture). Single runs 2026-10-12: Swarm built 57% small, missiles 47% of weapons, design missile mounts 51->130; Capital built 25% small, beams 38%, design beams 123->168 and kinetics 67->22; neutral 44% small, missiles/beams 31% each.",
+  "notes": "M2 step 4 gate (A): a missile/swarm/artillery fleet doctrine. Compare with fleet-capital-beams and fleet-neutral (same fixture). Single runs 2026-10-12: Swarm built 57% small, missiles 47% of weapons, design missile mounts 51->130; Capital built 25% small, beams 38%, design beams 123->168 and kinetics 67->22; neutral 44% small, missiles/beams 31% each. Hull bias tuning (2026-10-13), small-hull share of ships built: neutral 0.44/0.36; Swarm at HullSizeBias 2: 0.57/0.44/0.43; at 3: 0.59/0.51 -> default 3, assert >= 0.47 (above neutral's best).",
   "fixture": "accel-2034-fusion-drives",
   "runDays": 180,
   "commands": [
@@ -11,7 +11,7 @@
     "count('redesign') >= 1",
     "count('ship-built') >= 5",
     "sum(d['weapons'].get('Missiles', 0) for d in events('fleet')[-1]['designs']) >= 1.5 * sum(d['weapons'].get('Missiles', 0) for d in events('fleet')[0]['designs'])",
-    "sum(count('ship-built', size=s) for s in ['Small']) >= 0.5 * count('ship-built')"
+    "sum(count('ship-built', size=s) for s in ['Small']) >= 0.47 * count('ship-built')"
   ],
   "info": [
     "events('doctrine')[-1]['dials']",

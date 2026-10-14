@@ -110,7 +110,7 @@ namespace ImprovedAI
                 "Odds of the doctrine's weapon class against the role's own preferred class, when a mount fits it (vanilla roles lock weapon class).");
             WeaponFitBonus = cfg.Bind("Fleet", "WeaponFitBonus", 1f,
                 "When the aliens compare designs (keep/retire, build pick), a design armed entirely with the doctrine's class counts as (1 + this) x its combat value.");
-            HullSizeBias = cfg.Bind("Fleet", "HullSizeBias", 2f,
+            HullSizeBias = cfg.Bind("Fleet", "HullSizeBias", 3f,
                 "Build-pick size bias: Swarm favours small hulls by this factor per size step, Capital and Motherships favour large hulls.");
             MothershipFitBonus = cfg.Bind("Fleet", "MothershipFitBonus", 0.5f,
                 "Motherships doctrine: a huge-hull design counts as (1 + this) x its combat value when designs are compared.");

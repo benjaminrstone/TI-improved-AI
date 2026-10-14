@@ -48,7 +48,7 @@ Direction key:
 | Fleet / FleetDoctrine | on | = | Fleet doctrines bias alien design and build choices (M2 step 4). Variety, not difficulty. |
 | Fleet / WeaponFocusOdds | 3 | = | Doctrine weapon class vs the role's own class while designing. |
 | Fleet / WeaponFitBonus | 1.0 | = | Design-comparison bonus for doctrine-class weapons. |
-| Fleet / HullSizeBias | 2 | = | Build-mix shift per size step (Swarm small; Capital/Motherships large). |
+| Fleet / HullSizeBias | 3 | = | Build-mix shift per size step (Swarm small; Capital/Motherships large). Was 2: Swarm barely separated from neutral (small share 0.48 vs 0.40 mean); at 3 it is 0.55. |
 | Fleet / MothershipFitBonus | 0.5 | = | Motherships doctrine: huge-hull designs compare as 1.5× SCV. |
 | Fleet / EngagementRoleWeight | 3 | = | Artillery: long-range roles ×3; Brawler: short-range roles ×3. |
 | Fleet / AssaultCaptureSlots | 1.5 | `+` | Assault engagement style: more open marine captures. |
