@@ -101,6 +101,10 @@ Each item below names the mechanism and what the player sees.
     - Related: when the aliens "capture" a hab, `TIHabState.CaptureHab` *destroys* it (alien branch, `:1987`). They never own human habs.
     - Vanilla also never lets the aliens plan captures (`SelectHabToCapture` returns null for them).
 10b. **Aliens can't buy from Earth in practice** (2026-10-13). Vanilla prices a missing space resource as boost plus money for every faction (`TIResourcesCost.GetBoostSubstitutedCost`), but alien boost stock and income are 0, and `CanAfford` needs it in stock. Alien builds simply wait for metals and nobles. That is why alien metals oscillate near zero while ships keep coming slowly.
+    - **But trade is open to them** (user, 2026-10-13). Once a pro-alien faction (usually the Servants or Protectorate; perhaps the Academy later) completes `AlienDiplomacy` with a Contact mission on an alien councilor, AI-to-AI trades run through `TIPromptQueueState.HandleFactionContactMakeOffer` → `DiplomacyTradeAction` → `TIFactionState.ProcessTrade`.
+    - The aliens can hold and receive every resource, boost included (`UnlockedResource`). Control points, habs, orgs and projects can change hands too.
+    - Boost received by trade would make the Earth substitution affordable. The `NoEarthPurchases` block bites only then.
+    - Trades are now journaled (`kind: "trade"`, from 2026-10-13). Past runs never logged them.
 11. **Station defenses are weak by construction.**
     - Station batteries reach 600/700/850 km (T1/T2/T3), against 800–1000 km for nose weapons.
     - HP is tiny, the hit sphere is huge (`tier*480*scale`), and station ECM is hard-coded to 0 (`TIHabModuleTemplate.ECMValue`).
