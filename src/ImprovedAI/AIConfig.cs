@@ -200,11 +200,9 @@ namespace ImprovedAI
             foreach (var section in overrides)
                 foreach (var kv in section.Value)
                 {
+                    // TryGetEntry<T> throws (not false) when the entry has another type, so go through the untyped entry.
                     var def = new ConfigDefinition(section.Key, kv.Key);
-                    if (File.TryGetEntry<bool>(def, out var b)) b.Value = bool.Parse(kv.Value);
-                    else if (File.TryGetEntry<float>(def, out var f)) f.Value = float.Parse(kv.Value, System.Globalization.CultureInfo.InvariantCulture);
-                    else if (File.TryGetEntry<int>(def, out var i)) i.Value = int.Parse(kv.Value);
-                    else if (File.TryGetEntry<string>(def, out var s)) s.Value = kv.Value;
+                    if (File.ContainsKey(def)) File[def].SetSerializedValue(kv.Value);
                     else Plugin.Log.LogWarning($"Config override for unknown entry [{section.Key}] {kv.Key}");
                 }
         }

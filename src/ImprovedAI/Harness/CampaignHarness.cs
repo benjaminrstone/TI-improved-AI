@@ -93,6 +93,17 @@ namespace ImprovedAI.Harness
             {
                 Plugin.Log.LogError($"[Harness] Bad run.json, harness disabled: {e}");
                 Active = false;
+                // Unattended runs must not idle at the menu until the launcher's timeout: report and quit.
+                if (Run != null && !Run.interactive && !string.IsNullOrEmpty(Run.outDir))
+                {
+                    try
+                    {
+                        Directory.CreateDirectory(Run.outDir);
+                        File.WriteAllText(Path.Combine(Run.outDir, "results.json"), Jsonl.Serialize(new { endReason = "error: bad run.json: " + e.Message, save = Run.save }, indented: true));
+                    }
+                    catch { }
+                    Application.Quit();
+                }
             }
         }
 

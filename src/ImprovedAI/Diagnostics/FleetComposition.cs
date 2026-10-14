@@ -54,7 +54,10 @@ namespace ImprovedAI.Diagnostics
                 byHull = Tally(ships.Select(x => x.hullName)),
                 weapons = Tally(ships.SelectMany(AttackWeapons)),
                 designs = designs.Select(Describe).ToList(),
+                // Build-picker results since the last record (every call, including evaluations that build nothing).
+                picks = new Dictionary<string, int>(AI.FleetDoctrineBuildPick.PickedSizes),
             });
+            AI.FleetDoctrineBuildPick.PickedSizes.Clear();
         }
     }
 

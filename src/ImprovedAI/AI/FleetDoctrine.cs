@@ -153,6 +153,16 @@ namespace ImprovedAI.AI
             FleetDoctrine.Judging++;
         }
 
+        /// <summary>What the build picker returned this month, by size (diagnostic: picks vs ships actually built).</summary>
+        internal static readonly Dictionary<string, int> PickedSizes = new Dictionary<string, int>();
+
+        private static void Postfix(TIFactionState __instance, TISpaceShipTemplate __result)
+        {
+            if (__result == null || __instance == null || !__instance.IsAlienFaction) return;
+            string k = FleetComposition.SizeOf(__result);
+            PickedSizes[k] = PickedSizes.TryGetValue(k, out var n) ? n + 1 : 1;
+        }
+
         private static Exception Finalizer(Exception __exception, TIFactionState __instance, Saved __state)
         {
             if (__state.active)
