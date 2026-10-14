@@ -58,13 +58,14 @@ None pending.
 
 ## Next steps (recommended order)
 
-1. **2034 soak read (PROGRESS 2026-10-13):** the base cap works; metals do not recover within a year (expansion competes with ships). Next: a **2-year** soak on the current build (widening + no Earth purchases), `soaks.ps1 -Fixture accel-2034-fusion-drives -Days 730 -Runs 3 -Tag soak2y`.
-2. **Chapter playtest by the user.** `tools/playtest.ps1` is built (2026-10-13) and not yet tried in a real session. It deploys the plugin, then uses `C:\Games\TI-ImprovedAI-playtest\saves` as the save folder for that launch, so playtest saves and sidecars persist there and the Documents saves are never touched. It copies the chosen fixture in and loads it (`-Fixture`), with optional `-Doctrine "focus=…"` and `-Vanilla`. Diagnostics go to `lab\results\<stamp>-playtest-<name>\`.
-   - Caveat: the game copy shares Unity's display-settings registry key with the Steam install, so resolution changes made while playtesting carry over to the Steam game.
-3. **Regression pass on one build:** `tools\probes.ps1 -All`, plus the 2031 soak (`soaks.ps1 -Fixture accel-2031-hot-war -Days 365 -Runs 3`, then `aggregate.py`).
-4. **Doctrine shift on failure** (bookkeeping on the combat journal and hab losses), and **opening-weighted selection**.
-5. **P4 escalation:** desperation when contempt is low and alien losses are high. Build the widening clock on vanilla's `alienSetupStartIncome`/`EndIncome` ramp (`TIGlobalConfig` ~3035–3055; see DIALS.md).
-6. **Fleet doctrine tuning:** Brawler and Artillery should also reweight `JoinFleet`'s uniform role table. Vanilla's `AlienBattleCruiser` hull-name typo is a candidate for `Fixes/`.
+1. **Read the 2-year soak** (started 2026-10-13 on build `8ff3f4c`: widening, no Earth purchases, shame, `HullSizeBias` 3). Results are in `labesults\*soak2y-accel-2034-fusion-drives-r*`.
+   - Run `python -I tools/aggregate.py "soak2y-accel-2034-fusion-drives-r*"`, plus the economy summary used in PROGRESS 2026-10-13 (bases, metals median, exotics, ships built).
+   - Questions: do metals recover in year 2, once the new mines pay? Does widening (cap ~25) over-expand? Is alien strength up or down vs vanilla?
+2. **Tune the upkeep and widening numbers together** from that soak (user: they compete; widening is part of the balance).
+3. **Chapter playtest by the user:** `tools\playtest.ps1 -Fixture accel-2031-hot-war` (built, never tried live).
+4. **P4 escalation:** desperation when contempt is low and alien losses are high. Next: the terminus (a hard alien victory), with its construction site as a target.
+5. **Fleet doctrine:** Brawler barely shifts roles (JoinFleet weights every role equally). Vanilla's `AlienBattleCruiser` typo is a candidate for `Fixes/`. The `fleet` record now has a build-picker size tally (`picks`) for checking where builds come from.
+6. **Re-run `doctrine-bastion`.** Its capture count (5 vs ≤ 4) failed once in the regression pass; probably variance.
 
 ## How to run things
 
