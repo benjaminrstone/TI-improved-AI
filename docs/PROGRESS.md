@@ -4,6 +4,24 @@ What is built, what the probes show, and what is next. Newest first. Every claim
 
 ## 2026-10-13: M2 steps 4 and 6, shame, widening
 
+### Soak: 3 × 2 years from the 2034 save, vanilla vs mod (build `8ff3f4c`: widening, no Earth purchases, shame, HullSizeBias 3)
+
+| | Vanilla | Mod |
+|---|---|---|
+| Alien bases (start → 1 y → 2 y) | 13 → 13 → 16 | **13 → 21–23 → 22–23** |
+| Alien metal income | 2606 → 2565–2659 | **2606 → 4762 / 4774 / 5946** |
+| Alien metals, median month, year 2 | 5.5k / 7.9k / 19.0k | 7.4k / 3.1k / 2.5k |
+| Alien SCV at end | 34.9k [33.7–36.8] | **38.5k [35.5–40.0]** |
+| Alien ships lost / human ships destroyed by aliens | 38 / 180 | **8** / 142 |
+| Alien ships built, year 1 / year 2 | 93–109 / 52–94 | 58–62 / 26–53. Fewer and larger: this campaign's seeded doctrine is Motherships, and HullSizeBias is now 3. |
+| Exotics stock | 2.0k → 2.5–2.6k | **2.0k → 0.6–1.0k** (drip 60, upkeep 98–104 per month) |
+| Natural doctrine shifts | — | none |
+
+**Reading.**
+- **Mine what you lack pays off in year 2.** Alien metal income nearly doubles, and alien strength ends 10% above vanilla with far fewer losses.
+- **The exotics cap overshoots.** It allowed ~23 bases while stock and drip were high (stock / 60 counts as income). Capital-ship upkeep then grew with the Motherships doctrine. The cap fell back to 12–16, but bases are never given up, so upkeep sits ~40/month above the drip. The stock runs out in about a year, after which bases eat the whole drip and exotic warships starve.
+- **Needs tuning with the widening** (user decision): budget the cap from a sustainable share of the drip, and/or lower the per-base upkeep.
+
 ### Regression pass (`probes.ps1 -All`, build `ff5a972`: everything to date)
 
 11 of 13 probes pass:
