@@ -69,7 +69,7 @@ namespace ImprovedAI.AI
                             && Ok(!f.transferAssigned, "inTransfer") && Ok(f.isCapableOfTransfering, "cantTransfer")
                             && Ok(f.CombatFleet() && !f.InvasionFleet(), "notCombat") && Ok(!f.AI_NeedsRepairBadly(), "needsRepair")
                             && Ok(!AIEvaluators.ShouldSystemBeInDefenseMode(faction, f.ref_system), "defenseMode")
-                            && Ok(Releasable(faction, f), "goal:" + (f.AssignedGoal()?.GetGoalType().ToString() ?? "none")))
+                            && Ok(Releasable(faction, f, goal), "goal:" + (f.AssignedGoal()?.GetGoalType().ToString() ?? "none")))
                 .OrderBy(f => f.ref_system == anchor.ref_system ? 0 : 1)
                 .ThenByDescending(f => f.SpaceCombatValue())
                 .ToList();
@@ -113,10 +113,24 @@ namespace ImprovedAI.AI
             });
         }
 
-        private static bool Releasable(TIFactionState faction, TISpaceFleetState f)
+        /// <summary>
+        /// Escalated (P4: "commit everything"), fleets on lesser work are stripped for the decisive strike too: other
+        /// attacks and raids not yet under way, Earth surveillance, sends and joins elsewhere, all below the focus goal's
+        /// importance. Repair, resupply and councilor transport are never stripped. In the 2039 Jupiter probe the pool
+        /// otherwise sat at 4-8k of a 17-21k need for 8 months, its donors all busy (2026-10-16).
+        /// </summary>
+        private static readonly HashSet<GoalType> StrippableWhenEscalated = new HashSet<GoalType>
+        {
+            GoalType.AttackWithFleet, GoalType.CaptureHab, GoalType.SurveilEarth, GoalType.SendFleet, GoalType.JoinFleet, GoalType.SecureEarthSpace,
+        };
+
+        private static bool Releasable(TIFactionState faction, TISpaceFleetState f, FactionGoal_AttackWithFleet focus)
         {
             var g = f.AssignedGoal();
             if (g == null || g is FactionGoal_AssembleFleet) return true;
+            if (Escalation.Escalated && focus != null && g != focus && StrippableWhenEscalated.Contains(g.GetGoalType())
+                && g.importance < focus.importance && !g.InProgress() && !(g is FactionGoal_JoinFleet j && j.target()?.ref_fleet == focus.assignedFleet))
+                return true;
             if (g is FactionGoal_DefendWithFleet d)
             {
                 // Release is limited by the per-system budget in the caller (local threat, reserve), not by the defend

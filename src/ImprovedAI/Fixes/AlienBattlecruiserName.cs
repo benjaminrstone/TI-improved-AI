@@ -24,7 +24,9 @@ namespace ImprovedAI.Fixes
 
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
+            // Harmony re-runs transpilers whenever another patch is added to the same method, so count per pass.
             var call = AccessTools.Method(typeof(AlienBattlecruiserName), nameof(HullName));
+            Replaced = 0;
             foreach (var ins in instructions)
             {
                 if (ins.opcode == System.Reflection.Emit.OpCodes.Ldstr && ins.operand as string == Wrong)
