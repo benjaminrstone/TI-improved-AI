@@ -144,6 +144,18 @@ ECM on colony ships and on bases lowers the signature. An undetected asset gener
 
 The final phase should feel different (higher stakes, decisive battles), not merely tougher.
 
+**Built v1 (2026-10-16, `AI/Escalation.cs`).**
+- **Desperation**, judged monthly, from:
+  - human habs in the gas-giant systems;
+  - gas-giant systems lost outright (humans present, aliens absent);
+  - respect (contempt below 0.35);
+  - alien habs lost in the last 12 months.
+- **At 0.55 the aliens escalate**, and stay escalated until 6 months below 0.4. While escalated:
+  - total war becomes possible at once (vanilla waits 20 progression-years on Normal);
+  - loss aversion relaxes (bolder attacks, reserves committed, more raids aimed at the hated);
+  - half the expansion share of the drip goes to war.
+- **Not yet:** an explicit exotics surge into wormhole-tier warships, riskAversion, and the terminus.
+
 - **Change of posture, triggered by real losses.** Losing a gas-giant system, or a threat to the main base, moves the aliens from managing a nuisance to fighting a war they could lose.
   - **They commit everything they have saved:** the wormhole surges using stockpiled exotics, advanced tech is released, total war begins, and they launch concentrated counteroffensives.
   - **Desperation relaxes loss aversion (P2).** They accept fights and casualties they used to avoid. That makes them more dangerous, and it also gives the player the decisive engagements the cautious alien would have refused.
@@ -329,6 +341,7 @@ The user made these on 2026-10-11:
 - **Chapter playtest (2026-10-12).** Build the one-command playtest setup after M2 steps 4 and 6 land, so there is more to feel.
 - **No buying from Earth (2026-10-13).** Clarified the same day: Earth counts as local by the wormhole lore. What the aliens lack is access to Earth's open market, not to Earth goods. Their sanctioned channel is their human proxies (trades with the Servants or Protectorate, maybe the Academy later), which the player can see and disrupt. Original decision: The aliens lose vanilla's boost-and-money substitution for missing space resources. They build only from what they mine, plus the exotics drip. Metals become a real constraint, and alien mining a real target.
 - **Exotics upkeep (2026-10-13).** Bases and exotic warships should definitely compete for the drip. The widening wormhole is part of that balance, so the upkeep numbers are tuned together with the widening clock, not on their own.
+- **Sustainable base cap (2026-10-16).** "We want intelligent aliens." The cap budgets bases and capital-hull upkeep from about 75% of the drip, so the aliens don't over-expand and then starve their exotic warships. Expansion resumes as the wormhole widens.
 - **Doctrine selection stays seeded (2026-10-13).** No opening-weighted selection. Variety comes from the campaign seed and from shame shifts.
 
 ## Engineering rules

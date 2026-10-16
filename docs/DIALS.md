@@ -18,6 +18,11 @@ Direction key:
 | Strategy / StartingContempt | 0.8 | (base) | Starting contempt at Normal, before vanilla's learned respect. |
 | Strategy / ContemptDifficultyOffset | +0.15 / 0 / −0.1 / −0.2 | `−` | **Per difficulty (C/N/V/B).** Added to StartingContempt (user, 2026-10-12). |
 | Strategy / ContemptLearning | 0.7 / 1 / 1.25 / 1.5 | `+` | **Per difficulty.** Multiplier on contempt losses: how fast the aliens learn respect. |
+| Strategy / Escalation | on | = | P4: a desperate command escalates to total war. |
+| Strategy / EscalationEscalateAt / CalmAt / CalmMonths | 0.55 / 0.4 / 6 | `−` EscalateAt (maybe) | When the aliens take the war seriously. |
+| Strategy / EscalationThreatHabs / RespectContempt / LossHabs | 4 / 0.35 / 4 | = | Scales of the desperation inputs (weights 0.3 threat, 0.3 lost gas-giant system, 0.2 respect, 0.2 hab losses). |
+| Strategy / EscalationBoldness | 0.25 | `+` | Escalated: superiority ×0.75, arrival fight ×0.85, home reserve ×0.5, raids, captures and hate weight ×1.5. |
+| Strategy / EscalationDripShareFactor | 0.5 | `−` | Escalated: half the usual drip share goes to new bases; the rest goes to war. |
 | Strategy / DoctrineShift | on | = | Doctrinal shame (P6). |
 | Strategy / ShameWindowMonths | 6 | = | Months judged. |
 | Strategy / ShameHabWeight | 5 | = | A hab counts as 5 ships. |
@@ -45,6 +50,7 @@ Direction key:
 | Targeting / RaidCaptures | on | `+` | Marine captures (= destruction) of undefended bases off Earth/Luna |
 | Targeting / MaxCaptureGoals | 6 | `+` | Capture tempo (one cheap troop carrier each) |
 | Fixes / AlienMarineValue | on | = | Vanilla bug fix (alien marine pod read as 0) |
+| Fixes / AlienBattlecruiserName | on | = | Vanilla bug fix (`AlienBattleCruiser` hull-name typo in the alien designer) |
 | Fleet / FleetDoctrine | on | = | Fleet doctrines bias alien design and build choices (M2 step 4). Variety, not difficulty. |
 | Fleet / WeaponFocusOdds | 3 | = | Doctrine weapon class vs the role's own class while designing. |
 | Fleet / WeaponFitBonus | 1.0 | = | Design-comparison bonus for doctrine-class weapons. |
@@ -60,10 +66,11 @@ Direction key:
 | Economy / WideningPerYear | 0.03 / 0.05 / 0.07 / 0.09 | `+` | **Per difficulty.** Drip × (1 + this × calendar campaign years). This is the difficulty lever that replaces vanilla's fixed `AI_AlienExoticMultiplier_*` growth. |
 | Economy / WideningMax | 3 | `+` | Cap on the widening factor. |
 | Economy / ExoticsUpkeep | on | = | Bases and capital hulls cost exotics; replaces the fixed base cap. |
-| Economy / BaseExoticsUpkeep | 3 / month | `−` | Lower means more bases. **Replaces vanilla `maxAlienBaseGoals_*` as the expansion limit.** The drip already scales with difficulty (`AI_AlienExoticMultiplier_*` 1/2/3/4). |
+| Economy / BaseExoticsUpkeep | 2 / month (was 3) | `−` | Lower means more bases. **Replaces vanilla `maxAlienBaseGoals_*` as the expansion limit.** The drip already scales with difficulty (`AI_AlienExoticMultiplier_*` 1/2/3/4). |
+| Economy / SustainableDripShare | 0.75 | = | The cap budgets bases + capital-hull upkeep from this share of the drip; the rest is kept for exotic warships (user, 2026-10-16: a sustainable cap). |
 | Economy / CapitalShipExoticsUpkeep | 0.5 / month | `−` | Large hulls. |
 | Economy / HugeShipExoticsUpkeep | 2 / month | `−` | Motherships. |
-| Economy / ExoticsStockHorizonMonths | 60 | `−` | The cap counts stock/this as monthly budget. Shorter means the hoard turns into bases faster. |
+| Economy / ExoticsStockHorizonMonths | 240 (was 60) | `−` | The cap counts stock/this as monthly budget. Shorter means the hoard turns into bases faster. |
 | Economy / MaxAlienBasesCeiling | 40 | `+` | Hard ceiling. |
 
 ## Vanilla difficulty knobs we expect to retune

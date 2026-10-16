@@ -196,6 +196,11 @@ It **rises** slowly with alien victories. Fury (from nukes or discovered decepti
 
 **No buying from Earth (user decision 2026-10-13; v1 built).** A prefix on `TIResourcesCost.GetBoostSubstitutedCost` returns the plain space cost for the aliens. That method is the one funnel for ship builds, refits, repairs and hab modules. The monthly `economy` record counts alien shortfalls and refusals, plus boost and money stock and income. Probe `econ-earth-buy` (2026-10-13): alien boost stock and income are 0, so **vanilla aliens could never afford the substitution**. The block guards the lore and changes no behaviour.
 
+**v3: sustainable cap (2026-10-16, user: "intelligent aliens").** The 2-year soak showed v2 overshooting: ~23 bases, upkeep ~100 against a drip of 60, stock dry within a year.
+- Now the budget is 0.75 × drip + stock / 240 − capital-hull upkeep, at 2 exotics per base per month. That is ~17 bases in 2034 (upkeep ~51 against a drip of 57).
+- 25% of the drip stays free for exotic warships and the growth of capital-hull upkeep.
+- When escalated (P4), half of that expansion share goes to war.
+
 **Widening wormhole v1 (2026-10-13, `AI/Wormhole.cs`).** The P2 soft clock, built now because the user tied the upkeep balance to it.
 - The alien drip multiplier (`AI_GetExoticsMultiplier`, read only for alien exotics income) × W, where W = 1 + rate × calendar campaign years, capped at 3.
 - Rate per difficulty: 0.03 / 0.05 / 0.07 / 0.09.

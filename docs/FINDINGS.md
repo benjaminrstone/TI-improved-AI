@@ -91,7 +91,7 @@ Each item below names the mechanism and what the player sees.
    - picks the max-SCV design if importance ≥ 10, otherwise the lightest;
    - drops designs it can't afford in exotics or antimatter.
    - There is no fleet-level doctrine and no counter-design.
-   - **Confirmed vanilla bug (2026-10-12):** `DesignShipsCoroutine` (~5996) asks for hull `"AlienBattleCruiser"`; the data name is `AlienBattlecruiser` and the template lookup is case-sensitive, so that slot falls back to the lightest valid hull. Not fixed yet (low impact; candidate for `Fixes/`).
+   - **Confirmed vanilla bug (2026-10-12):** `DesignShipsCoroutine` (~5996) asks for hull `"AlienBattleCruiser"`; the data name is `AlienBattlecruiser` and the template lookup is case-sensitive, so that slot falls back to the lightest valid hull. **Fixed 2026-10-16** (`Fixes/AlienBattlecruiserName`, a transpiler on the coroutine's string literal). It affected `SS_Interceptor` slot k=3, the exotics medium interceptor.
    - **The role locks the weapon class** (`GetCuratedDesignScore`: own classes ×1e7, others ÷1e7). Short-range roles carry lasers, medium-range magnetic or particle, long-range missile or plasma. Detail in M2-PLAN step 4.
 10. **Vanilla bug: alien ships can never assault a base.**
     - `TIUtilityModuleTemplate.marineOpsValue` counts a module's marine value only if its *first* special rule is Assault or MarineOpsDefenseOnly.
