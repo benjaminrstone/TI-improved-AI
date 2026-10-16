@@ -1,0 +1,23 @@
+{
+  "name": "escalation-jupiter",
+  "notes": "P4 gate: the 2039 save, where the Resistance holds Jupiter and the aliens hold nothing there (a lost gas-giant system: the design's trigger). Expect escalation in the first month (desperation >= 0.55), total war becoming possible, and more aggression at Jupiter than in escalation-jupiter-control (same save, escalation off). Vanilla never contests Jupiter at all (E9).",
+  "fixture": "accel-2039-clean-jupiter",
+  "runDays": 240,
+  "asserts": [
+    "count('escalation') >= 6",
+    "events('escalation')[0]['lostSystems'] >= 1",
+    "count('posture', ev='escalated') >= 1",
+    "events('posture', ev='escalated')[0]['t'] <= '2039-05-01'",
+    "events('posture', ev='escalated')[0]['dials']['AttackSuperiority'] < events('doctrine')[0]['dials']['AttackSuperiority']"
+  ],
+  "info": [
+    "[(e['t'], round(e['desperation'], 2), round(e['threat'], 2), e['lostSystems'], round(e['respect'], 2), e['recentLosses'], e['escalated'], e['totalWar']) for e in events('escalation')]",
+    "[(e['t'], e['ev'], e['why']) for e in events('posture')]",
+    "len([e for e in events('transfer', goal='AttackWithFleet') if e.get('toSystem') == 'Jupiter'])",
+    "count('transfer', goal='AttackWithFleet')",
+    "count('combat', system='Jupiter')",
+    "count('hab-', faction='ResistCouncil')",
+    "count('hab-', faction='AlienCouncil')",
+    "[(f['faction'], round(f['contempt'], 2)) for f in events('disposition')[-1]['factions']]"
+  ]
+}

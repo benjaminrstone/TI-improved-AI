@@ -1,6 +1,6 @@
 {
   "name": "fleet-neutral",
-  "notes": "M2 step 4 control: balanced fleet axes = vanilla design and build behaviour (no redesign request, so 'redesign' is not asserted).",
+  "notes": "M2 step 4 control: balanced fleet axes = vanilla design and build behaviour (no redesign request, so 'redesign' is not asserted). Also: no escalation in 2034 (humans hold nothing in the gas giants); the AlienBattlecruiser name fix gives the exotics medium interceptor its intended hull.",
   "fixture": "accel-2034-fusion-drives",
   "runDays": 180,
   "commands": [
@@ -8,7 +8,9 @@
   ],
   "asserts": [
     "count('fleet') >= 3",
-    "count('ship-built') >= 5"
+    "count('ship-built') >= 5",
+    "count('posture', ev='escalated') == 0",
+    "any(d['role'] == 'SS_Interceptor' and d['hull'] == 'AlienBattlecruiser' for d in events('fleet')[-1]['designs'])"
   ],
   "info": [
     "events('doctrine')[-1]['dials']",

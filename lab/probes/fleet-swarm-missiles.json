@@ -1,6 +1,6 @@
 {
   "name": "fleet-swarm-missiles",
-  "notes": "M2 step 4 gate (A): a missile/swarm/artillery fleet doctrine. Compare with fleet-capital-beams and fleet-neutral (same fixture). Single runs 2026-10-12: Swarm built 57% small, missiles 47% of weapons, design missile mounts 51->130; Capital built 25% small, beams 38%, design beams 123->168 and kinetics 67->22; neutral 44% small, missiles/beams 31% each. Hull bias tuning (2026-10-13), small-hull share of ships built: neutral 0.44/0.36; Swarm at HullSizeBias 2: 0.57/0.44/0.43; at 3: 0.59/0.51 -> default 3, assert >= 0.47 (above neutral's best).",
+  "notes": "M2 step 4 gate (A): a missile/swarm/artillery fleet doctrine. Compare with fleet-capital-beams and fleet-neutral (same fixture). Single runs 2026-10-12: Swarm built 57% small, missiles 47% of weapons, design missile mounts 51->130; Capital built 25% small, beams 38%, design beams 123->168 and kinetics 67->22; neutral 44% small, missiles/beams 31% each. Hull bias tuning (2026-10-13), small-hull share of ships built: neutral 0.44/0.36; Swarm at HullSizeBias 2: 0.57/0.44/0.43; at 3: 0.59/0.51 -> default 3, assert >= 0.47 (above neutral's best). Engagement (2026-10-16: own range x3, opposite range /3): short-range share of short+long combat builds was neutral 0.26-0.27, Brawler 0.30-0.33, Artillery 0.15-0.26 before.",
   "fixture": "accel-2034-fusion-drives",
   "runDays": 180,
   "commands": [
@@ -11,7 +11,8 @@
     "count('redesign') >= 1",
     "count('ship-built') >= 5",
     "sum(d['weapons'].get('Missiles', 0) for d in events('fleet')[-1]['designs']) >= 1.5 * sum(d['weapons'].get('Missiles', 0) for d in events('fleet')[0]['designs'])",
-    "sum(count('ship-built', size=s) for s in ['Small']) >= 0.47 * count('ship-built')"
+    "sum(count('ship-built', size=s) for s in ['Small']) >= 0.47 * count('ship-built')",
+    "sum(count('ship-built', role=r) for r in ['LS_Penetrator','MS_Strike','SS_Interceptor']) / max(1, sum(count('ship-built', role=r) for r in ['LS_Penetrator','MS_Strike','SS_Interceptor'] + ['LL_Intruder','ML_Standoff','SL_Defender'])) <= 0.2"
   ],
   "info": [
     "events('doctrine')[-1]['dials']",
@@ -25,6 +26,7 @@
     "[(d['role'], d['size'], d['hull'], d['weapons']) for d in events('fleet')[-1]['designs']]",
     "events('fleet')[0]['bySize']",
     "events('fleet')[-1]['bySize']",
-    "events('fleet')[-1]['weapons']"
+    "events('fleet')[-1]['weapons']",
+    "sum(count('ship-built', role=r) for r in ['LS_Penetrator','MS_Strike','SS_Interceptor']) / max(1, sum(count('ship-built', role=r) for r in ['LS_Penetrator','MS_Strike','SS_Interceptor'] + ['LL_Intruder','ML_Standoff','SL_Defender']))"
   ]
 }

@@ -54,8 +54,23 @@ namespace ImprovedAI.AI
             m.captureSlots *= posture;
             // Engagement style: an assault-minded command keeps more marine captures going.
             if (Plugin.Cfg.UseFleetDoctrine && d.engagement == EngagementStyle.Assault) m.captureSlots *= Plugin.Cfg.AssaultCaptureSlots.Value;
+            // P4 escalation: a war they could lose. Loss aversion relaxes, reserves are committed, raids multiply.
+            if (Escalation.Escalated)
+            {
+                float e = Mathf.Clamp(Plugin.Cfg.EscalationBoldness.Value, 0f, 0.9f);
+                m.superiority *= 1f - e;              // 0.25 -> x0.75
+                m.arrivalFight *= 1f - 0.6f * e;      // -> x0.85
+                m.reserve *= 1f - 2f * e;             // -> x0.5
+                m.raidSlots *= 1f + 2f * e;           // -> x1.5
+                m.captureSlots *= 1f + 2f * e;
+                m.raidImportance += 2;
+                m.hateWeight *= 1f + 2f * e;
+            }
             return m;
         }
+
+        /// <summary>Share of the exotics drip the base cap may commit to upkeep; escalation diverts part of it to war.</summary>
+        public static float SustainableDripShare => Mathf.Clamp01(Plugin.Cfg.SustainableDripShare.Value * (Escalation.Escalated ? Plugin.Cfg.EscalationDripShareFactor.Value : 1f));
 
         // ---- Fleet doctrine (M2 step 4). Neutral (1 / Balanced) when [Fleet] FleetDoctrine is off. ----
 
@@ -125,7 +140,7 @@ namespace ImprovedAI.AI
         public static object Snapshot() => new
         {
             AttackSuperiority, ShortcutSuperiority, PoolMargin, PoolReserveFraction, MaxRaidGoals, MaxCaptureGoals, RaidImportance, RaidHateWeight, ArrivalFightRatio,
-            Difficulty, StartingContempt, ContemptLearning,
+            Difficulty, StartingContempt, ContemptLearning, Escalated = Escalation.Escalated, SustainableDripShare,
             WeaponFocus = WeaponFocus.ToString(), Hulls = Hulls.ToString(), Engagement = Engagement.ToString(),
             WeaponFocusOdds, WeaponFitBonus, MothershipFitBonus, EngagementRoleWeight,
             BuildSmalls = BuildSizeWeights.smalls, BuildMediums = BuildSizeWeights.mediums,

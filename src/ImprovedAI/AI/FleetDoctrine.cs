@@ -67,12 +67,17 @@ namespace ImprovedAI.AI
         private static readonly HashSet<ShipRole> LongRange = new HashSet<ShipRole> { ShipRole.LL_Intruder, ShipRole.ML_Standoff, ShipRole.SL_Defender };
         private static readonly HashSet<ShipRole> ShortRange = new HashSet<ShipRole> { ShipRole.LS_Penetrator, ShipRole.MS_Strike, ShipRole.SS_Interceptor };
 
+        /// <summary>
+        /// Engagement style reweights combat roles by range: its own range x w, the opposite range / w. Up-weighting alone
+        /// barely moved the build mix: JoinFleet goals weight all ~19 roles equally (gate probes, 2026-10-13).
+        /// </summary>
         public static float RoleWeight(ShipRole role)
         {
+            float w = UnityEngine.Mathf.Max(1f, Dials.EngagementRoleWeight);
             switch (Dials.Engagement)
             {
-                case EngagementStyle.Artillery: return LongRange.Contains(role) ? Dials.EngagementRoleWeight : 1f;
-                case EngagementStyle.Brawler: return ShortRange.Contains(role) ? Dials.EngagementRoleWeight : 1f;
+                case EngagementStyle.Artillery: return LongRange.Contains(role) ? w : ShortRange.Contains(role) ? 1f / w : 1f;
+                case EngagementStyle.Brawler: return ShortRange.Contains(role) ? w : LongRange.Contains(role) ? 1f / w : 1f;
                 default: return 1f;
             }
         }

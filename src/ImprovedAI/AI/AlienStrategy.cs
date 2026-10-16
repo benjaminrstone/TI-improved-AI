@@ -47,6 +47,13 @@ namespace ImprovedAI.AI
         public int shifts;
         /// <summary>Results under the current doctrine, one row per game month (rolling window, DoctrineShift).</summary>
         public List<LedgerMonth> ledger = new List<LedgerMonth>();
+        /// <summary>P4: how close the Hydra command thinks it is to losing (0..1), and whether it has escalated to total war.</summary>
+        public float desperation;
+        public bool escalated;
+        public string escalatedSince;
+        public int calmMonths;
+        /// <summary>Dates (yyyy-MM-dd) of alien habs lost to humans, kept for 12 months.</summary>
+        public List<string> habLosses = new List<string>();
     }
 
     public class LedgerMonth

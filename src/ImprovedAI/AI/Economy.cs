@@ -106,14 +106,19 @@ namespace ImprovedAI.AI
         /// <summary>Gross monthly exotics income (the wormhole drip, before upkeep).</summary>
         public static float Drip(TIFactionState alien) => Mathf.Max(0f, GameRead.Safe(() => alien.GetMonthlyIncome(FactionResource.Exotics)));
 
-        /// <summary>How many bases the drip plus a slice of the stockpile can carry, after capital-ship upkeep.</summary>
+        /// <summary>
+        /// How many bases the aliens can SUSTAIN (user, 2026-10-16: intelligent aliens, sustainable cap). The budget is a
+        /// share of the drip (the rest is kept for exotic warships and the growth of capital-ship upkeep) plus a slow
+        /// slice of the stockpile, minus current capital-ship upkeep. v1 counted the whole drip plus stock/60 and
+        /// overshot: 23 bases, upkeep ~100 against a drip of 60, stockpile dry within a year (2-year soak, 2026-10-13).
+        /// </summary>
         public static int ExoticsBaseCap(TIFactionState alien)
         {
             float perBase = Plugin.Cfg.BaseExoticsUpkeep.Value;
             if (perBase <= 0f) return 999;
             MonthlyUpkeep(alien, out _, out float ships);
             float stockSlice = Mathf.Max(0f, alien.GetCurrentResourceAmount(FactionResource.Exotics)) / Mathf.Max(1f, Plugin.Cfg.ExoticsStockHorizonMonths.Value);
-            float budget = Drip(alien) + stockSlice - ships;
+            float budget = Dials.SustainableDripShare * Drip(alien) + stockSlice - ships;
             return Mathf.Clamp(Mathf.FloorToInt(budget / perBase), 0, Plugin.Cfg.MaxAlienBasesCeiling.Value);
         }
 

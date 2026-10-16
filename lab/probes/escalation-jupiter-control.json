@@ -1,0 +1,22 @@
+{
+  "name": "escalation-jupiter-control",
+  "notes": "Control for escalation-jupiter: same save, [Strategy] Escalation off.",
+  "fixture": "accel-2039-clean-jupiter",
+  "runDays": 240,
+  "asserts": [
+    "count('posture') == 0"
+  ],
+  "info": [
+    "len([e for e in events('transfer', goal='AttackWithFleet') if e.get('toSystem') == 'Jupiter'])",
+    "count('transfer', goal='AttackWithFleet')",
+    "count('combat', system='Jupiter')",
+    "count('hab-', faction='ResistCouncil')",
+    "count('hab-', faction='AlienCouncil')",
+    "[(f['faction'], round(f['contempt'], 2)) for f in events('disposition')[-1]['factions']]"
+  ],
+  "config": {
+    "Strategy": {
+      "Escalation": "false"
+    }
+  }
+}

@@ -21,6 +21,9 @@ namespace ImprovedAI
         public readonly ConfigEntry<float> StartingContempt;
         public readonly ConfigEntry<string> ContemptDifficultyOffset;
         public readonly ConfigEntry<string> ContemptLearning;
+        public readonly ConfigEntry<bool> Escalation;
+        public readonly ConfigEntry<float> EscalationThreatHabs, EscalationRespectContempt, EscalationLossHabs, EscalationEscalateAt, EscalationCalmAt, EscalationBoldness, EscalationDripShareFactor;
+        public readonly ConfigEntry<int> EscalationCalmMonths;
         public readonly ConfigEntry<bool> DoctrineShift;
         public readonly ConfigEntry<int> ShameWindowMonths;
         public readonly ConfigEntry<float> ShameHabWeight;
@@ -46,6 +49,7 @@ namespace ImprovedAI
         public readonly ConfigEntry<float> WideningMax;
         public readonly ConfigEntry<bool> ExoticsUpkeep;
         public readonly ConfigEntry<float> BaseExoticsUpkeep;
+        public readonly ConfigEntry<float> SustainableDripShare;
         public readonly ConfigEntry<float> CapitalShipExoticsUpkeep;
         public readonly ConfigEntry<float> HugeShipExoticsUpkeep;
         public readonly ConfigEntry<float> ExoticsStockHorizonMonths;
@@ -70,6 +74,7 @@ namespace ImprovedAI
         public readonly ConfigEntry<bool> RaidCaptures;
         public readonly ConfigEntry<int> MaxCaptureGoals;
         public readonly ConfigEntry<bool> AlienMarineFix;
+        public readonly ConfigEntry<bool> AlienBattlecruiserFix;
 
         public AIConfig(ConfigFile cfg)
         {
@@ -94,6 +99,17 @@ namespace ImprovedAI
                 "Added to StartingContempt per difficulty (Cinematic,Normal,Veteran,Brutal): arrogant on easy, wary on hard (user, 2026-10-12).");
             ContemptLearning = cfg.Bind("Strategy", "ContemptLearning", "0.7,1,1.25,1.5",
                 "Multiplier on contempt LOSSES per difficulty (Cinematic,Normal,Veteran,Brutal): how fast the aliens learn respect.");
+            Escalation = cfg.Bind("Strategy", "Escalation", true,
+                "P4: when desperate (humans in the gas-giant heartland, systems lost, respect earned, habs lost) the aliens escalate to total war and accept risk.");
+            EscalationThreatHabs = cfg.Bind("Strategy", "EscalationThreatHabs", 4f, "Human habs in the gas-giant systems that count as the full threat.");
+            EscalationRespectContempt = cfg.Bind("Strategy", "EscalationRespectContempt", 0.35f, "Contempt below which respect starts adding to desperation (0 contempt = full).");
+            EscalationLossHabs = cfg.Bind("Strategy", "EscalationLossHabs", 4f, "Alien habs lost to humans in 12 months that count as the full loss.");
+            EscalationEscalateAt = cfg.Bind("Strategy", "EscalationEscalateAt", 0.55f, "Desperation at which the aliens escalate.");
+            EscalationCalmAt = cfg.Bind("Strategy", "EscalationCalmAt", 0.4f, "Desperation below which an escalated command starts to calm.");
+            EscalationCalmMonths = cfg.Bind("Strategy", "EscalationCalmMonths", 6, "Months below CalmAt before escalation ends.");
+            EscalationBoldness = cfg.Bind("Strategy", "EscalationBoldness", 0.25f,
+                "Escalated: attack superiority x(1-b), arrival fight ratio x(1-0.6b), home reserve x(1-2b), raid/capture slots and hate weight x(1+2b).");
+            EscalationDripShareFactor = cfg.Bind("Strategy", "EscalationDripShareFactor", 0.5f, "Escalated: the base cap commits this fraction of its usual drip share (the rest goes to war).");
             DoctrineShift = cfg.Bind("Strategy", "DoctrineShift", true,
                 "Doctrinal shame (P6): a strategic focus that keeps losing its exchanges is abandoned, late, for another.");
             ShameWindowMonths = cfg.Bind("Strategy", "ShameWindowMonths", 6, "Months of results the command judges its doctrine on.");
@@ -132,10 +148,12 @@ namespace ImprovedAI
             WideningMax = cfg.Bind("Economy", "WideningMax", 3f, "Cap on the widening factor.");
             ExoticsUpkeep = cfg.Bind("Economy", "ExoticsUpkeep", true,
                 "Alien bases and capital hulls cost exotics each month, and the fixed alien base cap becomes what the exotics drip and stockpile can carry.");
-            BaseExoticsUpkeep = cfg.Bind("Economy", "BaseExoticsUpkeep", 3f, "Exotics per alien base per month.");
+            BaseExoticsUpkeep = cfg.Bind("Economy", "BaseExoticsUpkeep", 2f, "Exotics per alien base per month.");
+            SustainableDripShare = cfg.Bind("Economy", "SustainableDripShare", 0.75f,
+                "Share of the exotics drip the base cap may commit to upkeep (bases + capital hulls); the rest is kept for exotic warships.");
             CapitalShipExoticsUpkeep = cfg.Bind("Economy", "CapitalShipExoticsUpkeep", 0.5f, "Exotics per large-hull alien ship per month.");
             HugeShipExoticsUpkeep = cfg.Bind("Economy", "HugeShipExoticsUpkeep", 2f, "Exotics per huge-hull alien ship (mothership) per month.");
-            ExoticsStockHorizonMonths = cfg.Bind("Economy", "ExoticsStockHorizonMonths", 60f,
+            ExoticsStockHorizonMonths = cfg.Bind("Economy", "ExoticsStockHorizonMonths", 240f,
                 "The base cap counts the exotics stockpile as an extra monthly budget of stock / this.");
             MaxAlienBasesCeiling = cfg.Bind("Economy", "MaxAlienBasesCeiling", 40, "Hard ceiling on the exotics-based alien base cap.");
             ThreatMemory = cfg.Bind("Perception", "ThreatMemory", true,
@@ -173,6 +191,8 @@ namespace ImprovedAI
             MaxCaptureGoals = cfg.Bind("Targeting", "MaxCaptureGoals", 6, "Maximum open marine-capture raids on undefended bases (separate from MaxRaidGoals).");
             AlienMarineFix = cfg.Bind("Fixes", "AlienMarineValue", true,
                 "Fix vanilla bug: the alien Salamander pod lists Crashdown before Assault, so its marine value reads 0 and aliens can never assault a base.");
+            AlienBattlecruiserFix = cfg.Bind("Fixes", "AlienBattlecruiserName", true,
+                "Fix vanilla bug: the alien designer asks for hull 'AlienBattleCruiser' (data name 'AlienBattlecruiser'), so the exotics medium interceptor gets the wrong hull.");
             RaidBombardMultiplier = cfg.Bind("Targeting", "RaidBombardMultiplier", 2f, "Raid goals want this multiple of vanilla's desired bombardment value.");
         }
 
@@ -180,6 +200,7 @@ namespace ImprovedAI
         public bool UseDisposition => UseStrategy && Disposition.Value;
         public bool UseFleetDoctrine => UseStrategy && FleetDoctrine.Value;
         public bool UseDoctrineShift => UseStrategy && DoctrineShift.Value;
+        public bool UseEscalation => UseStrategy && Escalation.Value;
         public bool UseMineWhatYouLack => !VanillaAI.Value && MineWhatYouLack.Value;
         public bool UseExoticsUpkeep => !VanillaAI.Value && ExoticsUpkeep.Value;
         public bool UseNoEarthPurchases => !VanillaAI.Value && NoEarthPurchases.Value;
@@ -190,6 +211,7 @@ namespace ImprovedAI
         public bool UseRaidPlanner => !VanillaAI.Value && RaidPlanner.Value;
         public bool UseStanceCourage => !VanillaAI.Value && StanceCourage.Value;
         public bool UseAlienMarineFix => !VanillaAI.Value && AlienMarineFix.Value;
+        public bool UseAlienBattlecruiserFix => !VanillaAI.Value && AlienBattlecruiserFix.Value;
         public bool UseRaidCaptures => UseRaidPlanner && RaidCaptures.Value && UseAlienMarineFix;
 
         /// <summary>Apply section → key → value overrides for this run only (not saved).</summary>

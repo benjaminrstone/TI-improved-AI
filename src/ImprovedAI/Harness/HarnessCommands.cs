@@ -51,6 +51,15 @@ namespace ImprovedAI.Harness
                         AI.AlienStrategy.Current.shame = float.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture);
                         output.Add("> shame " + parts[1]);
                         break;
+                    case "ai.escalate":
+                        output.Add(AI.Escalation.Force(!parts[1].Equals("off", StringComparison.OrdinalIgnoreCase)));
+                        break;
+                    case "ai.contempt":
+                        // ai.contempt <factionTemplate> <0..1>
+                        if (AI.AlienStrategy.Current == null) { output.Add("! no strategy state"); break; }
+                        AI.AlienStrategy.Current.contempt[parts[1]] = float.Parse(parts[2], System.Globalization.CultureInfo.InvariantCulture);
+                        output.Add($"> contempt {parts[1]} {parts[2]}");
+                        break;
                     case "ai.drainammo":
                         output.Add(DrainAmmo(parts[1], parts[2]));
                         break;
