@@ -25,6 +25,8 @@ namespace ImprovedAI.AI
     {
         /// <summary>Goals currently gathering a pooled force; vanilla must leave their fleet alone.</summary>
         internal static readonly HashSet<FactionGoal_AttackWithFleet> Pooling = new HashSet<FactionGoal_AttackWithFleet>();
+        /// <summary>Goals whose pool-ready was journaled (once each).</summary>
+        private static readonly HashSet<FactionGoal_AttackWithFleet> Announced = new HashSet<FactionGoal_AttackWithFleet>();
 
         internal static bool On(TIFactionState f) => Plugin.Cfg.UseForcePooling && f != null && f.IsAlienFaction;
 
@@ -49,17 +51,22 @@ namespace ImprovedAI.AI
             if (anchor == null || anchor.transferAssigned) return;    // let vanilla assign a fleet first
 
             float need = goal.desiredFleetCombatValue * Dials.PoolMargin;
-            float have = anchor.SpaceCombatValue() + goal.pendingFleets.Where(TIGameState.Valid).Sum(x => x.SpaceCombatValue());
-            if (have >= need)
+            float present = anchor.SpaceCombatValue();
+            float have = present + goal.pendingFleets.Where(TIGameState.Valid).Sum(x => x.SpaceCombatValue());
+            // The goal stays in Pooling (so LeaveMyFleetAlone protects it) until its attack is under way; the cleanup
+            // above drops it then. Releasing it at "ready" let vanilla's weekly 2.3% random discard of war attack goals
+            // (FactionGoal_WarOnFaction.DailyGoalMaintenance) kill an assembled Jupiter strike while its joiners were
+            // still in transit (2039 escalation probe, 2026-10-16).
+            Pooling.Add(goal);
+            if (present >= need)
             {
-                if (Pooling.Remove(goal))
-                {
-                    Session.Journal?.Write(new { t = GameRead.Now(), kind = "pool-ready", goalId = GameRead.Id(goal), target = GameRead.Name(goal.target()), targetSystem = GameRead.System(goal.target()), have, need, fleet = anchor.displayName });
-                    AIDailyFactionPlanner.SingleFleetOperation(anchor);
-                }
+                // Ready only when the force is actually there (joiners merged), not when it is merely on its way.
+                if (Announced.Add(goal))
+                    Session.Journal?.Write(new { t = GameRead.Now(), kind = "pool-ready", goalId = GameRead.Id(goal), target = GameRead.Name(goal.target()), targetSystem = GameRead.System(goal.target()), have = present, need, fleet = anchor.displayName });
+                AIDailyFactionPlanner.SingleFleetOperation(anchor);
                 return;
             }
-            Pooling.Add(goal);
+            if (have >= need) return;   // enough is on its way: wait for the joiners
 
             // Why fleets are not donors (diagnostics for tuning).
             var rej = new Dictionary<string, int>();
