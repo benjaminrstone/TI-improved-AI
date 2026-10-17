@@ -25,6 +25,7 @@ namespace ImprovedAI
         public readonly ConfigEntry<int> ProxyTradeIntervalMonths;
         public readonly ConfigEntry<float> ProxyTradeNeed, ProxyTradeMargin;
         public readonly ConfigEntry<float> EscalatedMaxSuperiority;
+        public readonly ConfigEntry<float> EscalatedJoinReserve;
         public readonly ConfigEntry<bool> Escalation;
         public readonly ConfigEntry<float> EscalationThreatHabs, EscalationRespectContempt, EscalationLossHabs, EscalationEscalateAt, EscalationCalmAt, EscalationBoldness, EscalationDripShareFactor;
         public readonly ConfigEntry<int> EscalationCalmMonths;
@@ -114,6 +115,8 @@ namespace ImprovedAI
             ProxyTradeMargin = cfg.Bind("Economy", "ProxyTradeMargin", 1.15f, "The partner must gain this multiple of what it gives (vanilla trade valuation): honest, attractive deals.");
             EscalatedMaxSuperiority = cfg.Bind("Strategy", "EscalatedMaxSuperiority", 1.2f,
                 "Escalated (P4), attack superiority is capped here: a desperate command accepts closer fights (user, 2026-10-17: relax when escalated).");
+            EscalatedJoinReserve = cfg.Bind("Strategy", "EscalatedJoinReserve", 0.2f,
+                "Escalated, fleets joining a pooled strike keep only this delta-v reserve when picking a trajectory (vanilla 0.5): faster assembly, more propellant spent.");
             Escalation = cfg.Bind("Strategy", "Escalation", true,
                 "P4: when desperate (humans in the gas-giant heartland, systems lost, respect earned, habs lost) the aliens escalate to total war and accept risk.");
             EscalationThreatHabs = cfg.Bind("Strategy", "EscalationThreatHabs", 4f, "Human habs in the gas-giant systems that count as the full threat.");

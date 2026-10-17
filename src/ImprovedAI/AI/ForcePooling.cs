@@ -186,6 +186,25 @@ namespace ImprovedAI.AI
         }
     }
 
+    /// <summary>
+    /// Escalated, fleets joining the pooled strike burn harder: vanilla picks the fastest trajectory within
+    /// (1 - reserve) of the fleet's delta-v, keeping 50% in reserve for any move that doesn't end at a resupply point,
+    /// joins included. In the 2039 probe the strike's joiners took 4-8 months to reach Titan. A desperate command keeps
+    /// EscalatedJoinReserve instead (it spends real propellant; the muster base resupplies them).
+    /// </summary>
+    [HarmonyPatch(typeof(AIDailyFactionPlanner), nameof(AIDailyFactionPlanner.SelectTrajectoryAsync))]
+    internal static class EscalatedJoinBurn
+    {
+        private static void Prefix(PavonisInteractive.TerraInvicta.TIVirtualFleetState.IMobileAsset fleet, ref float desiredReserveDVFraction)
+        {
+            if (!Escalation.Escalated || !(fleet is TISpaceFleetState f) || f.faction == null || !f.faction.IsAlienFaction) return;
+            if (!(f.AssignedGoal() is FactionGoal_JoinFleet j)) return;
+            var anchor = j.target()?.ref_fleet;
+            if (anchor == null || !ForcePooling.Pooling.Any(g => g.assignedFleet == anchor)) return;
+            desiredReserveDVFraction = System.Math.Min(desiredReserveDVFraction, Plugin.Cfg.EscalatedJoinReserve.Value);
+        }
+    }
+
     /// <summary>Vanilla's max fleet ratio for attack goals can fall below 1 and is then set to 0, which blocks merges and
     /// splits waiting attack fleets apart (SingleFleetOperation). Keep it at least 1.5 for the aliens.</summary>
     [HarmonyPatch(typeof(FactionGoal_AttackWithFleet), nameof(FactionGoal_AttackWithFleet.GetMaximumFleetCombatValueRatio))]
