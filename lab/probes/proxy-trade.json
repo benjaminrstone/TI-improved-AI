@@ -1,0 +1,16 @@
+{
+  "name": "proxy-trade",
+  "notes": "Proxy supply line (user, 2026-10-17): the aliens offer pro-alien human factions (Servants, Protectorate) what they have in surplus (water, volatiles) for what they lack (metals, nobles), honest deals the partner gains from. Vanilla: zero AI trades with the aliens in 6 x 2-year soaks. First debug run: Servants 2866 metals + 482 nobles and Protectorate 1176 metals + 295 nobles for ~8.4k water each, on day 30.",
+  "fixture": "accel-2034-fusion-drives",
+  "runDays": 120,
+  "asserts": [
+    "count('trade', to='AlienCouncil') >= 2",
+    "sum(e['resources'].get('Metals', 0) for e in events('trade', to='AlienCouncil')) >= 1000",
+    "all(not e['habs'] and e['controlPoints'] == 0 and e['orgs'] == 0 for e in events('trade'))"
+  ],
+  "info": [
+    "[(e['t'], e['from'], e['to'], e['initiator'], e['resources']) for e in events('trade')]",
+    "[(e['t'], e['partner'], e['ok'], round(e['partnerGets'] / max(1, e['partnerGives']), 2)) for e in events('proxy-trade')]",
+    "[(r['t'], faction(r, 'AlienCouncil')['res']['Metals'], faction(r, 'AlienCouncil')['income']['Metals']) for r in metrics]"
+  ]
+}

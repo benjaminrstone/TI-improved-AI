@@ -28,7 +28,8 @@ namespace ImprovedAI.Diagnostics
                     kind = "trade",
                     from = GameRead.Faction(acceptedOffer.offeringFaction ?? otherFaction),
                     to = GameRead.Faction(__instance),
-                    initiator = GameRead.Faction(originalContactingFaction ? otherFaction : __instance),
+                    // DiplomacyTradeAction calls the sender's ProcessTrade with originalContactingFaction = true.
+                    initiator = GameRead.Faction(originalContactingFaction ? __instance : otherFaction),
                     resources = acceptedOffer.resourceValues?.Where(r => r.value != 0f).ToDictionary(r => r.resource.ToString(), r => (float)Math.Round(r.value, 1)),
                     projects = acceptedOffer.projects?.Select(p => p.dataName).ToList(),
                     controlPoints = acceptedOffer.controlPoints?.Count ?? 0,

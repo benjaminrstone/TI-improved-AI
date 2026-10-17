@@ -54,6 +54,8 @@ namespace ImprovedAI.AI
         public int calmMonths;
         /// <summary>Dates (yyyy-MM-dd) of alien habs lost to humans, kept for 12 months.</summary>
         public List<string> habLosses = new List<string>();
+        /// <summary>Proxy faction template -> month (yyyy-MM) of the last alien-initiated trade (ProxyTrade).</summary>
+        public Dictionary<string, string> lastProxyTrade = new Dictionary<string, string>();
     }
 
     public class LedgerMonth

@@ -21,6 +21,10 @@ namespace ImprovedAI
         public readonly ConfigEntry<float> StartingContempt;
         public readonly ConfigEntry<string> ContemptDifficultyOffset;
         public readonly ConfigEntry<string> ContemptLearning;
+        public readonly ConfigEntry<bool> ProxyTrade;
+        public readonly ConfigEntry<int> ProxyTradeIntervalMonths;
+        public readonly ConfigEntry<float> ProxyTradeNeed, ProxyTradeMargin;
+        public readonly ConfigEntry<float> EscalatedMaxSuperiority;
         public readonly ConfigEntry<bool> Escalation;
         public readonly ConfigEntry<float> EscalationThreatHabs, EscalationRespectContempt, EscalationLossHabs, EscalationEscalateAt, EscalationCalmAt, EscalationBoldness, EscalationDripShareFactor;
         public readonly ConfigEntry<int> EscalationCalmMonths;
@@ -103,6 +107,13 @@ namespace ImprovedAI
                 "Added to StartingContempt per difficulty (Cinematic,Normal,Veteran,Brutal): arrogant on easy, wary on hard (user, 2026-10-12).");
             ContemptLearning = cfg.Bind("Strategy", "ContemptLearning", "0.7,1,1.25,1.5",
                 "Multiplier on contempt LOSSES per difficulty (Cinematic,Normal,Veteran,Brutal): how fast the aliens learn respect.");
+            ProxyTrade = cfg.Bind("Economy", "ProxyTrade", true,
+                "The aliens offer resource trades to pro-alien human factions (their supply line from Earth): what they lack for what they have in surplus.");
+            ProxyTradeIntervalMonths = cfg.Bind("Economy", "ProxyTradeIntervalMonths", 3, "Months between alien offers to each proxy (Puppet master and Divide and rule: every month).");
+            ProxyTradeNeed = cfg.Bind("Economy", "ProxyTradeNeed", 2f, "The aliens ask for resources at or above this need weight.");
+            ProxyTradeMargin = cfg.Bind("Economy", "ProxyTradeMargin", 1.15f, "The partner must gain this multiple of what it gives (vanilla trade valuation): honest, attractive deals.");
+            EscalatedMaxSuperiority = cfg.Bind("Strategy", "EscalatedMaxSuperiority", 1.2f,
+                "Escalated (P4), attack superiority is capped here: a desperate command accepts closer fights (user, 2026-10-17: relax when escalated).");
             Escalation = cfg.Bind("Strategy", "Escalation", true,
                 "P4: when desperate (humans in the gas-giant heartland, systems lost, respect earned, habs lost) the aliens escalate to total war and accept risk.");
             EscalationThreatHabs = cfg.Bind("Strategy", "EscalationThreatHabs", 4f, "Human habs in the gas-giant systems that count as the full threat.");
@@ -210,6 +221,7 @@ namespace ImprovedAI
         public bool UseFleetDoctrine => UseStrategy && FleetDoctrine.Value;
         public bool UseDoctrineShift => UseStrategy && DoctrineShift.Value;
         public bool UseEscalation => UseStrategy && Escalation.Value;
+        public bool UseProxyTrade => UseStrategy && ProxyTrade.Value;
         public bool UseMineWhatYouLack => !VanillaAI.Value && MineWhatYouLack.Value;
         public bool UseExoticsUpkeep => !VanillaAI.Value && ExoticsUpkeep.Value;
         public bool UseNoEarthPurchases => !VanillaAI.Value && NoEarthPurchases.Value;

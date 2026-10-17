@@ -107,7 +107,16 @@ namespace ImprovedAI.AI
             }
         }
 
-        public static float AttackSuperiority => Plugin.Cfg.AlienAttackSuperiority.Value * Current().superiority;
+        public static float AttackSuperiority
+        {
+            get
+            {
+                float v = Plugin.Cfg.AlienAttackSuperiority.Value * Current().superiority;
+                // Escalated: a desperate command accepts closer fights (user, 2026-10-17). Without the cap, a defended
+                // Jupiter base needed ~1.5x the whole Resistance navy, more than the aliens could free in a year.
+                return Escalation.Escalated ? Mathf.Min(v, Mathf.Max(1f, Plugin.Cfg.EscalatedMaxSuperiority.Value)) : v;
+            }
+        }
         public static float ShortcutSuperiority => Plugin.Cfg.ShortcutSuperiority.Value * Mathf.Min(1f, Current().superiority);
         public static float PoolMargin => Plugin.Cfg.PoolMargin.Value * Current().poolMargin;
         public static float PoolReserveFraction => Mathf.Clamp01(Plugin.Cfg.PoolReserveFraction.Value * Current().reserve);
