@@ -69,6 +69,9 @@ namespace ImprovedAI.AI
             return m;
         }
 
+        /// <summary>Days a complete pooled force musters before setting out.</summary>
+        public static float MusterDays => UnityEngine.Mathf.Max(0f, Plugin.Cfg.MusterDays.Value);
+
         /// <summary>Share of the exotics drip the base cap may commit to upkeep; escalation diverts part of it to war.</summary>
         public static float SustainableDripShare => Mathf.Clamp01(Plugin.Cfg.SustainableDripShare.Value * (Escalation.Escalated ? Plugin.Cfg.EscalationDripShareFactor.Value : 1f));
 

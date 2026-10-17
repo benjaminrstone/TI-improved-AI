@@ -27,6 +27,10 @@ namespace ImprovedAI.AI
         internal static readonly HashSet<FactionGoal_AttackWithFleet> Pooling = new HashSet<FactionGoal_AttackWithFleet>();
         /// <summary>Goals whose pool-ready was journaled (once each).</summary>
         private static readonly HashSet<FactionGoal_AttackWithFleet> Announced = new HashSet<FactionGoal_AttackWithFleet>();
+        /// <summary>Goals whose rendezvous was chosen (once each, before joiners commit).</summary>
+        private static readonly HashSet<FactionGoal_AttackWithFleet> Staged = new HashSet<FactionGoal_AttackWithFleet>();
+        /// <summary>When each goal's force became complete at the rendezvous (muster start).</summary>
+        private static readonly Dictionary<FactionGoal_AttackWithFleet, TIDateTime> MusterStart = new Dictionary<FactionGoal_AttackWithFleet, TIDateTime>();
 
         internal static bool On(TIFactionState f) => Plugin.Cfg.UseForcePooling && f != null && f.IsAlienFaction;
 
@@ -51,6 +55,18 @@ namespace ImprovedAI.AI
             if (anchor == null || anchor.transferAssigned) return;    // let vanilla assign a fleet first
 
             float need = goal.desiredFleetCombatValue * Dials.PoolMargin;
+            // Rendezvous: once per focus goal, before the joiners commit, muster at the best-placed fleet.
+            if (Plugin.Cfg.Rendezvous.Value && Staged.Add(goal))
+            {
+                var better = Rendezvous.Choose(faction, goal, anchor, need, f => Releasable(faction, f, goal));
+                if (better != null)
+                {
+                    var old = anchor;
+                    goal.AssignFleet(better);
+                    anchor = better;
+                    faction.AddGoal(new FactionGoal_JoinFleet(faction, anchor), HandleDuplicateGoalRule.ResetImportance, old);
+                }
+            }
             float present = anchor.SpaceCombatValue();
             float have = present + goal.pendingFleets.Where(TIGameState.Valid).Sum(x => x.SpaceCombatValue());
             // The goal stays in Pooling (so LeaveMyFleetAlone protects it) until its attack is under way; the cleanup
@@ -61,11 +77,21 @@ namespace ImprovedAI.AI
             if (present >= need)
             {
                 // Ready only when the force is actually there (joiners merged), not when it is merely on its way.
+                // Then a muster: a short coordination period before setting out together (user, 2026-10-16: "getting
+                // your captains aligned"). Later, a command node (mothership) present could shorten it.
+                var now = TITimeState.Now();
+                if (!MusterStart.TryGetValue(goal, out var since))
+                {
+                    MusterStart[goal] = since = now;
+                    Session.Journal?.Write(new { t = GameRead.Now(), kind = "pool-muster", goalId = GameRead.Id(goal), target = GameRead.Name(goal.target()), targetSystem = GameRead.System(goal.target()), have = present, need, fleet = anchor.displayName, at = GameRead.Body(anchor) });
+                }
+                if (now.DifferenceInDays(since) < Dials.MusterDays) return;
                 if (Announced.Add(goal))
                     Session.Journal?.Write(new { t = GameRead.Now(), kind = "pool-ready", goalId = GameRead.Id(goal), target = GameRead.Name(goal.target()), targetSystem = GameRead.System(goal.target()), have = present, need, fleet = anchor.displayName });
                 AIDailyFactionPlanner.SingleFleetOperation(anchor);
                 return;
             }
+            MusterStart.Remove(goal);   // fell below need again (losses, need grew): muster restarts when complete
             if (have >= need)
             {
                 // Enough is on its way: wait for the joiners (logged monthly so the assembly can be followed).

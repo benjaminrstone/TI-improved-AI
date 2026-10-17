@@ -62,6 +62,9 @@ namespace ImprovedAI
         public readonly ConfigEntry<float> PoolMargin;
         public readonly ConfigEntry<float> PoolReserveFraction;
         public readonly ConfigEntry<float> AttackMaxRatioFloor;
+        public readonly ConfigEntry<bool> Rendezvous;
+        public readonly ConfigEntry<float> RendezvousGain;
+        public readonly ConfigEntry<float> MusterDays;
         public readonly ConfigEntry<float> ShortcutSuperiority;
         public readonly ConfigEntry<bool> StanceCourage;
         public readonly ConfigEntry<float> ArrivalFightRatio;
@@ -170,6 +173,10 @@ namespace ImprovedAI
                 "Pool until the focus fleet reaches this multiple of its goal's desired SCV.");
             PoolReserveFraction = cfg.Bind("Commitment", "PoolReserveFraction", 0.25f,
                 "Pooling may draw defenders from a system only beyond max(local human threat x superiority, this fraction of the aliens' own force there).");
+            Rendezvous = cfg.Bind("Commitment", "Rendezvous", true,
+                "A pooled strike musters at the best-placed alien fleet by time to strike (slowest needed joiner + transfer to target), not wherever vanilla anchored it.");
+            RendezvousGain = cfg.Bind("Commitment", "RendezvousGain", 0.85f, "Re-anchor only if the new muster point's time to strike is below this fraction of the current one.");
+            MusterDays = cfg.Bind("Commitment", "MusterDays", 14f, "Days a complete pooled force musters (coordinating) before setting out.");
             AttackMaxRatioFloor = cfg.Bind("Commitment", "AttackMaxRatioFloor", 1.5f,
                 "Floor on an alien attack goal's max fleet/desired ratio (vanilla can drop it to 0, splitting waiting fleets).");
             ShortcutSuperiority = cfg.Bind("Commitment", "ShortcutSuperiority", 1.0f,

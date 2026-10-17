@@ -1,6 +1,6 @@
 {
   "name": "escalation-jupiter",
-  "notes": "P4 gate: the 2039 save, where the Resistance holds Jupiter and the aliens hold nothing there (a lost gas-giant system: the design's trigger). Expect escalation in the first month (desperation >= 0.55), total war becoming possible, and more aggression at Jupiter than in escalation-jupiter-control (same save, escalation off). Vanilla never contests Jupiter at all (E9).",
+  "notes": "P4 gate: the 2039 save, where the Resistance holds Jupiter and the aliens hold nothing there (a lost gas-giant system: the design's trigger). Expect escalation in the first month (desperation >= 0.55), total war becoming possible, and more aggression at Jupiter than in escalation-jupiter-control (same save, escalation off). Vanilla never contests Jupiter at all (E9). Rendezvous (2026-10-16): the strike musters at the best-placed fleet by time to strike, then 14 days of muster. Before it (2039 soak): launches Oct 7 and Dec 14 2039 in 2/3 runs, none in the third.",
   "fixture": "accel-2039-clean-jupiter",
   "runDays": 365,
   "asserts": [
@@ -20,6 +20,8 @@
     "count('hab-', faction='AlienCouncil')",
     "[(f['faction'], round(f['contempt'], 2)) for f in events('disposition')[-1]['factions']]",
     "[(e['t'], e['target'], e.get('targetSystem'), round(e['have']), round(e['need'])) for e in events('pool-ready')]",
-    "[(e['t'], e['fleet'], round(e['scv']), e.get('toSystem'), e.get('goalTarget')) for e in events('transfer', goal='AttackWithFleet')]"
+    "[(e['t'], e['fleet'], round(e['scv']), e.get('toSystem'), e.get('goalTarget')) for e in events('transfer', goal='AttackWithFleet')]",
+    "[(e['t'], e['target'], e['anchorAt'], e['anchorDays'], e['chosenAt'], e['chosenDays'], e['moved']) for e in events('rendezvous')]",
+    "[(e['t'], e['target'], e['at'], round(e['have'])) for e in events('pool-muster')]"
   ]
 }
