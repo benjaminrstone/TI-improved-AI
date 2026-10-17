@@ -59,17 +59,25 @@ None pending.
 ## Next steps (recommended order)
 
 State 2026-10-17 (details in PROGRESS):
-- the sustainable exotics cap works (2-year soak: alien SCV +25%, a fifth of the losses);
-- escalation (P4) fires correctly and launches strikes at Jupiter in 2 of 3 runs;
-- the rendezvous picks muster points by fleet-aware time to strike;
-- the AlienBattlecruiser fix, Brawler and Bastion are done.
+- **Economy:**
+  - the sustainable exotics cap works (2-year soak: alien SCV +25%, a fifth of the losses);
+  - the proxy supply line runs at ~+17% alien metal income, capped at what the proxies mine.
+- **Escalation (P4):**
+  - fires in the Jupiter-held chapter and relaxes sizing to 1.2×;
+  - strips lesser goals and burns harder;
+  - musters by fleet-aware time to strike.
+  - Strikes at Jupiter land in 2/3 runs, 6–10 months after the trigger.
+- The AlienBattlecruiser fix, Brawler and Bastion are done.
 
-1. **How decisive should an escalated strike be?** (Ask the user.) Decisive-force sizing counts every human fleet that could reinforce the target, so a well-defended Jupiter target needs ~1.5× the whole Resistance navy. That is more than the aliens can free within a year. Options: count reinforcements by arrival time, or relax sizing further when escalated.
-2. **Exotics-aware shipbuilding:** capital-hull upkeep grows after bases are built, so exotics drain ~20/month (stock lasts ~6 years). The build picker should respect the exotics budget.
-3. **Proxy trade:** zero AI-to-AI alien trades in 6 × 2-year soaks. The supply line needs the aliens or their proxies to seek deals. A design question for the user.
-4. **Chapter playtest by the user:** `tools\playtest.ps1 -Fixture accel-2031-hot-war` (built, held while iterating).
-5. **P4 still to do:** an explicit exotics surge into wormhole-tier warships when escalated; the terminus (hard alien victory) and its construction site; widening setbacks from strikes at the terminus.
-6. **Rendezvous v2:** muster at empty staging points (Sun–planet L4/L5, moons) needs a move order that keeps the attack goal. A command node (mothership) could shorten the muster (pherocyte command).
+1. **Chapter playtest by the user** (`tools\playtest.ps1 -Fixture accel-2031-hot-war`, or `accel-2039-clean-jupiter` to feel the escalation). Most M2 systems now exist, so this is the right moment for a human eye.
+2. **Exotics-aware shipbuilding:** capital-hull upkeep grows after bases are built, so exotics drain ~20/month. Make the build picker respect the exotics budget.
+3. **P4 still to do:**
+   - an explicit exotics surge into wormhole-tier warships when escalated;
+   - the terminus (hard alien victory) and its construction site;
+   - widening setbacks from strikes at the terminus.
+4. **Rendezvous v2:** muster at empty staging points (Sun–planet L4/L5, moons) needs a move order that keeps the attack goal. A command node (mothership) could shorten the muster (pherocyte command).
+5. **Proxy trade v2:** offer deals to a player-controlled pro-alien faction too (vanilla's TradeToPlayerInitiated prompt).
+6. **Regression pass on the current build:** `tools\probes.ps1 -All`, then aggregate a fresh 2-year soak.
 
 ## How to run things
 

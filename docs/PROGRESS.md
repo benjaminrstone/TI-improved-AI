@@ -36,6 +36,16 @@ What is built, what the probes show, and what is next. Newest first. Every claim
 - Both strikes targeted Protectorate bases at Jupiter, not the Resistance.
 - Alien SCV is ~8% below vanilla, likely the exotics upkeep plus fleets kept in transit. Watch it.
 
+### Escalated strike sizing and harder burns (2026-10-17)
+- **Cap at 1.2× when escalated** (user: relax when escalated). The Jupiter need fell from 17–23k to ~8–14k, and the force was assigned by May.
+  - But joiners took months to arrive: 0.3–0.5k present through July, 8–10k by December.
+  - Committed to the main target, the aliens stopped hitting softer ones. 0/3 Jupiter strikes within the year.
+- **Joiners keep a 20% delta-v reserve when escalated** (vanilla 50%), so they take faster trajectories. Jupiter strikes in 2/3 runs:
+  - run 1: Maria Theresa Base, Jan 2040, 3.9k;
+  - run 2: Tzu-hsi Base, Aug 2039, 3.8k, then **Yasui Station itself, Jan 2040, 9.6k**, the first strike at the main target;
+  - run 3: none (10.3k of 14k present at year end).
+- **Reading:** assembling a strike across the outer system takes 6–9 months. Joiners come from Neptune and the Kuiper belt, and many alien hulls accelerate slowly. That is mostly physics now, not AI. It also gives the player a readable window: the gathering at Titan is visible months ahead.
+
 ### Proxy supply line (2026-10-17)
 - **Debug run, no production cap:** on day 30 the Servants gave 2,866 metals + 482 nobles and the Protectorate 1,176 + 295, for ~8.4k water each. By vanilla's own valuation each partner gained 1.2–2.8× what it gave.
 - **Soak, 3 × 1 year from 2034, mod only** (build `fc31ee5`: a proxy sends only what its mines produced since the last deal):
