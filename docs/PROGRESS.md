@@ -36,6 +36,25 @@ What is built, what the probes show, and what is next. Newest first. Every claim
 - Both strikes targeted Protectorate bases at Jupiter, not the Resistance.
 - Alien SCV is ~8% below vanilla, likely the exotics upkeep plus fleets kept in transit. Watch it.
 
+### Soak: 3 × 2 years from the 2034 save, vanilla vs mod (build `c1bc51d`: sustainable cap, escalation, strike fixes)
+
+| | Vanilla | Mod |
+|---|---|---|
+| Alien bases (start → 1 y → 2 y) | 13 → 13 → 16 | 13 → 17–18 → 17–18 (**no overshoot**) |
+| Alien metal income | 2606 → ~2620 | **2606 → 3901 / 3916 / 5120** |
+| Alien metals, median month, year 2 | 13–19k | 2.0k / 4.4k / 8.6k |
+| Alien SCV at end | 33.9k [33.4–34.2] | **42.2k [38.9–44.0]** |
+| Alien ships lost / human ships destroyed by aliens | 33 / 206 | **7** / 156 |
+| Habs lost, all factions | 82 | 103 |
+| Exotics stock | 2.0k → 2.6k | 2.0k → 1.5k (upkeep 70–78 against a drip of 60) |
+| Escalations | — | 0 (correct: no human threat in the gas giants) |
+| **Trades involving the aliens** | **0** | **0** |
+
+**Reading.**
+- The sustainable cap holds the base count. With mine-what-you-lack, the economy and fleet end clearly stronger: SCV +25%, a fifth of the losses.
+- Exotics still drain ~20/month, because capital-hull upkeep grows after the bases are built and the build picker doesn't budget for it. The stock lasts ~6 more years. Refinement: make the build picker exotics-aware.
+- **No AI-to-AI trade with the aliens happened in 6 × 2 years.** The proxy supply line exists in code but not in play. Using it needs the aliens or their proxies to actively seek deals.
+
 ## 2026-10-13: M2 steps 4 and 6, shame, widening
 
 ### Soak: 3 × 2 years from the 2034 save, vanilla vs mod (build `8ff3f4c`: widening, no Earth purchases, shame, HullSizeBias 3)
