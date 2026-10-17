@@ -16,7 +16,9 @@ namespace ImprovedAI.AI
     ///  - Partners: pro-alien human factions (ideology x &lt; 0) that are not the active player and that the aliens are
     ///    not at war with.
     ///  - Wanted: what the aliens lack (Economy need weight >= ProxyTradeNeed: in practice metals and noble metals), up to
-    ///    vanilla's own per-trade cap on the partner (TradeAI.GetMaximumTradeQuantity).
+    ///    what the partner's own mines produced since the last deal (monthly income x months, at most 6), and never more
+    ///    than vanilla's per-trade cap (TradeAI.GetMaximumTradeQuantity). Stockpiles, including those that difficulty
+    ///    bonuses inflate, never flow (user, 2026-10-17: no counterplay against bonuses); hitting the proxies' mines does.
     ///  - Paid: what the aliens are swimming in (need &lt;= 0.5: water, volatiles, fissiles), up to their own cap, until
     ///    the partner gains ProxyTradeMargin x what it gives up, priced by vanilla's TradeAI.GetTradeValue. Resources
     ///    only: vanilla's agreement builder can also move habs, control points and orgs, and a hab handed to the aliens
@@ -52,8 +54,9 @@ namespace ImprovedAI.AI
             {
                 if (h == null || !h.proAlien || h.isActivePlayer || AtWar(alien, h)) continue;
                 string k = GameRead.Faction(h);
-                if (s.lastProxyTrade.TryGetValue(k, out var last) && MonthsBetween(last, month) < interval) continue;
-                try { if (TryTrade(alien, h)) s.lastProxyTrade[k] = month; }
+                int elapsed = s.lastProxyTrade.TryGetValue(k, out var last) ? MonthsBetween(last, month) : interval;
+                if (elapsed < interval) continue;
+                try { if (TryTrade(alien, h, Math.Min(elapsed, 6))) s.lastProxyTrade[k] = month; }
                 catch (Exception e) { Plugin.Log.LogWarning($"[ProxyTrade] {k}: {e.Message}"); }
             }
         }
@@ -68,7 +71,7 @@ namespace ImprovedAI.AI
             catch { return 999; }
         }
 
-        private static bool TryTrade(TIFactionState alien, TIFactionState partner)
+        private static bool TryTrade(TIFactionState alien, TIFactionState partner, int monthsOfProduction)
         {
             TradeAI.PrepareCachesForTrading(alien, partner);
             var need = Economy.Need(alien);
@@ -77,9 +80,14 @@ namespace ImprovedAI.AI
             var payRes = Economy.Basic.Where(r => need[r] <= 0.5f && partner.UnlockedResource(r) && alien.UnlockedResource(r)).ToList();
             if (wantRes.Count == 0 || payRes.Count == 0) return false;
 
+            // The partner can send only what its own mines produced since the last deal, never its stockpile (user,
+            // 2026-10-17): difficulty bonuses (Veteran/Brutal AI ship-cost discounts leave stockpiles unspent) and hoards
+            // must not flow to the aliens, and the player's counterplay is to hit the proxies' mines.
+            float months = Math.Max(1, monthsOfProduction);
+            float Produced(FactionResource r) => Mathf.Max(0f, GameRead.Safe(() => partner.GetMonthlyIncome(r))) * months;
             for (float scale = 1f; scale >= 0.25f; scale *= 0.5f)
             {
-                var want = wantRes.Select(r => (r, q: Mathf.Floor(TradeAI.GetMaximumTradeQuantity(partner, r) * scale))).Where(x => x.q >= 10f).ToList();
+                var want = wantRes.Select(r => (r, q: Mathf.Floor(Mathf.Min(TradeAI.GetMaximumTradeQuantity(partner, r), Produced(r)) * scale))).Where(x => x.q >= 10f).ToList();
                 if (want.Count == 0) return false;
                 float partnerGives = want.Sum(x => Loss(partner, x.r, x.q));
                 float alienGets = want.Sum(x => Gain(alien, x.r, x.q));

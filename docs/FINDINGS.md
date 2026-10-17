@@ -114,6 +114,17 @@ Each item below names the mechanism and what the player sees.
 
 ## 3. Difficulty
 
+**Human AI factions' difficulty bonuses** (C# defaults in `TIGlobalConfig`, not overridden in the JSON; checked 2026-10-17). None of them is a direct space-resource bonus:
+
+| Knob | C / N / V / B |
+|---|---|
+| `AI_BonusCPCap` | 0 / 0 / 50 / 100 |
+| `AI_BonusMissionControl` | 0 / 0 / 20 / 50 |
+| `TIModifier_HumanAIShipBuildingScaling` (ship cost) | 1 / 1 / 0.75 / 0.5 |
+| `AI_MissionAttackerBonus` / `AI_MissionDefenderBonus` | −3 / 0 / 1 / 2 |
+| `passiveTechInvestment` / `activeTechInvestment` | 0.5/0 · 0.25/0.15 · 0.15/0.25 · 0.05/0.25 |
+
+
 Difficulty mostly changes timers, caps and multipliers, not intelligence. Full table: `TIGlobalConfig.cs:600-900, 2491-3056`. Examples (C/N/V/B):
 
 | Setting | C / N / V / B |
