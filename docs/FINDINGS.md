@@ -109,6 +109,7 @@ Each item below names the mechanism and what the player sees.
     - Station batteries reach 600/700/850 km (T1/T2/T3), against 800–1000 km for nose weapons.
     - HP is tiny, the hit sphere is huge (`tier*480*scale`), and station ECM is hard-coded to 0 (`TIHabModuleTemplate.ECMValue`).
     - Surface bases never enter tactical combat. They resolve in the bombardment layer at 200–600 km altitude against 2000 km lasers, with near-certain hits and 60× point-defense multipliers. That is why they feel strong.
+11b. **War attack goals are randomly discarded** (2026-10-16). `FactionGoal_WarOnFaction.DailyGoalMaintenance` runs weekly and zeroes any of the war's attack goals with a 2.3% chance (`RandomFloatValue() < 0.0233`), unless `LeaveMyFleetAlone()`. A goal that takes months to assemble a strike will usually be dropped before launch. This is a big part of why alien offensives never mature. The mod protects the pooling focus goal until its attack is under way (`ForcePooling`).
 12. **Weapon and armor tech ends early.** Weapons, armor and radiators stop at about 0.5M cumulative RP. Only drives and power plants go on, to about 3.4M (the Protium Converter Torch). The repeatable FutureTech projects have no military effects.
 
 ## 3. Difficulty
