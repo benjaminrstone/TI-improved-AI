@@ -36,6 +36,14 @@ What is built, what the probes show, and what is next. Newest first. Every claim
 - Both strikes targeted Protectorate bases at Jupiter, not the Resistance.
 - Alien SCV is ~8% below vanilla, likely the exotics upkeep plus fleets kept in transit. Watch it.
 
+### Proxy supply line (2026-10-17)
+- **Debug run, no production cap:** on day 30 the Servants gave 2,866 metals + 482 nobles and the Protectorate 1,176 + 295, for ~8.4k water each. By vanilla's own valuation each partner gained 1.2–2.8× what it gave.
+- **Soak, 3 × 1 year from 2034, mod only** (build `fc31ee5`: a proxy sends only what its mines produced since the last deal):
+  - 6–8 trades a year per run, split evenly between the Servants and the Protectorate;
+  - 4.8–6.5k metals and 0.6–0.8k nobles a year into the aliens (~+17% on alien metal income);
+  - alien ships built 59–72 (56–61 in the earlier no-trade 1-year soak), SCV at end 32.4–35.1k (30.5–31.4k).
+  - The SCV comparison crosses builds; read it as indicative. No habs, control points or orgs ever moved.
+
 ### Rendezvous (user, 2026-10-16: "rendezvous somewhere and then set out")
 Three fixes were needed to get here (each found with short 10–45-day debug runs):
 - **The game's transfer estimate is a Hohmann time:** Titan → Jupiter ≈ 4,500 days. The rendezvous now uses a fleet-aware flip-and-burn time from current positions (Titan → Jupiter: 5.3 AU, 52 days at 1.09 m/s²).
