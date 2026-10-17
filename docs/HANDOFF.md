@@ -58,17 +58,18 @@ None pending.
 
 ## Next steps (recommended order)
 
-1. ✅ **2-year soak read** (PROGRESS 2026-10-13): alien metal income ~2×, SCV +10%, losses 8 vs 38. The exotics cap **overshoots** (~23 bases; upkeep ~100 against a drip of 60, so the stock runs dry in about a year).
-2. **Fix the exotics overshoot, tuning upkeep and widening together.** Blocked on a user choice:
-   - a sustainable cap budgeted from ~75% of the drip (recommended);
-   - cheaper bases;
-   - leave it as an exploitable overreach;
-   - aliens abandon bases when they can't pay.
-   Then re-soak 2 years.
-3. **Chapter playtest by the user:** `tools\playtest.ps1 -Fixture accel-2031-hot-war` (built, never tried live).
-4. **P4 escalation:** desperation when contempt is low and alien losses are high. Next: the terminus (a hard alien victory), with its construction site as a target.
-5. **Fleet doctrine:** Brawler barely shifts roles (JoinFleet weights every role equally). Vanilla's `AlienBattleCruiser` typo is a candidate for `Fixes/`. The `fleet` record now has a build-picker size tally (`picks`) for checking where builds come from.
-6. **Re-run `doctrine-bastion`.** Its capture count (5 vs ≤ 4) failed once in the regression pass; probably variance.
+State 2026-10-17 (details in PROGRESS):
+- the sustainable exotics cap works (2-year soak: alien SCV +25%, a fifth of the losses);
+- escalation (P4) fires correctly and launches strikes at Jupiter in 2 of 3 runs;
+- the rendezvous picks muster points by fleet-aware time to strike;
+- the AlienBattlecruiser fix, Brawler and Bastion are done.
+
+1. **How decisive should an escalated strike be?** (Ask the user.) Decisive-force sizing counts every human fleet that could reinforce the target, so a well-defended Jupiter target needs ~1.5× the whole Resistance navy. That is more than the aliens can free within a year. Options: count reinforcements by arrival time, or relax sizing further when escalated.
+2. **Exotics-aware shipbuilding:** capital-hull upkeep grows after bases are built, so exotics drain ~20/month (stock lasts ~6 years). The build picker should respect the exotics budget.
+3. **Proxy trade:** zero AI-to-AI alien trades in 6 × 2-year soaks. The supply line needs the aliens or their proxies to seek deals. A design question for the user.
+4. **Chapter playtest by the user:** `tools\playtest.ps1 -Fixture accel-2031-hot-war` (built, held while iterating).
+5. **P4 still to do:** an explicit exotics surge into wormhole-tier warships when escalated; the terminus (hard alien victory) and its construction site; widening setbacks from strikes at the terminus.
+6. **Rendezvous v2:** muster at empty staging points (Sun–planet L4/L5, moons) needs a move order that keeps the attack goal. A command node (mothership) could shorten the muster (pherocyte command).
 
 ## How to run things
 

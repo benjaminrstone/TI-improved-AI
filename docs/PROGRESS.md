@@ -36,6 +36,17 @@ What is built, what the probes show, and what is next. Newest first. Every claim
 - Both strikes targeted Protectorate bases at Jupiter, not the Resistance.
 - Alien SCV is ~8% below vanilla, likely the exotics upkeep plus fleets kept in transit. Watch it.
 
+### Rendezvous (user, 2026-10-16: "rendezvous somewhere and then set out")
+Three fixes were needed to get here (each found with short 10–45-day debug runs):
+- **The game's transfer estimate is a Hohmann time:** Titan → Jupiter ≈ 4,500 days. The rendezvous now uses a fleet-aware flip-and-burn time from current positions (Titan → Jupiter: 5.3 AU, 52 days at 1.09 m/s²).
+- **Positions:** `GetGlobalPosition()` on fleets and habs failed silently, so positions now come from the natural body they sit at.
+- **Decision timing:** decide on the first recruiting tick, ranking by force gathered when the need is out of reach, and decide again when escalation begins.
+
+**escalation-jupiter × 3** (build `99dd575`, one year each):
+- At escalation, Titan is the best muster point by time to strike. Saturn is the alien holding closest to Jupiter; Triton, Bononia, Hippasus and Oberon all score worse. So it stays put, correctly.
+- Strikes at softer Jupiter targets (need ~5.6k) launched in 2 of 3 runs: Aug 25 (7.9k) and Oct 30 (12.2k). In the third, the big target (Yasui Station, ~17k need) was never reachable.
+- **The limiter is force, not geography.** Decisive-force sizing wants 17–23k for Yasui Station, about 1.3–1.75× the whole Resistance navy, because every human fleet that could reinforce is counted. The aliens can free only ~12k within a year.
+
 ### Soak: 3 × 2 years from the 2034 save, vanilla vs mod (build `c1bc51d`: sustainable cap, escalation, strike fixes)
 
 | | Vanilla | Mod |
