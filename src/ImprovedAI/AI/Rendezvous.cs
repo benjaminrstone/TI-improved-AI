@@ -27,15 +27,24 @@ namespace ImprovedAI.AI
     {
         private static TIGameState Place(TISpaceFleetState f) => (TIGameState)f.ref_orbit ?? f.ref_spaceBody;
 
+        /// <summary>Where something is now: the natural body it sits at (moon, planet, asteroid), else the object itself.</summary>
         private static Vector3d? Pos(TIGameState s)
         {
-            try
-            {
-                if (s is TISpaceObjectState o) return o.GetGlobalPosition();
-                if (s?.ref_spaceBody != null) return s.ref_spaceBody.GetGlobalPosition();
-            }
-            catch { }
+            try { var n = s?.ref_naturalSpaceObject; if (n != null && !n.isSun) return n.GetGlobalPosition(); } catch { }
+            try { if (s is TISpaceObjectState o) return o.GetGlobalPosition(); } catch { }
             return null;
+        }
+
+        internal static object Debug(TISpaceFleetState f, TIGameState target)
+        {
+            var p = Pos(f); var q = Pos(target);
+            return new
+            {
+                fleetPos = p.HasValue, targetPos = q.HasValue,
+                au = p.HasValue && q.HasValue ? (float)Math.Round((p.Value - q.Value).magnitude / 149597870700.0, 2) : -1f,
+                accel = GameRead.Safe(() => f.cruiseAcceleration_mps2), dv = GameRead.Safe(() => f.currentDeltaV_kps),
+                days = (float)Math.Round(Time(f, p, q), 1),
+            };
         }
 
         /// <summary>
@@ -62,9 +71,14 @@ namespace ImprovedAI.AI
             return (float)(t / 86400.0);
         }
 
-        /// <summary>A better-placed anchor for the goal, or null to keep the current one.</summary>
-        public static TISpaceFleetState Choose(TIFactionState faction, FactionGoal_AttackWithFleet goal, TISpaceFleetState anchor, float need, Func<TISpaceFleetState, bool> releasable)
+        /// <summary>
+        /// A better-placed anchor for the goal, or null to keep the current one. <paramref name="decided"/> is false while
+        /// no muster point can gather the need within RendezvousMaxJoinDays (e.g. before escalation frees more fleets);
+        /// the caller then asks again on a later tick instead of locking in a choice made on too little.
+        /// </summary>
+        public static TISpaceFleetState Choose(TIFactionState faction, FactionGoal_AttackWithFleet goal, TISpaceFleetState anchor, float need, Func<TISpaceFleetState, bool> releasable, out bool decided)
         {
+            decided = true;
             var target = goal.target();
             if (target == null || anchor == null || Place(anchor) == null) return null;
             bool Usable(TISpaceFleetState f) => TIGameState.Valid(f) && !f.transferAssigned && f.isCapableOfTransfering && f.CombatFleet() && !f.InvasionFleet()
@@ -93,8 +107,12 @@ namespace ImprovedAI.AI
                     last = t;
                     used++;
                 }
-                if (have < need) return float.PositiveInfinity;
-                return last + Time(c, point, targetPos);
+                float strike = last + Time(c, point, targetPos);
+                // Need not reachable within MaxJoinDays from here: rank by how much force it can gather, then by time.
+                // (The 2039 aliens could free only ~12k of a ~17k need anywhere; joiners recruited meanwhile are in
+                // flight and no longer candidates, so the choice must be made on the first recruiting tick.)
+                if (have < need) return 100000f * (1f - have / need) + strike;
+                return strike;
             }
 
             float current = Score(anchor, out int usedCurrent);
@@ -107,12 +125,14 @@ namespace ImprovedAI.AI
                 rows.Add(new { fleet = c.displayName, at = GameRead.Body(c), days = float.IsInfinity(s) ? -1f : (float)Math.Round(s) });
                 if (s < bestScore) { bestScore = s; best = c; }
             }
+            if (float.IsInfinity(bestScore)) { decided = false; return null; }   // no usable positions at all: ask again later
             bool move = best != anchor && bestScore < current * Plugin.Cfg.RendezvousGain.Value;
             Session.Journal?.Write(new
             {
                 t = GameRead.Now(), kind = "rendezvous", goalId = GameRead.Id(goal), target = GameRead.Name(target), targetSystem = GameRead.System(target),
                 need, anchor = anchor.displayName, anchorAt = GameRead.Body(anchor), anchorDays = float.IsInfinity(current) ? -1f : (float)Math.Round(current),
                 chosen = best.displayName, chosenAt = GameRead.Body(best), chosenDays = float.IsInfinity(bestScore) ? -1f : (float)Math.Round(bestScore), moved = move, candidates = rows,
+                anchorToTarget = Debug(anchor, target),
             });
             return move ? best : null;
         }

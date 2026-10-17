@@ -27,7 +27,8 @@ namespace ImprovedAI.AI
         internal static readonly HashSet<FactionGoal_AttackWithFleet> Pooling = new HashSet<FactionGoal_AttackWithFleet>();
         /// <summary>Goals whose pool-ready was journaled (once each).</summary>
         private static readonly HashSet<FactionGoal_AttackWithFleet> Announced = new HashSet<FactionGoal_AttackWithFleet>();
-        /// <summary>Goals whose rendezvous was chosen (once each, before joiners commit).</summary>
+        private static bool _wasEscalated;
+        /// <summary>Goals whose rendezvous was chosen (once each, before joiners commit; again when escalation begins).</summary>
         private static readonly HashSet<FactionGoal_AttackWithFleet> Staged = new HashSet<FactionGoal_AttackWithFleet>();
         /// <summary>When each goal's force became complete at the rendezvous (muster start).</summary>
         private static readonly Dictionary<FactionGoal_AttackWithFleet, TIDateTime> MusterStart = new Dictionary<FactionGoal_AttackWithFleet, TIDateTime>();
@@ -56,9 +57,12 @@ namespace ImprovedAI.AI
 
             float need = goal.desiredFleetCombatValue * Dials.PoolMargin;
             // Rendezvous: once per focus goal, before the joiners commit, muster at the best-placed fleet.
-            if (Plugin.Cfg.Rendezvous.Value && Staged.Add(goal))
+            // Escalation frees many more fleets ("commit everything"): choose the muster point again at that moment.
+            if (Escalation.Escalated != _wasEscalated) { _wasEscalated = Escalation.Escalated; Staged.Clear(); }
+            if (Plugin.Cfg.Rendezvous.Value && !Staged.Contains(goal))
             {
-                var better = Rendezvous.Choose(faction, goal, anchor, need, f => Releasable(faction, f, goal));
+                var better = Rendezvous.Choose(faction, goal, anchor, need, f => Releasable(faction, f, goal), out bool decided);
+                if (decided) Staged.Add(goal);
                 if (better != null)
                 {
                     var old = anchor;
