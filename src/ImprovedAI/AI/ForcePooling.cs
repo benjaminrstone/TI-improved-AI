@@ -66,7 +66,13 @@ namespace ImprovedAI.AI
                 AIDailyFactionPlanner.SingleFleetOperation(anchor);
                 return;
             }
-            if (have >= need) return;   // enough is on its way: wait for the joiners
+            if (have >= need)
+            {
+                // Enough is on its way: wait for the joiners (logged monthly so the assembly can be followed).
+                if (TITimeState.Now().day <= 4)
+                    Session.Journal?.Write(new { t = GameRead.Now(), kind = "pool-wait", goalId = GameRead.Id(goal), target = GameRead.Name(goal.target()), targetSystem = GameRead.System(goal.target()), need, have, present, fleet = anchor.displayName });
+                return;
+            }
 
             // Why fleets are not donors (diagnostics for tuning).
             var rej = new Dictionary<string, int>();
@@ -115,7 +121,7 @@ namespace ImprovedAI.AI
             {
                 t = GameRead.Now(), kind = "pool", goalId = GameRead.Id(goal), imp = goal.importance,
                 target = GameRead.Name(goal.target()), targetSystem = GameRead.System(goal.target()),
-                anchor = anchor.displayName, at = GameRead.System(anchor), need, have, donors = sent, rejected = rej,
+                anchor = anchor.displayName, at = GameRead.System(anchor), need, have, present, donors = sent, rejected = rej,
                 maxRatio = GameRead.Safe(() => goal.GetMaximumFleetCombatValueRatio()),
             });
         }
