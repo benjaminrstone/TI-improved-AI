@@ -44,20 +44,26 @@ namespace ImprovedAI.AI
             float minSize = 0.1f * need;
             var candidates = pool.Where(f => f == anchor || GameRead.Safe(() => f.SpaceCombatValue()) >= minSize).Take(12).ToList();
 
+            // When can ENOUGH force be at this point? Fleets in order of arrival there, accumulated until the need is met;
+            // the score is the arrival of the last one needed, plus the transfer on to the target. Fleets that can't
+            // arrive within MaxJoinDays don't count (v1 sorted by strength, so one distant fleet decades away dominated
+            // every candidate: 2039 probe, 2026-10-17). If the need can't be met in time, the score is infinite.
+            float maxJoin = Plugin.Cfg.RendezvousMaxJoinDays.Value;
             float Score(TISpaceFleetState c, out int used)
             {
                 var point = Place(c);
-                float have = GameRead.Safe(() => c.SpaceCombatValue()), worst = 0f;
+                float have = GameRead.Safe(() => c.SpaceCombatValue()), last = 0f;
                 used = 0;
-                foreach (var d in pool)
+                var arrivals = pool.Where(d => d != c).Select(d => (d, t: Time(faction, Place(d), point))).Where(x => x.t <= maxJoin).OrderBy(x => x.t);
+                foreach (var (d, t) in arrivals)
                 {
                     if (have >= need) break;
-                    if (d == c) continue;
                     have += GameRead.Safe(() => d.SpaceCombatValue());
-                    worst = Math.Max(worst, Time(faction, Place(d), point));
+                    last = t;
                     used++;
                 }
-                return worst + Time(faction, point, target);
+                if (have < need) return float.PositiveInfinity;
+                return last + Time(faction, point, target);
             }
 
             float current = Score(anchor, out int usedCurrent);

@@ -64,6 +64,7 @@ namespace ImprovedAI
         public readonly ConfigEntry<float> AttackMaxRatioFloor;
         public readonly ConfigEntry<bool> Rendezvous;
         public readonly ConfigEntry<float> RendezvousGain;
+        public readonly ConfigEntry<float> RendezvousMaxJoinDays;
         public readonly ConfigEntry<float> MusterDays;
         public readonly ConfigEntry<float> ShortcutSuperiority;
         public readonly ConfigEntry<bool> StanceCourage;
@@ -176,6 +177,7 @@ namespace ImprovedAI
             Rendezvous = cfg.Bind("Commitment", "Rendezvous", true,
                 "A pooled strike musters at the best-placed alien fleet by time to strike (slowest needed joiner + transfer to target), not wherever vanilla anchored it.");
             RendezvousGain = cfg.Bind("Commitment", "RendezvousGain", 0.85f, "Re-anchor only if the new muster point's time to strike is below this fraction of the current one.");
+            RendezvousMaxJoinDays = cfg.Bind("Commitment", "RendezvousMaxJoinDays", 365f, "Fleets that can't reach a muster point within this many days don't count toward it.");
             MusterDays = cfg.Bind("Commitment", "MusterDays", 14f, "Days a complete pooled force musters (coordinating) before setting out.");
             AttackMaxRatioFloor = cfg.Bind("Commitment", "AttackMaxRatioFloor", 1.5f,
                 "Floor on an alien attack goal's max fleet/desired ratio (vanilla can drop it to 0, splitting waiting fleets).");
