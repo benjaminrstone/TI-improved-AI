@@ -2,6 +2,40 @@
 
 What is built, what the probes show, and what is next. Newest first. Every claim here is backed by a run in `lab/results/` (gitignored); probe definitions live in `lab/probes/`.
 
+## 2026-10-16: sustainable cap, escalation (P4), fixes
+
+### Probes (build `b84ca9a` / `2adf6ee`)
+- **Sustainable cap** (`econ-mine-and-cap`): bases 13 → 17, then stop. Cap 18 → 15, upkeep 42–55 against a drip of 57, exotics stock steady at ~2.0k. New bases yield 48% metals + nobles (alien income 24%). Pass.
+- **AlienBattlecruiser fix:** the exotics medium interceptor now gets the Battlecruiser hull. No false escalation in 2034 (`fleet-neutral` pass).
+- **Brawler** (opposite range /3): short-range share 0.39 (neutral 0.26–0.27, old Brawler 0.30–0.33). **Artillery** 0.12. Gates set from these observations.
+- **doctrine-bastion:** passed twice (the earlier failure was variance).
+
+### Escalation in the 2039 Jupiter save
+- **v1:** escalated at once (desperation 0.60: threat 1.0, Jupiter lost), and total war against the Resistance became active. But behaviour matched the control: 2 attack launches in 8 months either way.
+  - Total war was already possible by 2039 in this accelerated campaign.
+  - The pooled strike sat at 4–8k of a 17–21k need, because every donor fleet was busy.
+- **Strip lesser goals when escalated:** the pool filled to ~21k (counting joiners in transit). Two bugs then stopped the launch:
+  - "ready" counted joiners in transit;
+  - vanilla's weekly 2.3% random discard of war attack goals killed the goal once pooling stopped protecting it (FINDINGS 11b).
+- **Fixed:** ready only when the force is present; the goal is protected until launch.
+
+### Soak: 3 × 1 year from the 2039 save, vanilla vs mod (build `c1bc51d`)
+
+| | Vanilla | Mod |
+|---|---|---|
+| Escalated | — | 3/3, at once |
+| Pooled strike launched at Jupiter | 0 | **2/3** (Oct 7: 11.9k, 69 ships; Dec 14: 12.3k), both still in transit at run end |
+| Alien attack launches | 8.0 | 3.3 (fewer, larger) |
+| Habs lost, all / Resistance | 12.3 / 5.7 | 9.0 / 4.3 |
+| Resistance habs at Jupiter (start 5) | 4 / 4 / 4 | 3 / 4 / 3 |
+| Alien SCV at end | 67.0k | 61.8k |
+
+**Reading.**
+- The late-game arc now exists: the escalated aliens assemble a strike force out of their dispersed fleets and send it at Jupiter. Vanilla never does.
+- **But it is slow.** Assembly takes 6–9 months, because joiners cross the outer system one by one. Transit from Saturn takes 5+ more. The first blows would land 12–15 months after the trigger.
+- Both strikes targeted Protectorate bases at Jupiter, not the Resistance.
+- Alien SCV is ~8% below vanilla, likely the exotics upkeep plus fleets kept in transit. Watch it.
+
 ## 2026-10-13: M2 steps 4 and 6, shame, widening
 
 ### Soak: 3 × 2 years from the 2034 save, vanilla vs mod (build `8ff3f4c`: widening, no Earth purchases, shame, HullSizeBias 3)
