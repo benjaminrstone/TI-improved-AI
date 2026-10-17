@@ -37,6 +37,9 @@ Direction key:
 | Commitment / ForcePooling | on | = | |
 | Commitment / PoolMargin | 1.1 | = | |
 | Commitment / PoolReserveFraction | 0.25 | `−` | How much of each system's force stays home when pooling. Lower means harder concentration. |
+| Commitment / Rendezvous | on | = | Pooled strikes muster at the best-placed fleet by time to strike (user, 2026-10-16). |
+| Commitment / RendezvousGain | 0.85 | = | Re-anchor only for at least a 15% faster strike. |
+| Commitment / MusterDays | 14 | `+` (maybe) | Coordination time before a complete force sets out. Longer means a bigger window for the player to pre-empt. A command node could shorten it later. |
 | Commitment / AttackMaxRatioFloor | 1.5 | = | A bug fix in effect. |
 | Commitment / ShortcutSuperiority | 1.0 | `−` | A fleet already in the system may attack below its goal's desired strength at this ratio to the full expected threat. Was 2.0, which gave "never loses a ship". |
 | Combat / StanceCourage | on | = | Fight instead of evading when defending own habs, or on arrival at about even odds (user, 10-12). |
