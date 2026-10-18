@@ -24,6 +24,8 @@ param(
     [string]$SavePath,
     # Force the alien doctrine for this launch: "focus=Raider weapons=Missiles hulls=Swarm engagement=Artillery".
     [string]$Doctrine,
+    # Harness/terminal commands once the campaign is ready, e.g. "ai.terminus 0.995" (alien victory at the next month).
+    [string[]]$Commands,
     [string]$Name,
     [switch]$Vanilla,
     [switch]$NoDeploy
@@ -82,6 +84,7 @@ try {
         quitOnFinish = $false; allowSaves = $true; commands = @()
     }
     if ($Doctrine) { $run.commands = @("ai.doctrine $Doctrine") }
+    if ($Commands) { $run.commands = @($run.commands) + @($Commands) }
     if ($Vanilla) { $run.config = @{ General = @{ VanillaAI = 'true' } } }
     New-Item -ItemType Directory -Force $PluginDir | Out-Null
     $run | ConvertTo-Json -Depth 6 | Set-Content -Path $runFile -Encoding utf8
