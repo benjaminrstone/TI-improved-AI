@@ -11,6 +11,7 @@ A Terra Invicta mod that makes the alien opponent constrained but competent: it 
 | `docs/PROGRESS.md` | What is built and what the probes and soaks showed |
 | `docs/FINDINGS.md` | How vanilla AI works, with code refs; vanilla bugs found |
 | `docs/EXPLOITS.md` | Exploit catalogue and probe status |
+| `docs/HUMAN-AI.md` | The human AI factions track (2026-10-18): how vanilla works, verified bugs, likely weaknesses |
 | `docs/DIALS.md` | Every tunable and its intended difficulty direction; scenario pacing levers |
 | `docs/TESTING.md`, `docs/HARNESS.md` | Test layers and how the harness works |
 
