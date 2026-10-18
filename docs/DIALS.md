@@ -18,6 +18,11 @@ Direction key:
 | Strategy / StartingContempt | 0.8 | (base) | Starting contempt at Normal, before vanilla's learned respect. |
 | Strategy / ContemptDifficultyOffset | +0.15 / 0 / −0.1 / −0.2 | `−` | **Per difficulty (C/N/V/B).** Added to StartingContempt (user, 2026-10-12). |
 | Strategy / ContemptLearning | 0.7 / 1 / 1.25 / 1.5 | `+` | **Per difficulty.** Multiplier on contempt losses: how fast the aliens learn respect. |
+| Strategy / Terminus | on | = | The hard clock: completion is an alien victory (user, 2026-10-12). |
+| Strategy / TerminusCost | 3000 / 2400 / 2000 / 1600 exotics | `−` | **Per difficulty.** About 8–10 years at 30% of the drip on Normal. |
+| Strategy / TerminusDripShare | 0.3 | `+` | Share of the drip invested each month once the terminus has begun. |
+| Strategy / TerminusStartContempt | 0.35 | `+` | It begins when any faction's contempt falls to this, or on escalation. |
+| Strategy / TerminusSetbackBattle / Hab | 0.05 / 0.1 | `−` | Progress lost per alien defeat, or per alien hab destroyed, in the alien HQ system. |
 | Strategy / Escalation | on | = | P4: a desperate command escalates to total war. |
 | Strategy / EscalationEscalateAt / CalmAt / CalmMonths | 0.55 / 0.4 / 6 | `−` EscalateAt (maybe) | When the aliens take the war seriously. |
 | Strategy / EscalationThreatHabs / RespectContempt / LossHabs | 4 / 0.35 / 4 | = | Scales of the desperation inputs (weights 0.3 threat, 0.3 lost gas-giant system, 0.2 respect, 0.2 hab losses). |

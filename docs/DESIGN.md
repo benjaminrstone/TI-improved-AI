@@ -154,7 +154,18 @@ The final phase should feel different (higher stakes, decisive battles), not mer
   - total war becomes possible at once (vanilla waits 20 progression-years on Normal);
   - loss aversion relaxes (bolder attacks, reserves committed, more raids aimed at the hated);
   - half the expansion share of the drip goes to war.
-- **Not yet:** an explicit exotics surge into wormhole-tier warships, riskAversion, and the terminus.
+- **Added 2026-10-17/18:**
+  - Escalated sizing is capped at 1.2× superiority.
+  - Joiners burn harder (a 20% delta-v reserve).
+  - Musters are chosen by fleet-aware time to strike.
+  - Exotics surge: escalated, wormhole-tier designs are favoured (1.5× in design comparisons), and the exotics-aware build pressure on capital hulls is lifted.
+- **The terminus is built (2026-10-18, `AI/Terminus.cs`):**
+  - It begins on escalation, or when any faction's contempt falls to 0.35.
+  - 30% of the drip funds it: 2,400 exotics on Normal, so ~8–10 years if ignored.
+  - Defeats and hab losses in the alien HQ system knock it back.
+  - The player is told at 25/50/75/90%.
+  - On completion the campaign ends in alien victory: vanilla's end-game popup, then credits, then the main menu. Unattended harness runs only journal it.
+- **Not yet:** riskAversion; the posture panel's meter; captives' silence on the terminus.
 
 - **Change of posture, triggered by real losses.** Losing a gas-giant system, or a threat to the main base, moves the aliens from managing a nuisance to fighting a war they could lose.
   - **They commit everything they have saved:** the wormhole surges using stockpiled exotics, advanced tech is released, total war begins, and they launch concentrated counteroffensives.
