@@ -55,6 +55,7 @@ namespace ImprovedAI.Diagnostics
             if (newMonth && Plugin.Cfg.DecisionJournal.Value) Safe(FleetComposition.Monthly, "fleet composition");
             if (newMonth) Safe(AI.Disposition.Monthly, "disposition");
             if (newMonth) Safe(AI.Escalation.Monthly, "escalation");
+            if (newMonth) Safe(AI.Terminus.Monthly, "terminus");
             if (newMonth) Safe(AI.Economy.Monthly, "economy");
             if (newMonth) Safe(AI.ProxyTrade.Monthly, "proxy trade");
             if (newMonth) Safe(AI.DoctrineShift.Monthly, "doctrine shift");

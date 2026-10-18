@@ -1,0 +1,23 @@
+{
+  "name": "terminus",
+  "notes": "The terminus (hard clock, alien victory). In the 2039 Jupiter save the aliens escalate on the first monthly tick, so the terminus begins then and is funded at 30% of the drip (~20 exotics/month vs a Normal cost of 2400). @60 forces progress to 0.24 to cross the 25% milestone naturally; @120 forces 0.995 so it completes on the next monthly tick (unattended harness: journaled, campaign not ended).",
+  "fixture": "accel-2039-clean-jupiter",
+  "runDays": 160,
+  "commands": [
+    "@60 ai.terminus 0.24",
+    "@120 ai.terminus 0.995"
+  ],
+  "asserts": [
+    "count('terminus', ev='started') == 1",
+    "events('terminus', ev='started')[0]['t'] <= '2039-05-01'",
+    "events('terminus', ev='month')[0]['invest'] > 0",
+    "count('terminus', ev='milestone') >= 1",
+    "count('terminus', ev='complete') == 1",
+    "count('terminus-notice', endGame=True) == 1"
+  ],
+  "info": [
+    "[(e['t'], e['ev'], round(e.get('after', 0), 3), round(e.get('invest', 0), 1)) for e in events('terminus')]",
+    "[(e['t'], e['headline']) for e in events('terminus-notice')]",
+    "[(r['t'], faction(r, 'AlienCouncil')['res']['Exotics']) for r in metrics]"
+  ]
+}

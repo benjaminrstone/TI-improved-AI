@@ -51,6 +51,9 @@ namespace ImprovedAI.Harness
                         AI.AlienStrategy.Current.shame = float.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture);
                         output.Add("> shame " + parts[1]);
                         break;
+                    case "ai.terminus":
+                        output.Add(AI.Terminus.Force(float.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture)));
+                        break;
                     case "ai.escalate":
                         output.Add(AI.Escalation.Force(!parts[1].Equals("off", StringComparison.OrdinalIgnoreCase)));
                         break;
