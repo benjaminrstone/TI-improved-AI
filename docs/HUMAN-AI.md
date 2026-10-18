@@ -96,5 +96,40 @@ Code references are relative to `_ref/decompiled/`. Abbreviations:
 5. **Fragile offence:** hate-gated wars that vanish, an intel gate, and random goal discards.
 6. **Passive space expansion:** a 5–9 base cap and the MC gate.
 
-## 8. Player reports
-Still being gathered. They will be added here from the community survey.
+## 8. Player reports (community survey, 2026-10-18)
+Sources: Steam reviews and discussions, the Something Awful thread, and Steam patch notes. Reddit wasn't reachable; the Pavonis forum and wiki returned 403. "Common" means several independent sources.
+
+**1.0+ (Nov 2025 onward):**
+
+| # | Symptom | How often |
+|---|---|---|
+| S1 | **Helpless against the aliens.** Few stations, mining neglected, they lose to small alien forces; "you fight the aliens and Servants alone". | Common |
+| S2 | **They gang up on the leading player** (coups, stolen CPs). Designed in 0.3.21: extra hate toward the leader beyond a minimum ideological distance (`AI_GangUpOnLeader…`, 2.5/1.8/1.2/0). | Common |
+| S3 | **They pursue the player instead of the aliens:** public campaigns in your nations, CPs taken then abandoned, excessive peace demands. | Several |
+| S4 | **Factions can't be killed:** a full council again in ~3 turns, habs rebuilt without a launch site. 1.0.36 added an opt-in faction-disabling option. | Very common |
+| S5 | **Perceived cheating:** unequal mission odds (the hidden attacker/defender bonus vs the player, §4), CPs taken with no councilor present, stronger ships. | Moderate |
+| S6 | **Every faction grabs a whole country in its first turns; Europe early.** | Several |
+| S7 | **Tiny-fleet spam.** Many single-ship fleets (UI clutter, performance), raids timed on your transfers or repairs; odd designs. | Several |
+| S8 | **Mixed space presence:** some active orbit play, but also players with 1 base vs AI 20, the Initiative with "practically no defense" on Mars, and human-vs-human space war rare. | Mixed |
+| S9 | **Never a satisfying peer opponent.** No threat early, irrelevant late; late-game AI turns slow for factions that no longer matter. | Several |
+| S10 | **Research waste:** skips the global techs that lead to fusion; irrelevant projects; can't afford faction projects later. | Several |
+| S11 | **The Protectorate rarely builds or keeps Sentinels.** Servants strong, Protectorate weak; HF and Servants forever assassinating each other. | Several |
+| S12 | **Exploitable diplomacy:** bribes; intel sharing used to shift hate; war re-declared a day after a truce. | Several |
+| S13 | **Councilors go to ground after an assassination**, so a crackdown can be timed against them. | One |
+
+**Early Access, mostly addressed by later patches:** no space presence; stalled economies; anti-alien factions ignoring invasions; poor nation management (losing the USA in five months; unstable nations sliding into civil war); factions that feel identical.
+
+**Developer direction (patch notes):**
+- Jan 2025: "more ships and space combat".
+- 0.4.78: more aggressive fleets.
+- RC1: "smarter AI on Earth and in space".
+- 1.0.38: hab capture and defence; mining-org pursuit.
+- 1.0.40: alien tracking, cheaper tech choices, influence saved for councilors.
+- 1.0.53: treachery checks, repeatable projects.
+- No published roadmap for the human AI.
+
+**Links to code (§6–§7):**
+- S1 and S8: shallow space defence, the base cap, the MC gate.
+- S9 and S10: research churn, direct investment never firing (H1), org buying stopping early (H3).
+- S5: the hidden mission bonus (difficulty).
+- S2 and S3: the designed gang-up rule.
