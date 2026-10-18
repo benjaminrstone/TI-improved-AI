@@ -1,0 +1,18 @@
+{
+  "name": "human-org-buying",
+  "notes": "H3: vanilla PurchaseOrgs breaks at the first conflicting candidate (~1 org per weekly pass). With the fix, extra passes buy past conflicts. Compare org counts with the vanilla run.",
+  "fixture": "accel-2031-hot-war",
+  "runDays": 120,
+  "config": {
+    "HumanAI": {
+      "FixOrgBuying": "true"
+    }
+  },
+  "asserts": [
+    "count('org-buy-rerun') >= 1"
+  ],
+  "info": [
+    "sum(e['orgs'] for e in events('org-buy-rerun'))",
+    "{f: (faction(first, f).get('orgs'), faction(last, f).get('orgs')) for f in ['ResistCouncil','DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil']}"
+  ]
+}

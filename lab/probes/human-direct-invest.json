@@ -1,0 +1,18 @@
+{
+  "name": "human-direct-invest",
+  "notes": "H1 (docs/HUMAN-AI.md): AI direct investment never fires in vanilla (precedence bug makes the influence budget 0.1/0.2). With the fix, AI factions fund priorities in their majority-controlled nations.",
+  "fixture": "accel-2031-hot-war",
+  "runDays": 120,
+  "config": {
+    "HumanAI": {
+      "FixDirectInvest": "true"
+    }
+  },
+  "asserts": [
+    "count('direct-invest') >= 3"
+  ],
+  "info": [
+    "{f: count('direct-invest', faction=f) for f in sorted(set(e['faction'] for e in events('direct-invest')))}",
+    "{p: count('direct-invest', priority=p) for p in sorted(set(e['priority'] for e in events('direct-invest')))}"
+  ]
+}

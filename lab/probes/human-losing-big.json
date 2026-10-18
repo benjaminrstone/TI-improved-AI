@@ -1,0 +1,17 @@
+{
+  "name": "human-losing-big",
+  "notes": "H2: vanilla never marks a faction LosingBig by strength (Losing is tested first). With the fix, a faction below half its strongest rival's strength is LosingBig. Vanilla: only Losing appears.",
+  "fixture": "accel-2031-hot-war",
+  "runDays": 90,
+  "config": {
+    "HumanAI": {
+      "FixLosingBig": "true"
+    }
+  },
+  "asserts": [
+    "any(faction(r, f).get('self') == 'LosingBig' for r in metrics for f in ['ResistCouncil','DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil'])"
+  ],
+  "info": [
+    "[(r['t'], {f: faction(r, f).get('self') for f in ['ResistCouncil','DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil']}) for r in metrics]"
+  ]
+}

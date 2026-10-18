@@ -9,6 +9,11 @@ Code references are relative to `_ref/decompiled/`. Abbreviations:
 - TFS = `…/TIFactionState.cs`
 - HHP = `…Tasks/HumanHabPlanner.cs`
 
+## 0. Decisions (user, 2026-10-18)
+- **Role: both, alien-first.** Credible rivals on Earth, who also take the alien war seriously: they defend their space assets, fight alien forces and contest the gas giants. The target is to fix "you fight the aliens alone" (S1).
+- **First step: the four verified vanilla bugs (H1–H4)**, each starting from a probe that shows it on vanilla.
+- **Gang-up-on-the-leader: keep it, but smarter.** The first suggestion ("only when the leader actually threatens them, never at the cost of ignoring the aliens") was judged too lenient or too restrictive. The design is still open; propose alternatives when we get there.
+
 ## 1. Architecture and timing (survey 2026-10-18)
 
 - **Daily at midnight:** `FactionOperations0000` (ADFP:269) shuffles the AI factions and builds per-faction task lists:

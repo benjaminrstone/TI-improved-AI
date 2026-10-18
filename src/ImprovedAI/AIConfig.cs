@@ -89,6 +89,8 @@ namespace ImprovedAI
         public readonly ConfigEntry<int> MaxCaptureGoals;
         public readonly ConfigEntry<bool> AlienMarineFix;
         public readonly ConfigEntry<bool> AlienBattlecruiserFix;
+        public readonly ConfigEntry<bool> FixDirectInvest, FixLosingBig, FixOrgBuying, FixMissionRisk;
+        public readonly ConfigEntry<int> MaxOrgBuyPasses;
 
         public AIConfig(ConfigFile cfg)
         {
@@ -231,6 +233,12 @@ namespace ImprovedAI
             MaxCaptureGoals = cfg.Bind("Targeting", "MaxCaptureGoals", 6, "Maximum open marine-capture raids on undefended bases (separate from MaxRaidGoals).");
             AlienMarineFix = cfg.Bind("Fixes", "AlienMarineValue", true,
                 "Fix vanilla bug: the alien Salamander pod lists Crashdown before Assault, so its marine value reads 0 and aliens can never assault a base.");
+            FixDirectInvest = cfg.Bind("HumanAI", "FixDirectInvest", false,
+                "Vanilla bug H1: AI direct investment never fires (operator precedence makes the influence budget the literal 0.1/0.2).");
+            FixLosingBig = cfg.Bind("HumanAI", "FixLosingBig", false, "Vanilla bug H2: 'LosingBig' self-assessment is unreachable (tested after 'Losing').");
+            FixOrgBuying = cfg.Bind("HumanAI", "FixOrgBuying", false, "Vanilla bug H3: AI org buying stops at the first conflicting candidate (break instead of continue).");
+            MaxOrgBuyPasses = cfg.Bind("HumanAI", "MaxOrgBuyPasses", 3, "Extra org-buying passes after a pass that bought something.");
+            FixMissionRisk = cfg.Bind("HumanAI", "FixMissionRisk", false, "Vanilla bug H4: the high-payoff mission risk relaxation reads payoff before it is assigned.");
             AlienBattlecruiserFix = cfg.Bind("Fixes", "AlienBattlecruiserName", true,
                 "Fix vanilla bug: the alien designer asks for hull 'AlienBattleCruiser' (data name 'AlienBattlecruiser'), so the exotics medium interceptor gets the wrong hull.");
             RaidBombardMultiplier = cfg.Bind("Targeting", "RaidBombardMultiplier", 2f, "Raid goals want this multiple of vanilla's desired bombardment value.");
@@ -254,6 +262,10 @@ namespace ImprovedAI
         public bool UseStanceCourage => !VanillaAI.Value && StanceCourage.Value;
         public bool UseAlienMarineFix => !VanillaAI.Value && AlienMarineFix.Value;
         public bool UseAlienBattlecruiserFix => !VanillaAI.Value && AlienBattlecruiserFix.Value;
+        public bool UseFixDirectInvest => !VanillaAI.Value && FixDirectInvest.Value;
+        public bool UseFixLosingBig => !VanillaAI.Value && FixLosingBig.Value;
+        public bool UseFixOrgBuying => !VanillaAI.Value && FixOrgBuying.Value;
+        public bool UseFixMissionRisk => !VanillaAI.Value && FixMissionRisk.Value;
         public bool UseRaidCaptures => UseRaidPlanner && RaidCaptures.Value && UseAlienMarineFix;
 
         /// <summary>Apply section → key → value overrides for this run only (not saved).</summary>
