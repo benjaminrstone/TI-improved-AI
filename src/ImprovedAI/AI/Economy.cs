@@ -103,6 +103,31 @@ namespace ImprovedAI.AI
             return bases + ships;
         }
 
+        private static float _slack; private static string _slackDate;
+
+        /// <summary>
+        /// (drip - upkeep) / drip, cached per game day: below 0 the aliens are paying more upkeep than the wormhole brings.
+        /// The build picker reads it (exotics-aware shipbuilding): capital hulls carry upkeep, so a deficit shifts the mix
+        /// to smaller hulls. The 2-year soak (2026-10-17) drained ~20 exotics/month as capital upkeep grew after expansion.
+        /// </summary>
+        public static float ExoticsSlack(TIFactionState alien)
+        {
+            string today = GameRead.Now();
+            if (_slackDate == today) return _slack;
+            float drip = Drip(alien);
+            _slack = drip <= 0f ? -1f : (drip - MonthlyUpkeep(alien, out _, out _)) / drip;
+            _slackDate = today;
+            return _slack;
+        }
+
+        /// <summary>Weight multiplier on large hulls in the build pick: 1 with slack >= 0, down to 0.25 in deficit; 1 when escalated (surge).</summary>
+        public static float LargeHullBuildFactor(TIFactionState alien)
+        {
+            if (!UpkeepOn || Escalation.Escalated) return 1f;
+            float s = ExoticsSlack(alien);
+            return s >= 0f ? 1f : Mathf.Clamp(1f + Plugin.Cfg.ExoticsPressureGain.Value * s, 0.25f, 1f);
+        }
+
         /// <summary>Gross monthly exotics income (the wormhole drip, before upkeep).</summary>
         public static float Drip(TIFactionState alien) => Mathf.Max(0f, GameRead.Safe(() => alien.GetMonthlyIncome(FactionResource.Exotics)));
 

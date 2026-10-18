@@ -22,6 +22,9 @@ Direction key:
 | Strategy / EscalationEscalateAt / CalmAt / CalmMonths | 0.55 / 0.4 / 6 | `−` EscalateAt (maybe) | When the aliens take the war seriously. |
 | Strategy / EscalationThreatHabs / RespectContempt / LossHabs | 4 / 0.35 / 4 | = | Scales of the desperation inputs (weights 0.3 threat, 0.3 lost gas-giant system, 0.2 respect, 0.2 hab losses). |
 | Strategy / EscalationBoldness | 0.25 | `+` | Escalated: superiority ×0.75, arrival fight ×0.85, home reserve ×0.5, raids, captures and hate weight ×1.5. |
+| Strategy / EscalatedMaxSuperiority | 1.2 | `+` | Escalated: attack superiority capped here (user, 2026-10-17). |
+| Strategy / EscalatedJoinReserve | 0.2 | `−` | Escalated: joiners to a pooled strike keep this delta-v reserve (vanilla 0.5). |
+| Strategy / EscalatedExoticsFitBonus | 0.5 | `+` | Escalated surge: exotics designs compare as 1.5× SCV. |
 | Strategy / EscalationDripShareFactor | 0.5 | `−` | Escalated: half the usual drip share goes to new bases; the rest goes to war. |
 | Strategy / DoctrineShift | on | = | Doctrinal shame (P6). |
 | Strategy / ShameWindowMonths | 6 | = | Months judged. |
@@ -68,6 +71,7 @@ Direction key:
 | Economy / Widening | on | = | The widening wormhole (P2 soft clock). |
 | Economy / WideningPerYear | 0.03 / 0.05 / 0.07 / 0.09 | `+` | **Per difficulty.** Drip × (1 + this × calendar campaign years). This is the difficulty lever that replaces vanilla's fixed `AI_AlienExoticMultiplier_*` growth. |
 | Economy / WideningMax | 3 | `+` | Cap on the widening factor. |
+| Economy / ExoticsPressureGain | 2 | = | Exotics-aware shipbuilding: when upkeep exceeds the drip by a fraction s, large hulls weigh 1 − 2s in the build pick (min 0.25). Lifted when escalated. |
 | Economy / ExoticsUpkeep | on | = | Bases and capital hulls cost exotics; replaces the fixed base cap. |
 | Economy / BaseExoticsUpkeep | 2 / month (was 3) | `−` | Lower means more bases. **Replaces vanilla `maxAlienBaseGoals_*` as the expansion limit.** The drip already scales with difficulty (`AI_AlienExoticMultiplier_*` 1/2/3/4). |
 | Economy / SustainableDripShare | 0.75 | = | The cap budgets bases + capital-hull upkeep from this share of the drip; the rest is kept for exotic warships (user, 2026-10-16: a sustainable cap). |

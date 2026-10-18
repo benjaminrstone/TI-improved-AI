@@ -61,6 +61,8 @@ namespace ImprovedAI.AI
             if (t == null) return 1f;
             float fit = 1f + Dials.WeaponFitBonus * WeaponShare(t, Dials.WeaponFocus);
             if (Dials.MothershipFitBonus > 0f && t.hullTemplate != null && t.hullTemplate.hugeHull) fit *= 1f + Dials.MothershipFitBonus;
+            // P4 surge: escalated, the command spends its hoard on wormhole-tier (exotics) warships.
+            if (Escalation.Escalated && t.requiresExotics) fit *= 1f + UnityEngine.Mathf.Max(0f, Plugin.Cfg.EscalatedExoticsFitBonus.Value);
             return fit;
         }
 
@@ -150,11 +152,14 @@ namespace ImprovedAI.AI
         private static void Prefix(TIFactionState __instance, out Saved __state)
         {
             __state = default;
-            if (!FleetDoctrine.On || __instance == null || !__instance.IsAlienFaction) return;
+            if (__instance == null || !__instance.IsAlienFaction || (!FleetDoctrine.On && !Economy.UpkeepOn)) return;
             __state = new Saved { active = true, smalls = __instance.aiValues.fleetSmalls, mediums = __instance.aiValues.fleetMediums };
-            var w = Dials.BuildSizeWeights;
-            __instance.aiValues.fleetSmalls *= w.smalls;
-            __instance.aiValues.fleetMediums *= w.mediums;
+            var w = FleetDoctrine.On ? Dials.BuildSizeWeights : (smalls: 1f, mediums: 1f);
+            // Exotics-aware shipbuilding: Large weight is fixed at 1 in vanilla, so a lower large-hull factor is applied
+            // by raising the other two.
+            float large = Economy.LargeHullBuildFactor(__instance);
+            __instance.aiValues.fleetSmalls *= w.smalls / large;
+            __instance.aiValues.fleetMediums *= w.mediums / large;
             FleetDoctrine.Judging++;
         }
 

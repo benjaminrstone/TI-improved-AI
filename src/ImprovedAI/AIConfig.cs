@@ -26,6 +26,8 @@ namespace ImprovedAI
         public readonly ConfigEntry<float> ProxyTradeNeed, ProxyTradeMargin;
         public readonly ConfigEntry<float> EscalatedMaxSuperiority;
         public readonly ConfigEntry<float> EscalatedJoinReserve;
+        public readonly ConfigEntry<float> EscalatedExoticsFitBonus;
+        public readonly ConfigEntry<float> ExoticsPressureGain;
         public readonly ConfigEntry<bool> Escalation;
         public readonly ConfigEntry<float> EscalationThreatHabs, EscalationRespectContempt, EscalationLossHabs, EscalationEscalateAt, EscalationCalmAt, EscalationBoldness, EscalationDripShareFactor;
         public readonly ConfigEntry<int> EscalationCalmMonths;
@@ -117,6 +119,10 @@ namespace ImprovedAI
                 "Escalated (P4), attack superiority is capped here: a desperate command accepts closer fights (user, 2026-10-17: relax when escalated).");
             EscalatedJoinReserve = cfg.Bind("Strategy", "EscalatedJoinReserve", 0.2f,
                 "Escalated, fleets joining a pooled strike keep only this delta-v reserve when picking a trajectory (vanilla 0.5): faster assembly, more propellant spent.");
+            EscalatedExoticsFitBonus = cfg.Bind("Strategy", "EscalatedExoticsFitBonus", 0.5f,
+                "Escalated (P4 surge): exotics (wormhole-tier) designs count as (1 + this) x their combat value when the aliens compare and pick designs.");
+            ExoticsPressureGain = cfg.Bind("Economy", "ExoticsPressureGain", 2f,
+                "Exotics-aware shipbuilding: with upkeep above the drip by a fraction s, large hulls weigh (1 - gain x s) in the build pick (min 0.25).");
             Escalation = cfg.Bind("Strategy", "Escalation", true,
                 "P4: when desperate (humans in the gas-giant heartland, systems lost, respect earned, habs lost) the aliens escalate to total war and accept risk.");
             EscalationThreatHabs = cfg.Bind("Strategy", "EscalationThreatHabs", 4f, "Human habs in the gas-giant systems that count as the full threat.");
