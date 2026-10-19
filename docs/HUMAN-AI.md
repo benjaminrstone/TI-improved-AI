@@ -265,3 +265,20 @@ Sources: Steam reviews and discussions, the Something Awful thread, and Steam pa
 - The player can be a patron, under the same rules as any faction.
 - Initiative bandwagons with a runaway leader even when the leader is pro-alien ("profit first").
 - HF is never a client and is a harsh patron. Resistance becomes a client only under severe alien escalation.
+
+**Results: close race (accel-2031-hot-war, 365 days, vanilla ×2 vs mod ×2, 2026-10-19; `tools/hate.py`):**
+- **Vanilla:**
+  - The leader rotates between Exodus, the Resistance (the player) and the Servants, with strengths 0.9 / 0.9 / 0.7.
+  - Jealousy nets **negative** over the year (−107 / −119 summed over all AI pairs): the periodic decay and shared-enemy de-escalation outweigh it. Toward the player it is +3 / +14.
+  - The real hostility is **missions** (+306 / +333 hate) and the Servants' wars with everyone (93–95 faction-months at war).
+- **Mod:**
+  - Mission hate is lower (+201 / +248) and war months are the same (92–97).
+  - Jealousy toward the player is +32 / +37. Only the Servants and Protectorate feel it, ~2 a month each. That is the very-pro vs very-anti term (vanilla's +1.4) amplified by the alien term while the Resistance is at war with the aliens (pressure 0.6). The lead term is ~0 at a 1.19× lead.
+  - In these runs the player was the strongest all year (vanilla: mostly Exodus), so this is not like for like.
+  - Per month, vanilla's equivalent against a leading player would be 1.75 + 1.4 ≈ 3.2.
+- **Clients:**
+  - Both runs: the Academy became a client of Exodus (Dec 2031) and signed a non-aggression pact.
+  - It broke in Aug 2032 (the Academy grew past 0.75× Exodus, "contender") and in Apr 2032 ("injury").
+  - No other pairs formed: in a close race nobody is ≥ 0.85× the top while the client is ≤ 0.6× it.
+- **Unrelated vanilla event:** in Nov 2032 of mod run 2, every faction gained ~100 hate toward the Servants at once (cause bucket "other", likely "Alien Nation Created").
+- **Verdict:** in a close race the mod mostly turns jealousy off, as designed. The runaway-leader case needs the 2039 save (the player at 3–10× the AIs' fleets): soaks running.
