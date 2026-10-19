@@ -56,6 +56,15 @@ namespace ImprovedAI.Human
                 if (!FleetCompetence.AIHuman(f) || GameRead.Safe(() => f.AI_GenericMissionControlAvailable) > 0f) continue;
                 int started = 0, max = Math.Max(0, Plugin.Cfg.HumanMCBuildingsPerMonth.Value);
                 var log = new List<string>();
+                var why = new Dictionary<string, int>();
+                void Why(string k) => why[k] = why.TryGetValue(k, out var n) ? n + 1 : 1;
+                bool hasOps = false, hasCmd = false;
+                try
+                {
+                    hasOps = f.completedProjects.Any(p => p.dataName == "Project_OperationsCenter");
+                    hasCmd = f.completedProjects.Any(p => p.dataName == "Project_CommandCenter");
+                }
+                catch { }
                 // Money upkeep must be carried: net monthly money income after all upkeep added this pass, or a stock
                 // covering MCUpkeepMonths of it (Ops Center $30/month, Command Center $100/month).
                 float netMoney = GameRead.Safe(() => f.GetMonthlyIncome(FactionResource.Money));
@@ -67,18 +76,22 @@ namespace ImprovedAI.Human
                                             .OrderByDescending(x => x.tier).ToList())
                     {
                         if (started >= max) break;
-                        if (HasMCBuilding(h)) continue;
                         var slots = h.AvailableSlots();
-                        if (slots == null || slots.Count == 0) continue;
+                        if (slots == null || slots.Count == 0) { Why("noSlot"); continue; }
+                        // One MC building per hab is a game limit for everyone (user, 2026-10-19).
+                        if (HasMCBuilding(h)) { Why("hasMC"); continue; }
                         float power = GameRead.Safe(() => h.NetPower(includeUnderConstruction: true, includeDeactivated: true));
-                        var module = h.AllowedModules(f).Where(IsMCBuilding)
-                            .Where(m => m.power >= 0 || power + m.power >= 0)
-                            .Where(m => { float up = MoneyUpkeep(m, f, h); return netMoney - added - up >= 0f || stock >= (added + up) * months; })
-                            .OrderByDescending(m => m.missionControl).FirstOrDefault(m => slots.Any(s => s.IsModuleValidForSlot(m)));
-                        if (module == null) continue;
+                        var allowed = h.AllowedModules(f).Where(IsMCBuilding).ToList();
+                        if (allowed.Count == 0) { Why("notAllowed"); continue; }
+                        var powered = allowed.Where(m => m.power >= 0 || power + m.power >= 0).ToList();
+                        if (powered.Count == 0) { Why("power"); continue; }
+                        var upkept = powered.Where(m => { float up = MoneyUpkeep(m, f, h); return netMoney - added - up >= 0f || stock >= (added + up) * months; }).ToList();
+                        if (upkept.Count == 0) { Why("upkeep"); continue; }
+                        var module = upkept.OrderByDescending(m => m.missionControl).FirstOrDefault(m => slots.Any(s => s.IsModuleValidForSlot(m)));
+                        if (module == null) { Why("slotType"); continue; }
                         var slot = slots.First(s => s.IsModuleValidForSlot(module));
                         var cost = module.CostFromSpace(f, h, isUpgrade: false, substituteBoost: false);
-                        if (!cost.CanAfford_AI(f, null, null, 15)) continue;
+                        if (!cost.CanAfford_AI(f, null, null, 15)) { Why("afford"); continue; }
                         f.playerControl.StartAction(new BuildHabModuleAction(module, slot.sector, slot.slot, cost));
                         added += MoneyUpkeep(module, f, h);
                         started++;
@@ -86,8 +99,8 @@ namespace ImprovedAI.Human
                     }
                 }
                 catch (Exception e) { Plugin.Log.LogWarning($"[HumanAI] MC buildings {f.templateName}: {e.Message}"); }
-                if (started > 0 && Plugin.Cfg.DecisionJournal.Value)
-                    Session.Journal?.Write(new { t = GameRead.Now(), kind = "human-mc-building", faction = GameRead.Faction(f), started, modules = log });
+                if (Plugin.Cfg.DecisionJournal.Value)
+                    Session.Journal?.Write(new { t = GameRead.Now(), kind = "human-mc-building", faction = GameRead.Faction(f), started, modules = log, why, hasOps, hasCmd, netMoney, stock });
             }
         }
     }

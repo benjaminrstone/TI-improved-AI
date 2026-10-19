@@ -21,7 +21,7 @@ namespace ImprovedAI.Diagnostics
             var alien = GameStateManager.AlienFaction();
             foreach (var f in GameStateManager.AllHumanFactions())
             {
-                if (f == null || f.isActivePlayer) continue;
+                if (f == null) continue;   // the player too (player = true), as the yardstick
                 try { Session.Journal?.Write(Row(f, alien)); }
                 catch (Exception e) { Plugin.Log.LogWarning($"[HumanFleetDiag] {f.templateName}: {e.Message}"); }
             }
@@ -48,6 +48,11 @@ namespace ImprovedAI.Diagnostics
                 t = GameRead.Now(),
                 kind = "human-fleet",
                 f = GameRead.Faction(f),
+                player = f.isActivePlayer,
+                mcUsage = GameRead.Safe(() => f.GetMissionControlUsage()),
+                mcFromHabs = GameRead.Safe(() => f.GetMissionControlContributionFromHabs()),
+                mcBuildings = f.habs.Sum(h => h.AllModules().Count(m => m?.moduleTemplate != null && m.moduleTemplate.missionControl > 0 && !m.destroyed)),
+                habs = f.habs.Count,
                 scv = (float)Math.Round(f.fleets.Sum(x => GameRead.Safe(() => x.SpaceCombatValue())), 0),
                 fleets = f.fleets.Count,
                 ships = f.fleets.Sum(x => x.ships?.Count ?? 0),

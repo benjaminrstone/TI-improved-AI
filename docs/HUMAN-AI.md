@@ -15,6 +15,8 @@ Code references are relative to `_ref/decompiled/`. Abbreviations:
 - **Mission control (2026-10-19).** Grow MC much harder **and** reserve MC for the fleet. Retiring weak habs is usually not optimal: develop a hab enough to have an MC building and positive resource flow, or don't found it if it's not worth holding (it doesn't take much to make a hab net positive).
 - **MC buildings (2026-10-19, user's game knowledge):**
   - The **Operations Center** (4 MC, $30/month upkeep) and **Command Center** (10 MC, $100/month) are much better MC sources than the Administration buildings until late. Their money upkeep has to be considered.
+  - **One MC building per hab** is a game limit for everyone.
+  - In the 2039 debug, 24–43 habs per AI faction already had an Ops or Command Center and generic MC was still 0. MC buildings on habs are therefore largely maxed already; MC growth has to come from elsewhere (more habs that pay for themselves, nations, orgs), or from spending MC better.
   - The **Administration Tower/Complex** cost boost upkeep (4/12 a month) and give only 1–2 MC. They pay off through their percent bonus to a hab's production, so they belong on very high-value habs, or in Earth orbit when starved for CP cap. That is a separate rule.
 - **Gang-up-on-the-leader: keep it, but smarter.** The first suggestion ("only when the leader actually threatens them, never at the cost of ignoring the aliens") was judged too lenient or too restrictive. The design is still open; propose alternatives when we get there.
 
