@@ -1,6 +1,6 @@
 {
   "name": "human-org-buying",
-  "notes": "H3: vanilla PurchaseOrgs breaks at the first conflicting candidate (~1 org per weekly pass). With the fix, extra passes buy past conflicts. Compare org counts with the vanilla run. First run (2026-10-18): 64 extra orgs bought by re-run passes in 120 days, but AI org totals at the end matched vanilla (355 vs 353): the extra orgs are shed again, so the fix churns money. FixOrgBuying stays OFF pending investigation.",
+  "notes": "H3: vanilla PurchaseOrgs breaks at the first conflicting candidate (~1 org per weekly pass). With the fix, extra passes buy past conflicts. Compare org counts with the vanilla run. First run (2026-10-18): 64 extra orgs bought by re-run passes in 120 days, but AI org totals at the end matched vanilla (355 vs 353): the extra orgs are shed again, so the fix churns money. FixOrgBuying stays OFF pending investigation. Purchases often REPLACE a councilor's weakest org (TryAddOrgToCouncilor moves it to the pool, then it is sold), so counts can't show upgrades; orgTiers (sum of org tiers on councilors) is the measure.",
   "fixture": "accel-2031-hot-war",
   "runDays": 120,
   "config": {
@@ -13,6 +13,7 @@
   ],
   "info": [
     "sum(e['orgs'] for e in events('org-buy-rerun'))",
-    "{f: (faction(first, f).get('orgs'), faction(last, f).get('orgs')) for f in ['ResistCouncil','DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil']}"
+    "{f: (faction(first, f).get('orgs'), faction(last, f).get('orgs')) for f in ['ResistCouncil','DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil']}",
+    "sum(faction(last, f).get('orgTiers', 0) - faction(first, f).get('orgTiers', 0) for f in ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil'])"
   ]
 }

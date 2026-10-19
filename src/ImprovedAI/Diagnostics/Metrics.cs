@@ -64,6 +64,9 @@ namespace ImprovedAI.Diagnostics
                 hate = (alien == null || f == alien) ? (float?)null : GameRead.Safe(() => alien.GetFactionHate(f)),
                 cps = f.controlPoints?.Count,
                 orgs = GameRead.Safe(() => f.GetAllOrgs()?.Count ?? 0),
+                // Org quality on councilors: AI purchases often replace a weaker org (moved to the pool, then sold),
+                // so the count alone can't show upgrades.
+                orgTiers = GameRead.Safe(() => f.councilors?.Sum(c => c.orgs?.Sum(o => o.tier) ?? 0) ?? 0),
                 councilors = f.councilors?.Count,
                 self = f.IsAlienFaction ? null : f.selfAssessement.ToString(),
                 scvBySystem = f.fleets.GroupBy(x => GameRead.System(x) ?? "?")
