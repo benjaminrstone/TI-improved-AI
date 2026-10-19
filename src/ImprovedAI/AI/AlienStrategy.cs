@@ -61,6 +61,10 @@ namespace ImprovedAI.AI
         public bool terminusComplete;
         /// <summary>Proxy faction template -> month (yyyy-MM) of the last alien-initiated trade (ProxyTrade).</summary>
         public Dictionary<string, string> lastProxyTrade = new Dictionary<string, string>();
+        /// <summary>Human track (Human/Personality): client faction template -> patron faction template.</summary>
+        public Dictionary<string, string> clients = new Dictionary<string, string>();
+        /// <summary>Human track: grudge memory "victim>actor" (decayed sum of injury hate), per personality half-life.</summary>
+        public Dictionary<string, float> grudges = new Dictionary<string, float>();
     }
 
     public class LedgerMonth

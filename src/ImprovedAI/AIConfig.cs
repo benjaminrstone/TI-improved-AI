@@ -92,7 +92,7 @@ namespace ImprovedAI
         public readonly ConfigEntry<bool> FixDirectInvest, FixLosingBig, FixOrgBuying, FixMissionRisk;
         public readonly ConfigEntry<int> MaxOrgBuyPasses;
         public readonly ConfigEntry<bool> HumanMissionControl, HumanBoostForShips, HumanMineWhatYouLack, HumanBiggerHulls, HumanQueueUnblock;
-        public readonly ConfigEntry<bool> HumanMCBuildings, HumanFleetMCReserveOn;
+        public readonly ConfigEntry<bool> HumanMCBuildings, HumanFleetMCReserveOn, HumanPersonalities, HumanClients;
         public readonly ConfigEntry<int> HumanMCBuildingsPerMonth;
         public readonly ConfigEntry<float> HumanFleetMCReserve, HumanMCUpkeepMonths, HumanMCUpgradeOffline;
         public readonly ConfigEntry<float> HumanMissionControlValue, HumanBoostReserve, HumanSmallsFactor, HumanMediumsFactor, HumanUpsizeDays;
@@ -247,6 +247,10 @@ namespace ImprovedAI
             HumanMissionControl = cfg.Bind("HumanAI", "MissionControl", true,
                 "AI humans starved of generic mission control while wanting warships invest in it (MC priority / spaceflight programme) and value MC income more.");
             HumanMissionControlValue = cfg.Bind("HumanAI", "MissionControlValue", 3f, "While starved, AI valuation of MC income is multiplied by this.");
+            HumanPersonalities = cfg.Bind("HumanAI", "Personalities", true,
+                "Gang-up on the leader by faction personality (docs/HUMAN-AI.md 9): hate toward the strongest faction scales with its lead, grudges from injuries, alien-aware weighting.");
+            HumanClients = cfg.Bind("HumanAI", "ClientAllies", true,
+                "Compatible weaker factions become clients of the leader (no jealousy either way, a non-aggression pact allowed). Needs Personalities.");
             HumanMCBuildings = cfg.Bind("HumanAI", "MCBuildings", true,
                 "MC-starved AI humans build the best MC building they can afford on developed habs that have none (vanilla can't: module upgrades need generic MC).");
             HumanMCBuildingsPerMonth = cfg.Bind("HumanAI", "MCBuildingsPerMonth", 4, "MC buildings started or upgraded (Ops -> Command Center) per faction per month at most.");
@@ -302,6 +306,8 @@ namespace ImprovedAI
         public bool UseHumanQueueUnblock => !VanillaAI.Value && HumanQueueUnblock.Value;
         public bool UseHumanMCBuildings => !VanillaAI.Value && HumanMCBuildings.Value;
         public bool UseHumanFleetMCReserve => !VanillaAI.Value && HumanFleetMCReserveOn.Value;
+        public bool UseHumanPersonalities => !VanillaAI.Value && HumanPersonalities.Value;
+        public bool UseHumanClients => UseHumanPersonalities && HumanClients.Value;
         public bool UseRaidCaptures => UseRaidPlanner && RaidCaptures.Value && UseAlienMarineFix;
 
         /// <summary>Apply section → key → value overrides for this run only (not saved).</summary>

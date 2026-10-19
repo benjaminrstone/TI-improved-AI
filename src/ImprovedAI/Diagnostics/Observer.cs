@@ -62,6 +62,7 @@ namespace ImprovedAI.Diagnostics
             if (newMonth) Safe(AI.Economy.Monthly, "economy");
             if (newMonth) Safe(AI.ProxyTrade.Monthly, "proxy trade");
             if (newMonth) Safe(Human.MissionControlPlan.Monthly, "human MC buildings");
+            if (newMonth) Safe(Human.Personality.Monthly, "human personalities");
             if (newMonth) Safe(AI.DoctrineShift.Monthly, "doctrine shift");
             try { OnNewDay?.Invoke(now); } catch (Exception e) { Plugin.Log.LogError($"[Diagnostics] OnNewDay: {e}"); }
         }

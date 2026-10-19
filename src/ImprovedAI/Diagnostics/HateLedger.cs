@@ -34,9 +34,11 @@ namespace ImprovedAI.Diagnostics
         internal static void Record(TIFactionState from, TIFactionState to, string cause, float delta)
         {
             if (delta == 0f || from == null || to == null || from.IsAlienFaction || to.IsAlienFaction) return;
+            string b = Bucket(cause);
+            if (b == "missions" || b == "space" || b == "war") Human.Personality.OnInjury(from, to, delta);
+            if (!Plugin.Cfg.DecisionJournal.Value) return;
             var key = (from, to);
             if (!Month.TryGetValue(key, out var d)) Month[key] = d = new Dictionary<string, float>();
-            string b = Bucket(cause);
             d[b] = (d.TryGetValue(b, out var v) ? v : 0f) + delta;
         }
 
@@ -58,6 +60,7 @@ namespace ImprovedAI.Diagnostics
                             hate = (float)Math.Round(GameRead.Safe(() => f.GetFactionHate(o)), 1),
                             war = Try(() => f.AI_AtWarWithFaction(o)),
                             gained = d?.ToDictionary(kv => kv.Key, kv => (float)Math.Round(kv.Value, 2)),
+                            grudge = (float)Math.Round(Human.Personality.Grudge(f, o), 1),
                         };
                     });
                     Session.Journal?.Write(new
@@ -70,6 +73,9 @@ namespace ImprovedAI.Diagnostics
                         strength = (float)Math.Round(strength[f], 1),
                         strongest = GameRead.Faction(strongest),
                         mostThreatening = GameRead.Faction(Try(() => f.GetMostThreateningEnemyHumanFaction())),
+                        lead = (float)Math.Round(Human.Personality.LeadRatio(f), 2),
+                        patron = GameRead.Faction(Human.Personality.PatronOf(f)),
+                        naps = humans.Where(o => o != f && Try(() => f.HasNAP(o))).Select(GameRead.Faction).ToList(),
                         toward,
                     });
                 }
@@ -91,7 +97,7 @@ namespace ImprovedAI.Diagnostics
 
         private static void Postfix(TIFactionState __instance, TIFactionState enemyCouncil, string cause, float __state)
         {
-            if (!Plugin.Cfg.DecisionJournal.Value || enemyCouncil == null) return;
+            if (enemyCouncil == null || (!Plugin.Cfg.DecisionJournal.Value && !Plugin.Cfg.UseHumanPersonalities)) return;
             try { HateLedger.Record(__instance, enemyCouncil, cause, __instance.GetFactionHate(enemyCouncil) - __state); }
             catch { }
         }
