@@ -282,3 +282,20 @@ Sources: Steam reviews and discussions, the Something Awful thread, and Steam pa
   - No other pairs formed: in a close race nobody is ≥ 0.85× the top while the client is ≤ 0.6× it.
 - **Unrelated vanilla event:** in Nov 2032 of mod run 2, every faction gained ~100 hate toward the Servants at once (cause bucket "other", likely "Alien Nation Created").
 - **Verdict:** in a close race the mod mostly turns jealousy off, as designed. The runaway-leader case needs the 2039 save (the player at 3–10× the AIs' fleets): soaks running.
+
+**Results: runaway leader (accel-2039-clean-jupiter, 180 days, vanilla ×2 vs mod ×2, 2026-10-19):**
+- The player (Resistance) is at a 1.9–2.1× lead.
+- **Jealousy toward the player:** mod +104 / +94 vs vanilla +57 / +58.
+  - It comes from the Servants, Protectorate and Academy, plus the Initiative (+9/+10), which bandwagons in vanilla's place.
+  - Humanity First and Exodus add 0: vanilla's ideology gate (distance 1.12 < 1.8 on Normal) exempts them from ganging up on a player Resistance.
+- **No practical effect:**
+  - Standing hate toward the player is already 330–2,340 (war at ~50–100), and five AIs are at war with the player all along (30 faction-months in each run).
+  - No clients form: the player is the only possible patron and everyone is at war with it.
+- **Finding: vanilla hate between humans only ratchets up.** The periodic decay is a flat −1 a month, so by the late game Exodus is at war with the player at 827 hate, the opposite of "would rather be left alone".
+- **Added: per-personality forgiveness** (5d953c5), within the design. Each month an AI forgives a share of its standing hate toward each human faction:
+
+  | Exodus | Initiative | Academy | Resistance | Protectorate, Servants | Humanity First |
+  |---|---|---|---|---|---|
+  | 15% | 6% | 4% | 3% | 2% | never |
+
+  Hate then settles near the monthly injury divided by that share. Wars end once hate falls below the war threshold (`FactionWarOnFaction.ShouldDiscardGoal`). Test: 2039 + 365 days, mod ×2.
