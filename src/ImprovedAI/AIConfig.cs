@@ -249,7 +249,7 @@ namespace ImprovedAI
             HumanMissionControlValue = cfg.Bind("HumanAI", "MissionControlValue", 3f, "While starved, AI valuation of MC income is multiplied by this.");
             HumanMCBuildings = cfg.Bind("HumanAI", "MCBuildings", true,
                 "MC-starved AI humans build the best MC building they can afford on developed habs that have none (vanilla can't: module upgrades need generic MC).");
-            HumanMCBuildingsPerMonth = cfg.Bind("HumanAI", "MCBuildingsPerMonth", 3, "MC buildings started per faction per month at most.");
+            HumanMCBuildingsPerMonth = cfg.Bind("HumanAI", "MCBuildingsPerMonth", 4, "MC buildings started or upgraded (Ops -> Command Center) per faction per month at most.");
             HumanMCUpkeepMonths = cfg.Bind("HumanAI", "MCUpkeepMonths", 24f,
                 "An MC building's money upkeep must be covered by net money income, or by a stock covering this many months of it.");
             HumanFleetMCReserveOn = cfg.Bind("HumanAI", "FleetMCReserve", true,

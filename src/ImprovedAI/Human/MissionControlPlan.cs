@@ -70,6 +70,34 @@ namespace ImprovedAI.Human
                 float netMoney = GameRead.Safe(() => f.GetMonthlyIncome(FactionResource.Money));
                 float stock = f.GetCurrentResourceAmount(FactionResource.Money), added = 0f;
                 float months = Mathf.Max(1f, Plugin.Cfg.HumanMCUpkeepMonths.Value);
+                // First: upgrade MC buildings (Operations Center 4 MC -> Command Center 10 MC). In 2039 the player's 65 MC
+                // buildings averaged ~7 MC, the AI factions' ~4: nearly all Ops Centers. +6 MC each, within the
+                // one-MC-building-per-hab limit; needs the module upgrade unlocked and allowed (tier-3 hab), the extra
+                // power, and the extra money upkeep carried.
+                try
+                {
+                    foreach (var h in f.habs.Where(x => x != null && !x.decommissioning).OrderByDescending(x => x.tier).ToList())
+                    {
+                        if (started >= max) break;
+                        var mod = h.AllModules().FirstOrDefault(m => m != null && !m.destroyed && IsMCBuilding(m.moduleTemplate));
+                        if (mod == null) continue;
+                        TIHabModuleTemplate up = null;
+                        try { if (mod.CanUpgrade(f)) up = mod.moduleTemplate.UpgradeModuleTemplate(f, checkUnlocked: true); } catch { }
+                        if (up == null || !IsMCBuilding(up) || up.missionControl <= mod.moduleTemplate.missionControl) { Why("noUpgrade"); continue; }
+                        float power = GameRead.Safe(() => h.NetPower(includeUnderConstruction: true, includeDeactivated: true));
+                        if (power + (up.power - mod.moduleTemplate.power) < 0) { Why("upgradePower"); continue; }
+                        float extra = MoneyUpkeep(up, f, h) - MoneyUpkeep(mod.moduleTemplate, f, h);
+                        if (!(netMoney - added - extra >= 0f || stock >= (added + extra) * months)) { Why("upgradeUpkeep"); continue; }
+                        var cost = up.CostFromSpace(f, h, isUpgrade: true, substituteBoost: false, 0, dontRecalculateIncome: true);
+                        if (!cost.CanAfford_AI(f, null, null, 15)) { Why("upgradeAfford"); continue; }
+                        string from = mod.moduleTemplate.dataName;   // the action replaces the module at once
+                        f.playerControl.StartAction(new BuildHabModuleAction(up, mod.sector, mod.slot, cost));
+                        added += Mathf.Max(0f, extra);
+                        started++;
+                        log.Add($"{from}->{up.dataName}@{h.displayName}");
+                    }
+                }
+                catch (Exception e) { Plugin.Log.LogWarning($"[HumanAI] MC upgrades {f.templateName}: {e.Message}"); }
                 try
                 {
                     foreach (var h in f.habs.Where(x => x != null && !x.decommissioning && x.coreModule != null && !x.coreModule.underConstruction)
