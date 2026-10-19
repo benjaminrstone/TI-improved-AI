@@ -90,7 +90,7 @@ Code references are relative to `_ref/decompiled/`. Abbreviations:
 |---|---|---|
 | H1 | Mod: 1 direct investment (Exodus, Mission Control). Vanilla: 0. Real but **low impact**: even the intended budget (10–20% of influence) rarely covers a priority. | on |
 | H2 | Flips Losing → LosingBig when strength is below half the rival's (the Protectorate, Dec 2031). Vanilla's other LosingBig route (every Earth interface orbit full) also fires in 2031. | on |
-| H3 | Re-run passes bought 64 extra orgs in 120 days, but AI org totals at the end **matched vanilla** (355 vs 353): the extra orgs are shed again, so the fix churns money. **Investigate before enabling** (org capacity, the pool overage → DropOrgs/SellOrgs path). | **off** |
+| H3 | Re-run passes bought 64 extra orgs in 120 days, but AI org totals at the end **matched vanilla** (355 vs 353): the extra orgs are shed again, so the fix churns money. Purchases often **replace** a councilor's weakest org (`TryAddOrgToCouncilor` moves it to the pool, then it is sold), so counts hide upgrades. On org quality (sum of tiers on councilors), the re-test gave **+26 with the fix vs +25 vanilla**. **No measurable gain**: the early `break` isn't what holds the AI back. | **off** |
 | H4 | Verified by reading the code only; no behavioural probe yet (the effect on mission choice is subtle). | on |
 
 **Reported by the survey, not yet verified by me:**
