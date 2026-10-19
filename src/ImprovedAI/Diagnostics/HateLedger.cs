@@ -24,6 +24,7 @@ namespace ImprovedAI.Diagnostics
             if (string.IsNullOrEmpty(cause)) return "other";
             if (cause.StartsWith("Jealousy")) return "jealousy";
             if (cause == "Periodic hate") return "periodic";
+            if (cause == "Personality forgiveness") return "forgive";
             if (cause.EndsWith("targets faction") || cause.StartsWith("Detected enemy councilor") || cause.StartsWith("My councilor")) return "missions";
             if (cause.Contains("Combat") || cause.Contains("hab") || cause.Contains("Hab") || cause.Contains("Facility") || cause.Contains("Fuel")) return "space";
             if (cause.Contains("Truce") || cause.Contains("Trade") || cause.Contains("Reprieve")) return "diplomacy";

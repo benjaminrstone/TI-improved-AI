@@ -32,6 +32,9 @@ namespace ImprovedAI.Human
         internal sealed class Profile
         {
             public float Lead = 1f, GrudgeWeight = 1f, GrudgeHalfLife = 6f, AlienDamp, AlienAmp;
+            /// <summary>Share of standing hate toward a human faction forgiven per month (vanilla: a flat -1 that
+            /// hundreds of hate never notice, so late-game hate only ratchets up). Hate settles near injuries/forgive.</summary>
+            public float Forgive = 0.03f;
             public bool Bandwagon;
             public float BreakGrudge = 4f;   // as a patron: client relations break at this grudge either way
         }
@@ -39,16 +42,16 @@ namespace ImprovedAI.Human
         private static readonly Dictionary<Persona, Profile> Profiles = new Dictionary<Persona, Profile>
         {
             // The coalition-builder: pragmatic, won't sabotage an anti-alien leader while the aliens press.
-            [Persona.Resist] = new Profile { Lead = 1f, GrudgeWeight = 1f, GrudgeHalfLife = 6f, AlienDamp = 0.8f },
+            [Persona.Resist] = new Profile { Lead = 1f, GrudgeWeight = 1f, GrudgeHalfLife = 6f, AlienDamp = 0.8f, Forgive = 0.03f },
             // The zealot: jealous, remembers, sees softness as betrayal; a harsh patron.
-            [Persona.HF] = new Profile { Lead = 1.4f, GrudgeWeight = 1.5f, GrudgeHalfLife = 18f, AlienDamp = 0.3f, BreakGrudge = 1f },
+            [Persona.HF] = new Profile { Lead = 1.4f, GrudgeWeight = 1.5f, GrudgeHalfLife = 18f, AlienDamp = 0.3f, BreakGrudge = 1f, Forgive = 0f },
             // The isolationist: wants to be left alone; retaliates, then lets go.
-            [Persona.Exodus] = new Profile { Lead = 0.4f, GrudgeWeight = 1.5f, GrudgeHalfLife = 2f, AlienDamp = 0.7f },
+            [Persona.Exodus] = new Profile { Lead = 0.4f, GrudgeWeight = 1.5f, GrudgeHalfLife = 2f, AlienDamp = 0.7f, Forgive = 0.15f },
             // The opportunist: balances a close race, bandwagons a runaway; profit first.
-            [Persona.Initiative] = new Profile { Lead = 1f, GrudgeWeight = 1f, GrudgeHalfLife = 4f, Bandwagon = true },
-            [Persona.Academy] = new Profile { Lead = 1f, GrudgeWeight = 1f, GrudgeHalfLife = 6f, AlienAmp = 0.2f },
-            [Persona.Protectorate] = new Profile { AlienAmp = 0.6f },
-            [Persona.Servants] = new Profile { AlienAmp = 0.6f },
+            [Persona.Initiative] = new Profile { Lead = 1f, GrudgeWeight = 1f, GrudgeHalfLife = 4f, Bandwagon = true, Forgive = 0.06f },
+            [Persona.Academy] = new Profile { Lead = 1f, GrudgeWeight = 1f, GrudgeHalfLife = 6f, AlienAmp = 0.2f, Forgive = 0.04f },
+            [Persona.Protectorate] = new Profile { AlienAmp = 0.6f, Forgive = 0.02f },
+            [Persona.Servants] = new Profile { AlienAmp = 0.6f, Forgive = 0.02f },
             [Persona.Other] = new Profile(),
         };
 
@@ -220,6 +223,7 @@ namespace ImprovedAI.Human
                 float v = s.grudges[k] * Mathf.Pow(0.5f, 1f / half);
                 if (v < 0.05f) s.grudges.Remove(k); else s.grudges[k] = v;
             }
+            Forgiveness(humans);
             if (!Plugin.Cfg.UseHumanClients) return;
             var strongest = Strongest();
             float top = Strength(strongest);
@@ -249,6 +253,25 @@ namespace ImprovedAI.Human
                 s.clients[c.templateName] = best.templateName;
                 Journal(c, best, "form", null);
                 OfferPact(c, best);
+            }
+        }
+
+        /// <summary>Monthly: AI humans forgive a share of standing hate toward other human factions (Exodus 15%,
+        /// Initiative 6%, Academy 4%, Resistance 3%, pro-alien 2%, Humanity First never).</summary>
+        private static void Forgiveness(List<TIFactionState> humans)
+        {
+            foreach (var f in humans.Where(FleetCompetence.AIHuman))
+            {
+                float share = ProfileOf(f).Forgive;
+                if (share <= 0f) continue;
+                foreach (var o in humans)
+                {
+                    if (o == f) continue;
+                    float h = GameRead.Safe(() => f.GetFactionHate(o));
+                    if (h <= 1f) continue;
+                    try { f.GainFactionHate(o, -share * h, cantConflagrate: true, "Personality forgiveness", randomize: false); }
+                    catch { }
+                }
             }
         }
 
