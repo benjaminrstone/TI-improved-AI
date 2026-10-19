@@ -124,7 +124,24 @@ Code references are relative to `_ref/decompiled/`. Abbreviations:
    - `UpdateShipyardQueues` stops at the first goal with unpaid pending ships, or at the first can't-afford (ADFP 3762-3765, 3822-3825).
 5. **Attack thresholds out of reach** (1.2–3× the defenders, against 35k alien stacks), plus a hull-size bias toward small hulls (fleetSmalls 3–4).
 
-**Next:** the monthly `human-fleet` diagnostic (MC available, goal demand and ship wants, saving target, shipyards, war on the aliens), on a vanilla year from 2034, to tell these apart before changing anything.
+### Measured (vanilla, 2026-10-18): a year from 2034 with the `human-fleet` diagnostic, plus the 2039 vanilla soak
+- **Demand and war are NOT the binding constraint where measured.** In July 2034, Humanity First was at war with the aliens, its defence goals wanted 12k and attack goals 28k, all wanting ships. It had 25 shipyards, generic MC available (18), $47k and 9k metals, and 32 ships queued. It still fielded 199 SCV (13 ships), reaching 873 a year later.
+- **Early on, the AIs keep pace with the player.** In 2034 the Resistance (the player's own faction in this save) has 0.9–1.1k SCV at ~19–27 per ship, the same scale as the AI factions (0.1–1.6k). The aliens are 24–32k at ~97 per ship: the gap there is technology.
+- **By 2039 the AIs have stalled:**
+
+  | Faction | SCV (Mar 2039 → Mar 2040) | Per ship |
+  |---|---|---|
+  | Resistance (player) | 11.3k → 13.1k | 101–109 |
+  | AI factions | 1.0–4.6k each | 21–76 |
+  | Aliens | 40k → 69k | — |
+
+  The Academy went 4.4k → 4.6k, Exodus 4.6k → 4.4k. **The player outgrows them 3–10×.**
+- **What actually constrains them** (2034–35, per faction):
+  - generic MC available is **0** most months for the Academy, Exodus and, later, Humanity First;
+  - **metals 0 all year** for the Initiative;
+  - **$15–54k idle money** everywhere;
+  - **small, weak hulls**: half the player's SCV per ship (`fleetSmalls` 3–4 vs `fleetMediums` 2–3 vs large 1), which matches the community's tiny-fleet spam (S7).
+- **Restated symptom:** the AI factions want warships but can't build them efficiently. Each is stuck on a different bottleneck (MC, metals), while money sits idle and the hulls they do build are small.
 
 ## 7. Likely weaknesses (from code; symptoms to confirm by probe and soak)
 1. **Expansion into minor nations stops at one CP over the free cap.** `MinorCPTrouble` is maintenance cost > 0 (TFS:15412); ControlNation then returns −1 for non-major powers (ACMP:497-501).
