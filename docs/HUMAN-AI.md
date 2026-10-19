@@ -153,6 +153,20 @@ Code references are relative to `_ref/decompiled/`. Abbreviations:
   - **small, weak hulls**: half the player's SCV per ship (`fleetSmalls` 3–4 vs `fleetMediums` 2–3 vs large 1), which matches the community's tiny-fleet spam (S7).
 - **Restated symptom:** the AI factions want warships but can't build them efficiently. Each is stuck on a different bottleneck (MC, metals), while money sits idle and the hulls they do build are small.
 
+### Mod: the MC plan (2026-10-19, human-fleet-growth ×2, 2039 + 365 days)
+- **Player vs AI MC (2039 debug):**
+  - The player had 83 habs and 768 MC income, 467 of it from 65 MC buildings (~7.2 each); 183 MC was available.
+  - Each AI faction had 17–45 habs and 236–336 MC, at ~3.6–4 MC per building (nearly all Operations Centers).
+- **The plan:** upgrade Ops Centers to Command Centers first (+6 MC each, within the one-per-hab limit), then build new MC buildings.
+  - The runs started 52 and 56 buildings or upgrades in the year.
+  - An Ops Center produces nothing during the 240-day upgrade, so MC dipped mid-year (Academy 337→297, Exodus 332→277).
+  - Since fdf7589, MC offline in upgrades is capped at 15% of MC income. These two runs predate the cap.
+- **Result:**
+  - MC income rose by December: Academy 335→390, Exodus 332→391–411, Protectorate 251→350.
+  - Generic MC turned **positive at the end of the year** (+29 to +75) for four starved factions.
+  - Fleet growth was ×1.18 / ×1.12, no better than vanilla's ×1.18, at 50–53 SCV per ship.
+  - **The MC arrives after ~8 months, too late for a one-year window.** Next: a 2-year run, or a 2034 start where the buildings compound.
+
 ## 7. Likely weaknesses (from code; symptoms to confirm by probe and soak)
 1. **Expansion into minor nations stops at one CP over the free cap.** `MinorCPTrouble` is maintenance cost > 0 (TFS:15412); ControlNation then returns −1 for non-major powers (ACMP:497-501).
 2. **Small nations (≤ 4 CP) are safe from Crackdown and Purge** unless the AI already targets them (ACMP:615-623, 1210-1218).
