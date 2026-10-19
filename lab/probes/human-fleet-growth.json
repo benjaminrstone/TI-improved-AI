@@ -1,0 +1,17 @@
+{
+  "name": "human-fleet-growth",
+  "notes": "Human AI step 2 (user, 2026-10-19: fix the bottleneck they're stuck on, bigger hulls, queue unblocking). Vanilla 2039 (3 runs): AI human factions stall at 1-5k SCV each while the player has 11-13k; summed AI human SCV 17.8k -> 21.0k in a year (x1.18) at ~55 SCV per ship. Measured bottlenecks (2034 diagnostic): generic MC 0 (Academy, Exodus), metals 0 (Initiative), $15-54k idle money, small hulls.",
+  "fixture": "accel-2039-clean-jupiter",
+  "runDays": 365,
+  "asserts": [
+    "sum(faction(last, f).get('scv', 0) for f in ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil']) >= 1.4 * sum(faction(first, f).get('scv', 0) for f in ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil'])",
+    "sum(faction(last, f).get('scv', 0) for f in ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil']) / max(1, sum(faction(last, f).get('ships', 0) for f in ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil'])) >= 70"
+  ],
+  "info": [
+    "{f: (round(faction(first, f).get('scv', 0)), round(faction(last, f).get('scv', 0)), faction(last, f).get('ships')) for f in ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil']}",
+    "sum(faction(first, f).get('scv', 0) for f in ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil'])",
+    "sum(faction(last, f).get('scv', 0) for f in ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil'])",
+    "sum(faction(last, f).get('scv', 0) for f in ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil']) / max(1, sum(faction(last, f).get('ships', 0) for f in ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil']))",
+    "[(e['t'], e['f'], e['mcGenericAvailable'], int(e['money']), int(e['metals']), e['queued']) for e in events('human-fleet')][-6:]"
+  ]
+}

@@ -29,10 +29,14 @@ namespace ImprovedAI.AI
 
         internal static readonly FactionResource[] Basic = { FactionResource.Water, FactionResource.Volatiles, FactionResource.Metals, FactionResource.NobleMetals, FactionResource.Fissiles };
 
-        private static Dictionary<FactionResource, float> _need;
-        private static string _needDate;
+        // Per faction: the aliens, and AI human factions since human AI step 2 (2026-10-19).
+        private static readonly Dictionary<TIFactionState, (string date, Dictionary<FactionResource, float> need)> _need = new Dictionary<TIFactionState, (string, Dictionary<FactionResource, float>)>();
 
-        public static void Reset() { _need = null; _needDate = null; }
+        public static void Reset() { _need.Clear(); }
+
+        /// <summary>Need-weighted site scoring applies to this faction (the aliens, or an AI human faction when enabled).</summary>
+        public static bool NeedScoringFor(TIFactionState f) =>
+            f != null && (f.IsAlienFaction ? MineOn : Plugin.Cfg.UseHumanMineWhatYouLack && Human.FleetCompetence.AIHuman(f));
 
         /// <summary>Material mix of what the aliens field: summed construction cost of their live ships, as shares.</summary>
         public static Dictionary<FactionResource, float> SpendShares(TIFactionState alien)
@@ -60,14 +64,14 @@ namespace ImprovedAI.AI
         public static Dictionary<FactionResource, float> Need(TIFactionState alien)
         {
             string today = GameRead.Now();
-            if (_need != null && _needDate == today) return _need;
+            if (_need.TryGetValue(alien, out var c) && c.date == today) return c.need;
             var shares = SpendShares(alien);
             var stock = Basic.ToDictionary(r => r, r => Mathf.Max(0f, alien.GetCurrentResourceAmount(r)));
             float total = stock.Values.Sum();
             float max = Mathf.Max(1f, Plugin.Cfg.NeedWeightMax.Value);
-            _need = Basic.ToDictionary(r => r, r => Mathf.Clamp(shares[r] * total / Mathf.Max(1f, stock[r]), 1f / max, max));
-            _needDate = today;
-            return _need;
+            var need = Basic.ToDictionary(r => r, r => Mathf.Clamp(shares[r] * total / Mathf.Max(1f, stock[r]), 1f / max, max));
+            _need[alien] = (today, need);
+            return need;
         }
 
         /// <summary>Production-weighted mean need of what a site yields (1 when it yields nothing basic).</summary>
@@ -230,7 +234,7 @@ namespace ImprovedAI.AI
     {
         private static void Postfix(TIFactionState faction, TIGameState location, TIHabModuleTemplate moduleTemplate, bool moduleComparison, ref float __result)
         {
-            if (!Economy.MineOn || faction == null || !faction.IsAlienFaction || moduleComparison || __result <= 0f) return;
+            if (!Economy.NeedScoringFor(faction) || moduleComparison || __result <= 0f) return;
             if (moduleTemplate == null || !moduleTemplate.mine || !(location is TIHabSiteState site)) return;
             try { __result *= Economy.SiteFactor(faction, site); }
             catch (Exception e) { Plugin.Log.LogWarning($"[Economy] site factor: {e.Message}"); }
@@ -243,7 +247,7 @@ namespace ImprovedAI.AI
     {
         private static void Postfix(TIFactionState faction, TIHabSiteState habSite, ref float __result)
         {
-            if (!Economy.MineOn || faction == null || !faction.IsAlienFaction || habSite == null || __result <= 0f) return;
+            if (!Economy.NeedScoringFor(faction) || habSite == null || __result <= 0f) return;
             try { __result *= Economy.SiteFactor(faction, habSite); }
             catch (Exception e) { Plugin.Log.LogWarning($"[Economy] site factor: {e.Message}"); }
         }
