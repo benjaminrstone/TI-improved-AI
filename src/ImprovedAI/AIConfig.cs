@@ -94,7 +94,7 @@ namespace ImprovedAI
         public readonly ConfigEntry<bool> HumanMissionControl, HumanBoostForShips, HumanMineWhatYouLack, HumanBiggerHulls, HumanQueueUnblock;
         public readonly ConfigEntry<bool> HumanMCBuildings, HumanFleetMCReserveOn;
         public readonly ConfigEntry<int> HumanMCBuildingsPerMonth;
-        public readonly ConfigEntry<float> HumanFleetMCReserve;
+        public readonly ConfigEntry<float> HumanFleetMCReserve, HumanMCUpkeepMonths;
         public readonly ConfigEntry<float> HumanMissionControlValue, HumanBoostReserve, HumanSmallsFactor, HumanMediumsFactor, HumanUpsizeDays;
 
         public AIConfig(ConfigFile cfg)
@@ -250,6 +250,8 @@ namespace ImprovedAI
             HumanMCBuildings = cfg.Bind("HumanAI", "MCBuildings", true,
                 "MC-starved AI humans build the best MC building they can afford on developed habs that have none (vanilla can't: module upgrades need generic MC).");
             HumanMCBuildingsPerMonth = cfg.Bind("HumanAI", "MCBuildingsPerMonth", 3, "MC buildings started per faction per month at most.");
+            HumanMCUpkeepMonths = cfg.Bind("HumanAI", "MCUpkeepMonths", 24f,
+                "An MC building's money upkeep must be covered by net money income, or by a stock covering this many months of it.");
             HumanFleetMCReserveOn = cfg.Bind("HumanAI", "FleetMCReserve", true,
                 "While warships are wanted, founding new habs may only use generic MC beyond FleetMCReserveShare x MC income (user, 2026-10-19).");
             HumanFleetMCReserve = cfg.Bind("HumanAI", "FleetMCReserveShare", 0.3f, "Share of MC income reserved for warships against new hab founding.");

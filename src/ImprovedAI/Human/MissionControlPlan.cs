@@ -32,8 +32,20 @@ namespace ImprovedAI.Human
                 ? Mathf.Max(0f, Plugin.Cfg.HumanFleetMCReserve.Value) * Mathf.Max(0f, GameRead.Safe(() => f.MissionControlIncome))
                 : 0f;
 
+        /// <summary>
+        /// MC buildings in the sense of this plan: modules that produce MC without a boost upkeep, i.e. the Operations
+        /// Center (4 MC, $30/month) and Command Center (10 MC, $100/month). The Administration buildings cost boost upkeep
+        /// and give little MC (1-2): they pay off through their percent bonus to a hab's production, on very high-value
+        /// habs or in Earth orbit when starved for CP cap (user, 2026-10-19), which is a separate rule (not built yet).
+        /// </summary>
+        private static bool IsMCBuilding(TIHabModuleTemplate m) =>
+            m != null && m.missionControl > 0 && GameRead.Safe(() => m.MonthlySupportCost(FactionResource.Boost, false)) <= 0f;
+
         private static bool HasMCBuilding(TIHabState h) =>
-            h.AllModules().Any(m => m?.moduleTemplate != null && m.moduleTemplate.missionControl > 0 && !m.destroyed);
+            h.AllModules().Any(m => m != null && !m.destroyed && IsMCBuilding(m.moduleTemplate));
+
+        private static float MoneyUpkeep(TIHabModuleTemplate m, TIFactionState f, TIHabState h) =>
+            Mathf.Max(0f, GameRead.Safe(() => m.MonthlySupportCost(FactionResource.Money, true, f, h)));
 
         /// <summary>Monthly: MC buildings on developed habs of starved AI human factions.</summary>
         public static void Monthly()
@@ -44,6 +56,11 @@ namespace ImprovedAI.Human
                 if (!FleetCompetence.AIHuman(f) || GameRead.Safe(() => f.AI_GenericMissionControlAvailable) > 0f) continue;
                 int started = 0, max = Math.Max(0, Plugin.Cfg.HumanMCBuildingsPerMonth.Value);
                 var log = new List<string>();
+                // Money upkeep must be carried: net monthly money income after all upkeep added this pass, or a stock
+                // covering MCUpkeepMonths of it (Ops Center $30/month, Command Center $100/month).
+                float netMoney = GameRead.Safe(() => f.GetMonthlyIncome(FactionResource.Money));
+                float stock = f.GetCurrentResourceAmount(FactionResource.Money), added = 0f;
+                float months = Mathf.Max(1f, Plugin.Cfg.HumanMCUpkeepMonths.Value);
                 try
                 {
                     foreach (var h in f.habs.Where(x => x != null && !x.decommissioning && x.coreModule != null && !x.coreModule.underConstruction)
@@ -53,12 +70,17 @@ namespace ImprovedAI.Human
                         if (HasMCBuilding(h)) continue;
                         var slots = h.AvailableSlots();
                         if (slots == null || slots.Count == 0) continue;
-                        var module = h.AllowedModules(f).Where(m => m.missionControl > 0).OrderByDescending(m => m.missionControl).FirstOrDefault(m => slots.Any(s => s.IsModuleValidForSlot(m)));
+                        float power = GameRead.Safe(() => h.NetPower(includeUnderConstruction: true, includeDeactivated: true));
+                        var module = h.AllowedModules(f).Where(IsMCBuilding)
+                            .Where(m => m.power >= 0 || power + m.power >= 0)
+                            .Where(m => { float up = MoneyUpkeep(m, f, h); return netMoney - added - up >= 0f || stock >= (added + up) * months; })
+                            .OrderByDescending(m => m.missionControl).FirstOrDefault(m => slots.Any(s => s.IsModuleValidForSlot(m)));
                         if (module == null) continue;
                         var slot = slots.First(s => s.IsModuleValidForSlot(module));
                         var cost = module.CostFromSpace(f, h, isUpgrade: false, substituteBoost: false);
                         if (!cost.CanAfford_AI(f, null, null, 15)) continue;
                         f.playerControl.StartAction(new BuildHabModuleAction(module, slot.sector, slot.slot, cost));
+                        added += MoneyUpkeep(module, f, h);
                         started++;
                         log.Add($"{module.dataName}@{h.displayName}");
                     }

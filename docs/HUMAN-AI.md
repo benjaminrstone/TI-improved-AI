@@ -12,6 +12,10 @@ Code references are relative to `_ref/decompiled/`. Abbreviations:
 ## 0. Decisions (user, 2026-10-18)
 - **Role: both, alien-first.** Credible rivals on Earth, who also take the alien war seriously: they defend their space assets, fight alien forces and contest the gas giants. The target is to fix "you fight the aliens alone" (S1).
 - **First step: the four verified vanilla bugs (H1–H4)**, each starting from a probe that shows it on vanilla.
+- **Mission control (2026-10-19).** Grow MC much harder **and** reserve MC for the fleet. Retiring weak habs is usually not optimal: develop a hab enough to have an MC building and positive resource flow, or don't found it if it's not worth holding (it doesn't take much to make a hab net positive).
+- **MC buildings (2026-10-19, user's game knowledge):**
+  - The **Operations Center** (4 MC, $30/month upkeep) and **Command Center** (10 MC, $100/month) are much better MC sources than the Administration buildings until late. Their money upkeep has to be considered.
+  - The **Administration Tower/Complex** cost boost upkeep (4/12 a month) and give only 1–2 MC. They pay off through their percent bonus to a hab's production, so they belong on very high-value habs, or in Earth orbit when starved for CP cap. That is a separate rule.
 - **Gang-up-on-the-leader: keep it, but smarter.** The first suggestion ("only when the leader actually threatens them, never at the cost of ignoring the aliens") was judged too lenient or too restrictive. The design is still open; propose alternatives when we get there.
 
 ## 1. Architecture and timing (survey 2026-10-18)
