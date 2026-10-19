@@ -36,6 +36,7 @@ namespace ImprovedAI.Diagnostics
                 AI.ThreatMemory.Reset();
                 AI.RaidPlanner.Reset();
                 AI.Economy.Reset();
+                HateLedger.Reset();
                 Safe(() => AI.ThreatMemory.Sample(now), "threat memory");
                 Safe(DecisionJournal.Init, "journal init");
                 Safe(AI.AlienStrategy.OnCampaignReady, "strategy");
@@ -54,6 +55,7 @@ namespace ImprovedAI.Diagnostics
             if (newMonth && Plugin.Cfg.Metrics.Value) Safe(Metrics.Write, "metrics");
             if (newMonth && Plugin.Cfg.DecisionJournal.Value) Safe(FleetComposition.Monthly, "fleet composition");
             if (newMonth && Plugin.Cfg.DecisionJournal.Value) Safe(HumanFleetDiag.Monthly, "human fleet diag");
+            if (newMonth && Plugin.Cfg.DecisionJournal.Value) Safe(HateLedger.Monthly, "hate ledger");
             if (newMonth) Safe(AI.Disposition.Monthly, "disposition");
             if (newMonth) Safe(AI.Escalation.Monthly, "escalation");
             if (newMonth) Safe(AI.Terminus.Monthly, "terminus");

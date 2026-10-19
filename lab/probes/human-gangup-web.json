@@ -1,0 +1,11 @@
+{
+  "name": "human-gangup-web",
+  "notes": "Gang-up web baseline (docs/HUMAN-AI.md §9). Vanilla: every AI faction adds +1 to +2.25 hate a month toward the strongest human faction overall (JealousyAndDeescalation); toward the player only beyond a minimum ideological distance. The human-hate record sums every human-to-human hate change by cause per month. Analyse with tools/hate.py <run dir>. Info only until the personality web lands.",
+  "fixture": "accel-2031-hot-war",
+  "runDays": 365,
+  "asserts": [],
+  "info": [
+    "count('human-hate')",
+    "[(e['t'][:7], e['strongest']) for e in events('human-hate', f='ResistCouncil')][::3]"
+  ]
+}
