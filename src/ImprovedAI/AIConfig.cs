@@ -94,7 +94,7 @@ namespace ImprovedAI
         public readonly ConfigEntry<bool> HumanMissionControl, HumanBoostForShips, HumanMineWhatYouLack, HumanBiggerHulls, HumanQueueUnblock;
         public readonly ConfigEntry<bool> HumanMCBuildings, HumanFleetMCReserveOn;
         public readonly ConfigEntry<int> HumanMCBuildingsPerMonth;
-        public readonly ConfigEntry<float> HumanFleetMCReserve, HumanMCUpkeepMonths;
+        public readonly ConfigEntry<float> HumanFleetMCReserve, HumanMCUpkeepMonths, HumanMCUpgradeOffline;
         public readonly ConfigEntry<float> HumanMissionControlValue, HumanBoostReserve, HumanSmallsFactor, HumanMediumsFactor, HumanUpsizeDays;
 
         public AIConfig(ConfigFile cfg)
@@ -252,6 +252,8 @@ namespace ImprovedAI
             HumanMCBuildingsPerMonth = cfg.Bind("HumanAI", "MCBuildingsPerMonth", 4, "MC buildings started or upgraded (Ops -> Command Center) per faction per month at most.");
             HumanMCUpkeepMonths = cfg.Bind("HumanAI", "MCUpkeepMonths", 24f,
                 "An MC building's money upkeep must be covered by net money income, or by a stock covering this many months of it.");
+            HumanMCUpgradeOffline = cfg.Bind("HumanAI", "MCUpgradeOfflineShare", 0.15f,
+                "An Ops Center being upgraded to a Command Center produces no MC for the 240-day build: MC offline in upgrades is capped at this share of MC income.");
             HumanFleetMCReserveOn = cfg.Bind("HumanAI", "FleetMCReserve", true,
                 "While warships are wanted, founding new habs may only use generic MC beyond FleetMCReserveShare x MC income (user, 2026-10-19).");
             HumanFleetMCReserve = cfg.Bind("HumanAI", "FleetMCReserveShare", 0.3f, "Share of MC income reserved for warships against new hab founding.");

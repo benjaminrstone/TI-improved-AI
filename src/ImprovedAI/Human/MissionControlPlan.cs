@@ -17,8 +17,9 @@ namespace ImprovedAI.Human
     /// develop a hab enough to have an MC building and positive resource flow, or don't found it."
     ///  - MC buildings: vanilla builds standard modules only with generic MC available (HumanHabPlanner
     ///    BuildHabModules, HabMayBeUpgraded), so a starved faction can never build the buildings that would end the
-    ///    starvation. Monthly, a starved faction starts the best MC building it can afford on developed habs that have
-    ///    none (Administration Tower 1, Administration Complex 2, Operations Center 4, Command Center 10).
+    ///    starvation. Monthly, a starved faction first upgrades Operations Centers (4 MC) to Command Centers (10), with
+    ///    the MC offline during the 240-day build capped, then starts the best MC building it can afford on habs that
+    ///    have none (one per hab, a game limit). Administration buildings are excluded (see IsMCBuilding).
     ///  - Fleet reserve: while warships are wanted, FOUNDING new habs may only use generic MC beyond FleetMCReserve x MC
     ///    income (the founding checks and the found-hab MC indulgence see the reserve). Expansion waits; new MC goes to
     ///    ships first. Existing habs are never retired.
@@ -74,13 +75,24 @@ namespace ImprovedAI.Human
                 // buildings averaged ~7 MC, the AI factions' ~4: nearly all Ops Centers. +6 MC each, within the
                 // one-MC-building-per-hab limit; needs the module upgrade unlocked and allowed (tier-3 hab), the extra
                 // power, and the extra money upkeep carried.
+                // The old module produces nothing during the 240-day build, so MC offline in upgrades is capped at
+                // MCUpgradeOfflineShare x MC income (counts under-construction MC buildings that upgrade from one).
+                float offline = 0f, offlineCap = Mathf.Max(0f, Plugin.Cfg.HumanMCUpgradeOffline.Value) * Mathf.Max(0f, GameRead.Safe(() => f.MissionControlIncome));
+                try
+                {
+                    offline = f.habs.Where(x => x != null).SelectMany(x => x.AllModules())
+                        .Where(m => m != null && !m.destroyed && m.underConstruction && IsMCBuilding(m.moduleTemplate) && IsMCBuilding(m.moduleTemplate.UpgradesFrom))
+                        .Sum(m => (float)m.moduleTemplate.UpgradesFrom.missionControl);
+                }
+                catch { }
                 try
                 {
                     foreach (var h in f.habs.Where(x => x != null && !x.decommissioning).OrderByDescending(x => x.tier).ToList())
                     {
                         if (started >= max) break;
-                        var mod = h.AllModules().FirstOrDefault(m => m != null && !m.destroyed && IsMCBuilding(m.moduleTemplate));
+                        var mod = h.AllModules().FirstOrDefault(m => m != null && !m.destroyed && !m.underConstruction && IsMCBuilding(m.moduleTemplate));
                         if (mod == null) continue;
+                        if (offline + mod.moduleTemplate.missionControl > offlineCap) { Why("upgradeOffline"); continue; }
                         TIHabModuleTemplate up = null;
                         try { if (mod.CanUpgrade(f)) up = mod.moduleTemplate.UpgradeModuleTemplate(f, checkUnlocked: true); } catch { }
                         if (up == null || !IsMCBuilding(up) || up.missionControl <= mod.moduleTemplate.missionControl) { Why("noUpgrade"); continue; }
@@ -91,8 +103,10 @@ namespace ImprovedAI.Human
                         var cost = up.CostFromSpace(f, h, isUpgrade: true, substituteBoost: false, 0, dontRecalculateIncome: true);
                         if (!cost.CanAfford_AI(f, null, null, 15)) { Why("upgradeAfford"); continue; }
                         string from = mod.moduleTemplate.dataName;   // the action replaces the module at once
+                        int fromMC = mod.moduleTemplate.missionControl;
                         f.playerControl.StartAction(new BuildHabModuleAction(up, mod.sector, mod.slot, cost));
                         added += Mathf.Max(0f, extra);
+                        offline += fromMC;
                         started++;
                         log.Add($"{from}->{up.dataName}@{h.displayName}");
                     }
@@ -128,7 +142,7 @@ namespace ImprovedAI.Human
                 }
                 catch (Exception e) { Plugin.Log.LogWarning($"[HumanAI] MC buildings {f.templateName}: {e.Message}"); }
                 if (Plugin.Cfg.DecisionJournal.Value)
-                    Session.Journal?.Write(new { t = GameRead.Now(), kind = "human-mc-building", faction = GameRead.Faction(f), started, modules = log, why, hasOps, hasCmd, netMoney, stock });
+                    Session.Journal?.Write(new { t = GameRead.Now(), kind = "human-mc-building", faction = GameRead.Faction(f), started, modules = log, why, hasOps, hasCmd, netMoney, stock, offline, offlineCap });
             }
         }
     }
