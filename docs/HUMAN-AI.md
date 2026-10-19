@@ -18,7 +18,11 @@ Code references are relative to `_ref/decompiled/`. Abbreviations:
   - **One MC building per hab** is a game limit for everyone.
   - In the 2039 debug, 24–43 habs per AI faction already had an Ops or Command Center and generic MC was still 0. MC buildings on habs are therefore largely maxed already; MC growth has to come from elsewhere (more habs that pay for themselves, nations, orgs), or from spending MC better.
   - The **Administration Tower/Complex** cost boost upkeep (4/12 a month) and give only 1–2 MC. They pay off through their percent bonus to a hab's production, so they belong on very high-value habs, or in Earth orbit when starved for CP cap. That is a separate rule.
-- **Gang-up-on-the-leader: keep it, but smarter.** The first suggestion ("only when the leader actually threatens them, never at the cost of ignoring the aliens") was judged too lenient or too restrictive. The design is still open; propose alternatives when we get there.
+- **Gang-up-on-the-leader: keep it, but smarter.** The first suggestion ("only when the leader actually threatens them, never at the cost of ignoring the aliens") was judged too lenient or too restrictive.
+  - 2026-10-19, chosen: **scale by the lead**, **grudges from injury**, **alien-aware weighting** (graded, not "never").
+  - New idea from the user: **client/minor ally of the leader**, limited to compatible factions. For example, Exodus is compatible with most anti-alien factions: it would rather be left alone to build its escape ship than spend on blowing up Resistance bases and ships. "Consider the web of relationships and which this works for."
+  - "There is a distinct feel between pro-alien and anti-alien NPCs, but not much distinction within anti-alien NPCs, and I'd like them to feel very different."
+  - Proposal: §9.
 
 ## 1. Architecture and timing (survey 2026-10-18)
 
@@ -194,3 +198,56 @@ Sources: Steam reviews and discussions, the Something Awful thread, and Steam pa
 - S9 and S10: research churn, direct investment never firing (H1), org buying stopping early (H3).
 - S5: the hidden mission bonus (difficulty).
 - S2 and S3: the designed gang-up rule.
+
+## 9. Faction personalities and the gang-up web (proposal, 2026-10-19; awaiting user review)
+
+**Vanilla (ADFP.JealousyAndDeescalation, monthly):**
+- The "most threatening enemy" is simply the strongest human faction overall (`GetStrongestHumanFaction`), whether or not it touches this faction.
+- Every AI faction adds +1 / +1.75 / +2.25 hate toward it (self-assessment Even / Losing / LosingBig). Add +1.4 for a very-pro vs very-anti pair, and subtract 3 (0.75 after year 7) when both sit on the same side.
+- Against the player this needs a minimum ideological distance (2.5 / 1.8 / 1.2 / 0 by difficulty). Between AIs it always applies.
+- The only per-faction flavour is pro- vs anti-alien. Vanilla even refuses a non-aggression pact with the strongest faction (TIFactionState:14205), so nobody can make peace with the leader.
+
+**Ideology map** (x = alien stance, y = malleability; distances from `ideologyDistanceGrid`):
+
+| | Resist (1,0) | HF (2,−0.5) | Exodus (0.5,1) | Initiative (0,−1) | Academy (−0.5,1) |
+|---|---|---|---|---|---|
+| Resist | 0 | 1.12 | 1.12 | 1.41 | 1.80 |
+| HF | 1.12 | 0 | 2.12 | 2.06 | 2.92 |
+| Exodus | 1.12 | 2.12 | 0 | 2.06 | 1.00 |
+
+- Anti-alien (x > 0): Resistance, Humanity First, Exodus. Initiative is neutral (x = 0). Academy is mildly pro-alien but "malleable" like Exodus.
+
+**Three shared terms** (chosen 2026-10-19). Each faction weights them with its own personality numbers:
+1. **Lead term:** hate scales with the leader's strength over the runner-up's (ratio r). It is ~0 below r ≈ 1.15 and above vanilla for a runaway (r ≥ 2).
+2. **Grudge term:** hate from recent injuries by that faction (councilors killed or detained, CPs or orgs taken, habs or ships destroyed). Each personality decays it at its own rate.
+3. **Alien term:** while the aliens are a live threat (escalated, at war, or winning in space), hate toward a leader that is actually fighting them is damped for anti-alien factions and amplified for pro-alien ones. Graded by the threat, never zero.
+
+**Personalities (anti-alien factions should feel very different):**
+
+| Faction | Feel | Lead | Grudge | Alien damping | Client? |
+|---|---|---|---|---|---|
+| **Resistance** | The coalition-builder: pragmatic, leads the anti-alien bloc, punishes collaborators | medium | medium, normal decay | strong (won't sabotage an anti-alien leader while the aliens press) | patron of Exodus/Academy; becomes a client itself only under severe alien escalation |
+| **Humanity First** | The zealot: jealous, vengeful, sees softness as betrayal | high | high, very slow decay (remembers) | weak; none toward Academy/Exodus leaders ("collaborators and cowards") | never a client; a harsh patron (clients are dropped at the first injury) |
+| **Exodus** | The isolationist: wants to be left alone to build the ship | low (×0.4) | high but short: retaliates, then lets go | strong | seeks client status with the strongest compatible faction (Resistance, Academy, grudgingly HF) |
+| **Initiative** | The opportunist: balances a close race, bandwagons a runaway | inverted: up to r ≈ 1.5, then falls | medium | none (profit first) | a client of whoever runs away, pro-alien patrons included |
+| **Academy** | The scholar: hostile to HF and the Servants | medium | medium | — (pro-alien side) | client of Exodus/Resistance (closest anti-alien neighbours) |
+| Protectorate, Servants | Pro-alien: vanilla feel, plus the alien term amplifies hate toward an anti-alien leader | vanilla | medium | amplified | no |
+
+**Client/minor ally:**
+- Who: a compatible pair (table above), the patron is the leader or within 15% of it, and the client is not itself contending (≤ 60% of the patron's strength).
+- What the client does:
+  - Gang-up hate toward the patron is cut to ~10%.
+  - It may hold a non-aggression pact with the patron (lifting vanilla's no-NAP-with-the-leader rule for that pair) and shares intel.
+  - It spends on its own goals (Exodus: the escape objective, hab defence).
+- What the patron gives: its gang-up hate toward the client is cut to ~10%. It doesn't target the client's CPs or habs.
+- What breaks it:
+  - an injury either way (grudge above a threshold);
+  - an ideology flip;
+  - the client becoming a contender;
+  - HF patrons drop clients at the first injury.
+- Player: the player can be the patron. Exodus and Academy would then stop gang-up missions against a player Resistance and seek a NAP (via the normal diplomacy screen). Whether an AI ever offers to be the player's client is a question for the user.
+
+**Questions for the user:**
+- Is the personality table right, especially HF as "never a client" and Initiative bandwagoning to pro-alien patrons?
+- Can the player be a patron (AI clients of the player)?
+- Should Resistance ever become a client?
