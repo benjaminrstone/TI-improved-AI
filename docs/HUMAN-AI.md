@@ -199,7 +199,7 @@ Sources: Steam reviews and discussions, the Something Awful thread, and Steam pa
 - S5: the hidden mission bonus (difficulty).
 - S2 and S3: the designed gang-up rule.
 
-## 9. Faction personalities and the gang-up web (proposal, 2026-10-19; awaiting user review)
+## 9. Faction personalities and the gang-up web (design, 2026-10-19)
 
 **Vanilla (ADFP.JealousyAndDeescalation, monthly):**
 - The "most threatening enemy" is simply the strongest human faction overall (`GetStrongestHumanFaction`), whether or not it touches this faction.
@@ -247,7 +247,7 @@ Sources: Steam reviews and discussions, the Something Awful thread, and Steam pa
   - HF patrons drop clients at the first injury.
 - Player: the player can be the patron. Exodus and Academy would then stop gang-up missions against a player Resistance and seek a NAP (via the normal diplomacy screen). Whether an AI ever offers to be the player's client is a question for the user.
 
-**Questions for the user:**
-- Is the personality table right, especially HF as "never a client" and Initiative bandwagoning to pro-alien patrons?
-- Can the player be a patron (AI clients of the player)?
-- Should Resistance ever become a client?
+**User answers (2026-10-19):**
+- The player can be a patron, under the same rules as any faction.
+- Initiative bandwagons with a runaway leader even when the leader is pro-alien ("profit first").
+- HF is never a client and is a harsh patron. Resistance becomes a client only under severe alien escalation.
