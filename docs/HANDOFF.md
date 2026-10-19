@@ -1,4 +1,4 @@
-# Handoff (2026-10-13)
+# Handoff (2026-10-13; human AI track 2026-10-19)
 
 State at the end of the second working session. Read this first, then `docs/M2-PLAN.md`.
 
@@ -54,7 +54,41 @@ State at the end of the second working session. Read this first, then `docs/M2-P
 
 ## Open questions for the user
 
-None pending.
+- **Forgiveness rates (2026-10-19), my starting values:**
+
+  | Exodus | Initiative | Academy | Resistance | pro-alien | Humanity First |
+  |---|---|---|---|---|---|
+  | 15%/month | 6% | 4% | 3% | 2% | never |
+
+  These decide how forgiving each personality feels.
+
+## Human AI track (2026-10-18/19; details in `docs/HUMAN-AI.md`)
+
+- **The four vanilla bugs (H1–H4):**
+  - H1, H2 and H4 are fixed.
+  - H3 brought no gain, so it is off.
+- **Fleets:** the binding cap is mission control (generic MC is 0 for 5 of 6 AI factions).
+  - Built:
+    - the MC investment/valuation;
+    - boost for ships, bigger hulls, queue unblocking;
+    - the MC plan: Ops→Command Center upgrades first (one MC building per hab), then new MC buildings, with power, upkeep and offline caps;
+    - the fleet MC reserve against hab founding.
+  - Result: MC income rises and generic MC is positive by year end, but fleet growth is not yet above vanilla within one year (the upgrades take 240 days).
+  - **Next:** a 2-year or 2034-start run.
+- **Gang-up and personalities (§9):**
+  - Built:
+    - the lead / grudge / alien terms per personality;
+    - clients (no jealousy either way, NAP allowed with the leader);
+    - per-personality forgiveness of standing hate.
+  - Diagnostics: the `human-hate` journal record and `tools/hate.py`.
+  - Results:
+    - Close race (2031): jealousy is ~off, and an Academy→Exodus client pair forms and breaks.
+    - Runaway player (2039): more jealousy, but hate was already saturated. With forgiveness, Exodus's hate toward the player falls 830 → 136 in a year (war ends at ~89).
+  - **Next:**
+    - a fresh-campaign run (hate never saturates there), to see client pairs with the player;
+    - the AI→player pact offer (the player must currently propose it);
+    - more anti-alien differentiation in actions, not only hate (e.g. Exodus spending on its escape objective, HF zeal missions).
+- **Not started:** the Admin-building rule (high-value habs / CP-capped Earth orbit); queue unblock v2.
 
 ## Next steps (recommended order)
 

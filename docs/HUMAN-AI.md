@@ -299,3 +299,17 @@ Sources: Steam reviews and discussions, the Something Awful thread, and Steam pa
   | 15% | 6% | 4% | 3% | 2% | never |
 
   Hate then settles near the monthly injury divided by that share. Wars end once hate falls below the war threshold (`FactionWarOnFaction.ShouldDiscardGoal`). Test: 2039 + 365 days, mod ×2.
+
+**Results: forgiveness (accel-2039-clean-jupiter, 365 days, mod ×2, 2026-10-19):** hate toward the player, Apr 2039 → Mar 2040.
+
+| Faction | Hate | Rate | Note |
+|---|---|---|---|
+| Exodus | 830 → 136 | 15% | Both runs. War ends below ~89, a few months later |
+| Initiative | 413 → 331–337 | 6% | Its bandwagon jealousy and missions keep adding |
+| Academy | 315 → 228 | 4% | |
+| Protectorate | 1780 → 1481–1486 | 2% | |
+| Servants | 2311 → 1912 | 2% | |
+| Humanity First | 0 | never | No war |
+
+- Still at war with the player all year (60 faction-months in each run). No clients formed, since the player is the only possible patron.
+- This is vanilla's accumulated hate in a late save bleeding off. In a campaign that starts with the mod, hate settles near the injury rate divided by the forgiveness rate.
