@@ -102,6 +102,13 @@ Code references are relative to `_ref/decompiled/`. Abbreviations:
 - a discarded LINQ `Append` (ADFP:965/982);
 - integer division in `RecruitCouncilors` (ADFP:2395).
 
+## 6b. Vanilla evidence for S1 (3 × 2-year vanilla soaks from 2034, 2026-10-18)
+- **Human AI fleets are tiny.** Each AI faction fields 0.3–2.4k SCV (all six together ~5–8k), against the aliens' ~35k.
+- **They almost never attack the aliens.** Battles involving the aliens: 33–62 per run, all alien-initiated except **one** (Humanity First).
+- **Their habs bleed.** AI factions lose 60–80 habs per run, to the aliens and to each other.
+- **Fleets sit in the inner system** (Venus, Earth, Mercury) while bases and stations (14–36 per faction) spread across the belt.
+- **So the root of S1 looks like human AIs building almost no warships,** more than how they use them. The next step after the vanilla bugs is to trace why (fleet goals, saving, budgets, gates).
+
 ## 7. Likely weaknesses (from code; symptoms to confirm by probe and soak)
 1. **Expansion into minor nations stops at one CP over the free cap.** `MinorCPTrouble` is maintenance cost > 0 (TFS:15412); ControlNation then returns −1 for non-major powers (ACMP:497-501).
 2. **Small nations (≤ 4 CP) are safe from Crackdown and Purge** unless the AI already targets them (ACMP:615-623, 1210-1218).
