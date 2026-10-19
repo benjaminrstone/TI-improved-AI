@@ -109,6 +109,23 @@ Code references are relative to `_ref/decompiled/`. Abbreviations:
 - **Fleets sit in the inner system** (Venus, Earth, Mercury) while bases and stations (14–36 per faction) spread across the belt.
 - **So the root of S1 looks like human AIs building almost no warships,** more than how they use them. The next step after the vanilla bugs is to trace why (fleet goals, saving, budgets, gates).
 
+### Why so few warships: candidate causes (code trace, 2026-10-18; not yet measured)
+1. **Demand is self-referential, and aliens count only at war.**
+   - The fleet-goal baseline uses the threat at the location with `warEnemiesOnly` for humans. `GetWarAdjustment` truncates to an integer, so a faction not formally at war counts as 0 (AIE 4471-4478) and the baseline falls to `minimumFleetStrength = 1`.
+   - DefendWithFleet sizes each goal from the faction's **own** total fleet: 0.15 / (stations + base bodies), or 0.3 for the primary hab, then × 0.6 for humans (FactionGoal_DefendWithFleet 196-335). AssembleFleet = 0.33 × own fleets. This is circular.
+   - Threat-based local sizing needs `IsDefenseFeasible`, which holds only for the best station in a system.
+2. **The mission-control gate.** Ships are queued only with generic MC available (ADFP 3757; TFS 1360-1375: income minus usage minus a 7.5% reserve). Hab founding bypasses it through `GrantMissionControlIndulgence` (FactionGoal_FoundHab 26-35).
+3. **No war with the alien faction.**
+   - War needs hate ≥ 100/clamp(ideological distance, 1, 2.5) and intel ≥ 0.25 (AIE 5973-6017).
+   - When the alien nation is founded, war is declared on the AlienProxy; only veryAntiAlien factions also declare on the aliens (AIE 6172-6175).
+4. **Hab-first scheduling and early loop exits.**
+   - Hab goals win saving-target ties; FoundBase sits at importance 17/19.
+   - Ship queuing runs about 2 passes a month, 1 ship per goal.
+   - `UpdateShipyardQueues` stops at the first goal with unpaid pending ships, or at the first can't-afford (ADFP 3762-3765, 3822-3825).
+5. **Attack thresholds out of reach** (1.2–3× the defenders, against 35k alien stacks), plus a hull-size bias toward small hulls (fleetSmalls 3–4).
+
+**Next:** the monthly `human-fleet` diagnostic (MC available, goal demand and ship wants, saving target, shipyards, war on the aliens), on a vanilla year from 2034, to tell these apart before changing anything.
+
 ## 7. Likely weaknesses (from code; symptoms to confirm by probe and soak)
 1. **Expansion into minor nations stops at one CP over the free cap.** `MinorCPTrouble` is maintenance cost > 0 (TFS:15412); ControlNation then returns −1 for non-major powers (ACMP:497-501).
 2. **Small nations (≤ 4 CP) are safe from Crackdown and Purge** unless the AI already targets them (ACMP:615-623, 1210-1218).
