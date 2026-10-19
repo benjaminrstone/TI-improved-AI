@@ -1,6 +1,6 @@
 {
   "name": "fleet-capital-beams",
-  "notes": "M2 step 4 gate (B): a beam/capital/brawler fleet doctrine. Compare with fleet-swarm-missiles and fleet-neutral. Single runs 2026-10-12: Swarm built 57% small, missiles 47% of weapons, design missile mounts 51->130; Capital built 25% small, beams 38%, design beams 123->168 and kinetics 67->22; neutral 44% small, missiles/beams 31% each. Engagement (2026-10-16: own range x3, opposite range /3): short-range share of short+long combat builds was neutral 0.26-0.27, Brawler 0.30-0.33, Artillery 0.15-0.26 before. 2026-10-16 (opposite range /3): short share 0.39 (neutral 0.26-0.27, old Brawler 0.30-0.33) -> assert >= 0.35; design beams 145 and 168 vs 123 start -> assert >= 1.15x.",
+  "notes": "M2 step 4 gate (B): a beam/capital/brawler fleet doctrine. Compare with fleet-swarm-missiles and fleet-neutral. Single runs 2026-10-12: Swarm built 57% small, missiles 47% of weapons, design missile mounts 51->130; Capital built 25% small, beams 38%, design beams 123->168 and kinetics 67->22; neutral 44% small, missiles/beams 31% each. Engagement (2026-10-16: own range x3, opposite range /3): short-range share of short+long combat builds was neutral 0.26-0.27, Brawler 0.30-0.33, Artillery 0.15-0.26 before. 2026-10-16 (opposite range /3): short share 0.39 (neutral 0.26-0.27, old Brawler 0.30-0.33) -> assert >= 0.35; design beams 145 and 168 vs 123 start -> assert >= 1.15x. Brawler short-range share over 4 runs: 0.30/0.33/0.39/0.30 vs neutral 0.27/0.26/0.17/0.38 (~18 combat-role builds per run): NOT distinguishable from noise; the gate was removed (2026-10-18) and the share kept as info.",
   "fixture": "accel-2034-fusion-drives",
   "runDays": 180,
   "commands": [
@@ -12,8 +12,7 @@
     "count('ship-built') >= 5",
     "sum(d['weapons'].get('Beams', 0) for d in events('fleet')[-1]['designs']) >= 1.15 * sum(d['weapons'].get('Beams', 0) for d in events('fleet')[0]['designs'])",
     "sum(d['weapons'].get('Kinetics', 0) for d in events('fleet')[-1]['designs']) <= 0.6 * sum(d['weapons'].get('Kinetics', 0) for d in events('fleet')[0]['designs'])",
-    "sum(count('ship-built', size=s) for s in ['Medium', 'Large', 'Huge']) >= 0.6 * count('ship-built')",
-    "sum(count('ship-built', role=r) for r in ['LS_Penetrator','MS_Strike','SS_Interceptor']) / max(1, sum(count('ship-built', role=r) for r in ['LS_Penetrator','MS_Strike','SS_Interceptor'] + ['LL_Intruder','ML_Standoff','SL_Defender'])) >= 0.35"
+    "sum(count('ship-built', size=s) for s in ['Medium', 'Large', 'Huge']) >= 0.6 * count('ship-built')"
   ],
   "info": [
     "events('doctrine')[-1]['dials']",

@@ -91,8 +91,7 @@ namespace ImprovedAI.AI
             s.history.Add($"{GameRead.Now()} terminus complete: alien victory");
             Plugin.Log.LogInfo("[Strategy] Terminus complete: alien victory.");
             Session.Journal?.Write(new { t = GameRead.Now(), kind = "terminus", ev = "complete" });
-            // Unattended harness runs only journal it, so soaks run on; playtests and normal play end the campaign.
-            if (Harness.CampaignHarness.Active && !Harness.CampaignHarness.Interactive) return;
+            // Notify journals only in unattended harness runs (soaks run on); playtests and normal play end the campaign.
             Notify("The alien terminus is complete",
                 "The full wormhole terminus is open. The Hydras can now bring through fleets, colonists and armies without limit, and nothing humanity has can stop the flood. The war is lost.", true);
         }
