@@ -2,6 +2,32 @@
 
 What is built, what the probes show, and what is next. Newest first. Every claim here is backed by a run in `lab/results/` (gitignored); probe definitions live in `lab/probes/`.
 
+## 2026-10-18: the full M2 build, then the pivot to human factions
+
+### Regression pass (`probes.ps1 -All`, build `221b8d6`)
+14 of 17 pass. The three failures:
+- **terminus:** completed, but its end-game notice was not journaled in harness runs (my ordering bug, fixed in `f565230`).
+- **doctrine-shame-shift:** the aliens now destroy many more human ships in real battles, so the injected 30:5 losses left shame at 0.97. Recalibrated to 40:3.
+- **fleet-capital-beams (Brawler):** the short-range share across 4 runs was 0.30/0.33/0.39/0.30, against neutral 0.27/0.26/0.17/0.38, with only ~18 combat-role builds per run. **The Brawler effect is not distinguishable from noise.** The gate was removed and the share kept as info.
+
+### Soak: 3 × 2 years from 2034, vanilla vs the full current build (sustainable cap, escalation, rendezvous, proxy trade, exotics-aware builds, surge, terminus)
+
+| | Vanilla | Mod |
+|---|---|---|
+| Alien SCV at end | 35.3k [34.0–37.8] | **40.8k [36.2–45.1]** |
+| Alien ships lost / human ships destroyed by aliens | 29 / 144 | **8** / 141 |
+| Alien metal income at end | ~2.6k | **4.1–5.1k** |
+| Alien bases | 13 → 16 | 13 → 17–18 |
+| Habs lost, all factions / Resistance | 95 / 24 | 93 / 29 |
+| Alien attack launches | 64 | 47 |
+| Proxy trades with the aliens | 0 | 8–14 |
+| Escalation / terminus | — | none (correct for 2034: no human presence in the gas giants, contempt above 0.35) |
+| Exotics stock | 2.0k → 2.4–2.7k | 2.0k → 1.3–1.7k (upkeep 65–78 against a drip of 60) |
+
+**Reading.**
+- The aliens end stronger and lose a fraction of the ships.
+- **Exotics-aware shipbuilding did not stop the drain.** It biases new builds away from capital hulls, but the existing capital fleet's upkeep stays. The next lever: escalation-free decommissioning of the oldest capital hulls, or lower capital upkeep. A tuning question for the widening/upkeep balance.
+
 ## 2026-10-16: sustainable cap, escalation (P4), fixes
 
 ### Probes (build `b84ca9a` / `2adf6ee`)
