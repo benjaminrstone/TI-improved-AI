@@ -69,8 +69,13 @@ namespace ImprovedAI.Human
             if (rival == null) return;
             try
             {
-                if (faction.GetFactionStrengthEstimate() < 0.5f * rival.GetFactionStrengthEstimate())
+                float mine = faction.GetFactionStrengthEstimate(), theirs = rival.GetFactionStrengthEstimate();
+                if (mine < 0.5f * theirs)
+                {
                     faction.selfAssessement = FactionSelfAssessment.LosingBig;
+                    if (Plugin.Cfg.DecisionJournal.Value)
+                        Session.Journal?.Write(new { t = GameRead.Now(), kind = "losing-big-fix", faction = GameRead.Faction(faction), rival = GameRead.Faction(rival), ratio = theirs > 0f ? mine / theirs : 0f });
+                }
             }
             catch (Exception e) { Plugin.Log.LogWarning($"[HumanAI] LosingBig: {e.Message}"); }
         }

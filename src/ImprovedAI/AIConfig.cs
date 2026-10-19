@@ -233,12 +233,12 @@ namespace ImprovedAI
             MaxCaptureGoals = cfg.Bind("Targeting", "MaxCaptureGoals", 6, "Maximum open marine-capture raids on undefended bases (separate from MaxRaidGoals).");
             AlienMarineFix = cfg.Bind("Fixes", "AlienMarineValue", true,
                 "Fix vanilla bug: the alien Salamander pod lists Crashdown before Assault, so its marine value reads 0 and aliens can never assault a base.");
-            FixDirectInvest = cfg.Bind("HumanAI", "FixDirectInvest", false,
+            FixDirectInvest = cfg.Bind("HumanAI", "FixDirectInvest", true,
                 "Vanilla bug H1: AI direct investment never fires (operator precedence makes the influence budget the literal 0.1/0.2).");
-            FixLosingBig = cfg.Bind("HumanAI", "FixLosingBig", false, "Vanilla bug H2: 'LosingBig' self-assessment is unreachable (tested after 'Losing').");
+            FixLosingBig = cfg.Bind("HumanAI", "FixLosingBig", true, "Vanilla bug H2: 'LosingBig' self-assessment is unreachable (tested after 'Losing').");
             FixOrgBuying = cfg.Bind("HumanAI", "FixOrgBuying", false, "Vanilla bug H3: AI org buying stops at the first conflicting candidate (break instead of continue).");
             MaxOrgBuyPasses = cfg.Bind("HumanAI", "MaxOrgBuyPasses", 3, "Extra org-buying passes after a pass that bought something.");
-            FixMissionRisk = cfg.Bind("HumanAI", "FixMissionRisk", false, "Vanilla bug H4: the high-payoff mission risk relaxation reads payoff before it is assigned.");
+            FixMissionRisk = cfg.Bind("HumanAI", "FixMissionRisk", true, "Vanilla bug H4: the high-payoff mission risk relaxation reads payoff before it is assigned.");
             AlienBattlecruiserFix = cfg.Bind("Fixes", "AlienBattlecruiserName", true,
                 "Fix vanilla bug: the alien designer asks for hull 'AlienBattleCruiser' (data name 'AlienBattlecruiser'), so the exotics medium interceptor gets the wrong hull.");
             RaidBombardMultiplier = cfg.Bind("Targeting", "RaidBombardMultiplier", 2f, "Raid goals want this multiple of vanilla's desired bombardment value.");

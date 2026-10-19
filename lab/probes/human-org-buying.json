@@ -1,6 +1,6 @@
 {
   "name": "human-org-buying",
-  "notes": "H3: vanilla PurchaseOrgs breaks at the first conflicting candidate (~1 org per weekly pass). With the fix, extra passes buy past conflicts. Compare org counts with the vanilla run.",
+  "notes": "H3: vanilla PurchaseOrgs breaks at the first conflicting candidate (~1 org per weekly pass). With the fix, extra passes buy past conflicts. Compare org counts with the vanilla run. First run (2026-10-18): 64 extra orgs bought by re-run passes in 120 days, but AI org totals at the end matched vanilla (355 vs 353): the extra orgs are shed again, so the fix churns money. FixOrgBuying stays OFF pending investigation.",
   "fixture": "accel-2031-hot-war",
   "runDays": 120,
   "config": {

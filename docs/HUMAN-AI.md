@@ -84,6 +84,15 @@ Code references are relative to `_ref/decompiled/`. Abbreviations:
 | H3 | **Org buying stops at the first conflict.** `PurchaseOrgs` uses `break` where `continue` was meant, as soon as a candidate org or councilor is already taken. | ADFP:2604-2607 | About one org bought per weekly pass; councilors stay under-equipped. |
 | H4 | **The mission risk relaxation is dead.** `acceptableMinimumSuccess` uses `payoff` before `payoff` is assigned. | AIMissionEntry.cs:74 vs 91 | High-value missions never get their lower success threshold. |
 
+**Step 1 results** (2031 save, 90–120 days, one run each against vanilla; `Human/VanillaFixes.cs`):
+
+| Fix | Result | Default |
+|---|---|---|
+| H1 | Mod: 1 direct investment (Exodus, Mission Control). Vanilla: 0. Real but **low impact**: even the intended budget (10–20% of influence) rarely covers a priority. | on |
+| H2 | Flips Losing → LosingBig when strength is below half the rival's (the Protectorate, Dec 2031). Vanilla's other LosingBig route (every Earth interface orbit full) also fires in 2031. | on |
+| H3 | Re-run passes bought 64 extra orgs in 120 days, but AI org totals at the end **matched vanilla** (355 vs 353): the extra orgs are shed again, so the fix churns money. **Investigate before enabling** (org capacity, the pool overage → DropOrgs/SellOrgs path). | **off** |
+| H4 | Verified by reading the code only; no behavioural probe yet (the effect on mission choice is subtle). | on |
+
 **Reported by the survey, not yet verified by me:**
 - the focus goal is never passed to normal missions (AIMissionEntry.cs:96, ACMP:158-161);
 - the favourites boost is `.Take(0)` (ACMP:3495);
