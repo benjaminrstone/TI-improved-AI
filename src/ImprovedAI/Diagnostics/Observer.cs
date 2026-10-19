@@ -53,6 +53,7 @@ namespace ImprovedAI.Diagnostics
             if (Plugin.Cfg.DecisionJournal.Value) Safe(() => DecisionJournal.Daily(), "journal");
             if (newMonth && Plugin.Cfg.Metrics.Value) Safe(Metrics.Write, "metrics");
             if (newMonth && Plugin.Cfg.DecisionJournal.Value) Safe(FleetComposition.Monthly, "fleet composition");
+            if (newMonth && Plugin.Cfg.DecisionJournal.Value) Safe(HumanFleetDiag.Monthly, "human fleet diag");
             if (newMonth) Safe(AI.Disposition.Monthly, "disposition");
             if (newMonth) Safe(AI.Escalation.Monthly, "escalation");
             if (newMonth) Safe(AI.Terminus.Monthly, "terminus");
