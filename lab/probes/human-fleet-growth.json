@@ -1,6 +1,6 @@
 {
   "name": "human-fleet-growth",
-  "notes": "Human AI step 2 (user, 2026-10-19: fix the bottleneck they're stuck on, bigger hulls, queue unblocking). Vanilla 2039 (3 runs): AI human factions stall at 1-5k SCV each while the player has 11-13k; summed AI human SCV 17.8k -> 21.0k in a year (x1.18) at ~55 SCV per ship. Measured bottlenecks (2034 diagnostic): generic MC 0 (Academy, Exodus), metals 0 (Initiative), $15-54k idle money, small hulls.",
+  "notes": "Human AI step 2 (user, 2026-10-19: fix the bottleneck they're stuck on, bigger hulls, queue unblocking). Vanilla 2039 (3 runs): AI human factions stall at 1-5k SCV each while the player has 11-13k; summed AI human SCV 17.8k -> 21.0k in a year (x1.18) at ~55 SCV per ship. Measured bottlenecks (2034 diagnostic): generic MC 0 (Academy, Exodus), metals 0 (Initiative), $15-54k idle money, small hulls. v1 (2026-10-19): growth x1.13/x1.12, 52/42 SCV per ship: no gain. Generic MC 0 all year for 5 of 6 factions (habs consume it); money $65-147k, boost 1.6-4.5k idle. v2 adds MC buildings on developed habs and a fleet MC reserve against new founding (user: grow MC much harder and reserve it for the fleet).",
   "fixture": "accel-2039-clean-jupiter",
   "runDays": 365,
   "asserts": [
@@ -12,6 +12,8 @@
     "sum(faction(first, f).get('scv', 0) for f in ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil'])",
     "sum(faction(last, f).get('scv', 0) for f in ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil'])",
     "sum(faction(last, f).get('scv', 0) for f in ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil']) / max(1, sum(faction(last, f).get('ships', 0) for f in ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil']))",
-    "[(e['t'], e['f'], e['mcGenericAvailable'], int(e['money']), int(e['metals']), e['queued']) for e in events('human-fleet')][-6:]"
+    "count('human-mc-building')",
+    "sum(e['started'] for e in events('human-mc-building'))",
+    "{f: [(e['t'][:7], e['mcIncome'], e['mcGenericAvailable']) for e in events('human-fleet', f=f)][::4] for f in ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil']}"
   ]
 }

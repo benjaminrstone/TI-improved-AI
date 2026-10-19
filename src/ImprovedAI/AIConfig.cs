@@ -92,6 +92,9 @@ namespace ImprovedAI
         public readonly ConfigEntry<bool> FixDirectInvest, FixLosingBig, FixOrgBuying, FixMissionRisk;
         public readonly ConfigEntry<int> MaxOrgBuyPasses;
         public readonly ConfigEntry<bool> HumanMissionControl, HumanBoostForShips, HumanMineWhatYouLack, HumanBiggerHulls, HumanQueueUnblock;
+        public readonly ConfigEntry<bool> HumanMCBuildings, HumanFleetMCReserveOn;
+        public readonly ConfigEntry<int> HumanMCBuildingsPerMonth;
+        public readonly ConfigEntry<float> HumanFleetMCReserve;
         public readonly ConfigEntry<float> HumanMissionControlValue, HumanBoostReserve, HumanSmallsFactor, HumanMediumsFactor, HumanUpsizeDays;
 
         public AIConfig(ConfigFile cfg)
@@ -244,6 +247,12 @@ namespace ImprovedAI
             HumanMissionControl = cfg.Bind("HumanAI", "MissionControl", true,
                 "AI humans starved of generic mission control while wanting warships invest in it (MC priority / spaceflight programme) and value MC income more.");
             HumanMissionControlValue = cfg.Bind("HumanAI", "MissionControlValue", 3f, "While starved, AI valuation of MC income is multiplied by this.");
+            HumanMCBuildings = cfg.Bind("HumanAI", "MCBuildings", true,
+                "MC-starved AI humans build the best MC building they can afford on developed habs that have none (vanilla can't: module upgrades need generic MC).");
+            HumanMCBuildingsPerMonth = cfg.Bind("HumanAI", "MCBuildingsPerMonth", 3, "MC buildings started per faction per month at most.");
+            HumanFleetMCReserveOn = cfg.Bind("HumanAI", "FleetMCReserve", true,
+                "While warships are wanted, founding new habs may only use generic MC beyond FleetMCReserveShare x MC income (user, 2026-10-19).");
+            HumanFleetMCReserve = cfg.Bind("HumanAI", "FleetMCReserveShare", 0.3f, "Share of MC income reserved for warships against new hab founding.");
             HumanBoostForShips = cfg.Bind("HumanAI", "BoostForShips", true,
                 "AI humans wanting warships may pay a ship's missing space resources with boost + money (Earth-system yards) down to BoostReserve.");
             HumanBoostReserve = cfg.Bind("HumanAI", "BoostReserve", 150f, "Boost kept in reserve when paying ships from Earth.");
@@ -287,6 +296,8 @@ namespace ImprovedAI
         public bool UseHumanMineWhatYouLack => !VanillaAI.Value && HumanMineWhatYouLack.Value;
         public bool UseHumanBiggerHulls => !VanillaAI.Value && HumanBiggerHulls.Value;
         public bool UseHumanQueueUnblock => !VanillaAI.Value && HumanQueueUnblock.Value;
+        public bool UseHumanMCBuildings => !VanillaAI.Value && HumanMCBuildings.Value;
+        public bool UseHumanFleetMCReserve => !VanillaAI.Value && HumanFleetMCReserveOn.Value;
         public bool UseRaidCaptures => UseRaidPlanner && RaidCaptures.Value && UseAlienMarineFix;
 
         /// <summary>Apply section → key → value overrides for this run only (not saved).</summary>
