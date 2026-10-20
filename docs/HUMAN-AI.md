@@ -337,3 +337,17 @@ Sources: Steam reviews and discussions, the Something Awful thread, and Steam pa
 - **Next bottleneck: metals.**
   - Vanilla AI humans never trade with each other (0 human-to-human trades in all four runs).
   - Candidate: metal-starved AIs with idle money buy metals from other humans with a surplus (the ProxyTrade machinery).
+
+### Human market and the real queue bottleneck (2026-10-19)
+- **Market** (metal-starved AIs buy metals and nobles with money from AIs with a surplus):
+  - It works mechanically: 14–18 deals a year. In July 2034 the Initiative, at 215 metals, bought 7.6k metals from Exodus for $6.7k.
+  - It brought **no gain**: gross 2.90k / 2.56k vs 3.18k / 3.24k without it.
+  - The Initiative then held 3–7k metals, $15–28k, 1–1.5k boost and spare MC, with ~50 goals wanting ships, and still sat at 31 ships for nine months, saving for the same design.
+  - **Off by default.**
+- **The saving targets were cheap and fully banked.** About 120–240 metals each, `banked == cost`; Exodus held 34k metals while "saving" for one small ship for months.
+- **Queue diagnostic** (`human-fleet.queues`: the yard heads in `GetOrderedShipyards` order, paid or unpaid, the shortfall, the blocker, the saving target's position). Findings, 2034:
+  1. **The shortfall is water** in most cases (Humanity First 68–263, Protectorate 412–447, Initiative 386–1061 plus metals), probably propellant included in the build cost.
+  2. Vanilla's daily walk (`ShipConstructionQueueDailyUpdate`) skips every later yard's unpaid head once one head is unaffordable (`lastUnaffordableShipShipyard`).
+  3. **Vanilla bug H5, idle savings.** The saving target is usually a ship queued **behind a ship already under construction** (Humanity First: yard 23 of 26). It can't start for months, but its savings stay reserved (`GetShortfall` subtracts them unless `ShouldTapSavings`). So the startable heads show a shortfall caused by the savings themselves, and the first one blocks the walk.
+- **Fix H5** (`FixIdleSavings`, a `ShouldTapSavings` postfix, AI humans, ships only): while the target ship is queued but not at the head of any unpaid queue, other ships may tap the savings.
+- An earlier version (attempt the target's yard when blocked) never fired: the target is never at a head.
