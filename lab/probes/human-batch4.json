@@ -1,0 +1,14 @@
+{
+  "name": "human-batch4",
+  "notes": "Batch 4 (2026-10-20): the human market again (off by default), now that the queue fixes (H5, queue unblock) are in. The Initiative (hab metal flow -316/month, 3-6 ships a year) has the money. Baseline: batch2+batch3 (same settings without the market: 82/82/84/95/107/87 ships completed; Initiative 3-6). Metrics: tools/hfleet.py BUILT; Initiative ships; market deals.",
+  "fixture": "accel-2034-fusion-drives",
+  "runDays": 365,
+  "config": { "HumanAI": { "Market": "true" } },
+  "asserts": [],
+  "info": [
+    "count('human-market', ok=True)",
+    "count('human-ship-built', f='ExploitCouncil')",
+    "{f: sum(1 for e in events('human-ship-built', f=f)) for f in ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil']}",
+    "[(e['t'][:7], e['buyer'][:6], e['seller'][:6], e['resource'], e['q'], e['money']) for e in events('human-market', ok=True)][:12]"
+  ]
+}

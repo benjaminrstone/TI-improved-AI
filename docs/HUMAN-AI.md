@@ -399,3 +399,12 @@ Sources: Steam reviews and discussions, the Something Awful thread, and Steam pa
   - not found or extend habs that drain it further (only mining sites with that metal, via need weighting);
   - prefer developing existing habs into positive flow.
   Vanilla has the hook for aliens (`ResourcesExperiencingUpkeepInsecurityInTheFuture`, see Economy); check the human planner for the same.
+
+### Batch 3 (2026-10-20): the drain guard
+- **The guard never fired** (0 records in 3 runs): the Initiative never tried to found a station. Its drain is its existing stations.
+- Its hab metal flow recovered from −316 to between −47 and +89 a month only as it lost habs (49 → 41–46). It completed 3 / 6 / 6 ships.
+- Ships completed: 95 / 107 / 87, with the same effective settings as batch 2 (82 / 82 / 84). **Run-to-run noise is about ±12 ships.**
+  - The six runs with these settings average **~90 vs vanilla's 69** (×3).
+  - Single batches of 3 can't resolve effects under ~10%.
+- The guard stays on: it is harmless and prevents new drains.
+- Next for the Initiative: the market again (it has the money). It failed before only because the queues were jammed (before H5 and queue unblock).
