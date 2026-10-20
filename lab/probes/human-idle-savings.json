@@ -1,0 +1,11 @@
+{
+  "name": "human-idle-savings",
+  "notes": "Vanilla bug H5 (2026-10-19): savings banked for a ship queued behind another build starve every startable ship, and the first short head stops the AI's daily queue walk. Baseline: human-fleet-abl-nofleet (same defaults without H5: gross 3.18k/3.24k first year from 2034; vanilla 3.80k/3.48k). Compare with tools/hfleet.py --months 12.",
+  "fixture": "accel-2034-fusion-drives",
+  "runDays": 365,
+  "asserts": [],
+  "info": [
+    "{f: sum((e.get('queues') or {}).get('savingIdleDays', 0) for e in events('human-fleet', f=f)) for f in ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil']}",
+    "{f: [(e['t'][:7], e['ships'], (e.get('queues') or {}).get('unpaid')) for e in events('human-fleet', f=f)][::3] for f in ['DestroyCouncil','CooperateCouncil','ExploitCouncil','AppeaseCouncil']}"
+  ]
+}

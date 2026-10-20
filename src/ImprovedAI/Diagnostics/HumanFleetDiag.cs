@@ -29,6 +29,39 @@ namespace ImprovedAI.Diagnostics
 
         private static T Try<T>(Func<T> f) { try { return f(); } catch { return default; } }
 
+        /// <summary>The ship queues as vanilla's daily update walks them (AIEvaluators.GetOrderedShipyards): the head of
+        /// each yard, paid or not, its shortfall, and which yard blocks the rest (lastUnaffordableShipShipyard).</summary>
+        private static object Queues(TIFactionState f)
+        {
+            var save = f.AISavingTarget;
+            string target = save != null && save.active ? save.desiredPurchase?.dataName : null;
+            var yards = AIEvaluators.GetOrderedShipyards(f).ToList();
+            var heads = new List<object>();
+            int i = 0, paid = 0, unpaid = 0, targetAt = -1;
+            foreach (var y in yards)
+            {
+                i++;
+                if (!f.nShipyardQueues.TryGetValue(y, out var q) || q == null || q.Count == 0) continue;
+                for (int k = 0; k < q.Count; k++) if (target != null && q[k].shipDesign?.dataName == target && targetAt < 0) targetAt = i;
+                var h = q[0];
+                if (h.costPaid) { paid++; continue; }
+                unpaid++;
+                if (heads.Count >= 4) continue;
+                int imp = h.AIFactionGoal?.importance ?? 10;
+                var shortfall = Try(() => h.resourcesCost.GetShortfall(f, h.shipDesign, y, imp).resourceCosts.Where(x => x.value > 0f)
+                    .ToDictionary(x => x.resource.ToString(), x => (float)Math.Round(x.value)));
+                heads.Add(new
+                {
+                    order = i, hab = y.hab?.displayName, design = h.shipDesign?.dataName, len = q.Count,
+                    blocker = f.lastUnaffordableShipShipyard == y, savingTarget = h.shipDesign?.dataName == target,
+                    boost = (float)Math.Round(h.resourcesCost.GetSingleCostValue(FactionResource.Boost)), shortfall,
+                });
+            }
+            int idleDays = Human.FixIdleSavings.IdleDays.TryGetValue(f, out var nd) ? nd : 0;
+            Human.FixIdleSavings.IdleDays[f] = 0;
+            return new { yards = yards.Count, paid, unpaid, targetQueuedAtYard = targetAt, savingIdleDays = idleDays, blockerHab = f.lastUnaffordableShipShipyard?.hab?.displayName, heads };
+        }
+
         private static object Row(TIFactionState f, TIFactionState alien)
         {
             var goals = f.factionGoals.Values.SelectMany(l => l).OfType<FactionGoal_Fleet>().Where(g => g != null && g.importance > 0).ToList();
@@ -79,6 +112,7 @@ namespace ImprovedAI.Diagnostics
                 boost = (float)Math.Round(f.GetCurrentResourceAmount(FactionResource.Boost)),
                 metals = (float)Math.Round(f.GetCurrentResourceAmount(FactionResource.Metals)),
                 goals = byType,
+                queues = Try(() => Queues(f)),
             };
         }
     }

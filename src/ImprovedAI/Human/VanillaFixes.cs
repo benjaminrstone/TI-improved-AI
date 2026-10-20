@@ -151,4 +151,60 @@ namespace ImprovedAI.Human
             __instance.acceptableMinimumSuccess = v;
         }
     }
+
+    /// <summary>
+    /// Vanilla bug H5 (found 2026-10-19 with the queue diagnostic): idle savings. The AI banks resources for its saving
+    /// target (AISavingData) and every other purchase sees them as reserved (TIResourcesCost.GetShortfall, unless
+    /// ShouldTapSavings). When the target is a ship queued BEHIND a ship already under construction, it can't start for
+    /// months, yet its savings keep starving every ship that could start now: in 2034, Humanity First's target sat at yard
+    /// 23 behind a paid build while yard 2's head was "short" 263 water, and the blocker then stops the AI's daily queue
+    /// walk for all later yards (lastUnaffordableShipShipyard). Fix: while the saving-target ship is queued but not at the
+    /// head of any unpaid queue, other purchases may tap the savings. Once it reaches a head, the reservation applies again.
+    /// </summary>
+    [HarmonyPatch(typeof(TIResourcesCost), nameof(TIResourcesCost.ShouldTapSavings))]
+    internal static class FixIdleSavings
+    {
+        private static readonly Dictionary<TIFactionState, (string day, bool idle)> _cache = new Dictionary<TIFactionState, (string, bool)>();
+        internal static readonly Dictionary<TIFactionState, int> IdleDays = new Dictionary<TIFactionState, int>();
+
+        /// <summary>The saving target is a ship design that is queued, but only behind other ships (or at inactive yards).</summary>
+        internal static bool Idle(TIFactionState f)
+        {
+            string day = GameRead.Now();
+            if (_cache.TryGetValue(f, out var c) && c.day == day) return c.idle;
+            bool idle = false;
+            try
+            {
+                var save = f.AISavingTarget;
+                string target = save != null && save.active && save.desiredPurchase is TISpaceShipTemplate ? save.desiredPurchase.dataName : null;
+                if (target != null)
+                {
+                    bool queued = false, startable = false;
+                    foreach (var kv in f.nShipyardQueues)
+                    {
+                        var q = kv.Value;
+                        if (q == null) continue;
+                        for (int k = 0; k < q.Count; k++)
+                        {
+                            if (q[k].shipDesign?.dataName != target) continue;
+                            queued = true;
+                            if (k == 0 && !q[0].costPaid && kv.Key != null && kv.Key.active) startable = true;
+                        }
+                    }
+                    idle = queued && !startable;
+                }
+            }
+            catch { idle = false; }
+            _cache[f] = (day, idle);
+            if (idle) IdleDays[f] = (IdleDays.TryGetValue(f, out var n) ? n : 0) + 1;
+            return idle;
+        }
+
+        private static void Postfix(TIFactionState faction, TIDataTemplate desiredPurchase, ref bool __result)
+        {
+            if (__result || !Plugin.Cfg.UseFixSavingDeadlock || faction?.player == null || !faction.player.isAI || faction.IsAlienFaction) return;
+            if (!(desiredPurchase is TISpaceShipTemplate)) return;   // ships only: the deadlock is in the ship queues
+            if (Idle(faction)) __result = true;
+        }
+    }
 }

@@ -89,7 +89,7 @@ namespace ImprovedAI
         public readonly ConfigEntry<int> MaxCaptureGoals;
         public readonly ConfigEntry<bool> AlienMarineFix;
         public readonly ConfigEntry<bool> AlienBattlecruiserFix;
-        public readonly ConfigEntry<bool> FixDirectInvest, FixLosingBig, FixOrgBuying, FixMissionRisk;
+        public readonly ConfigEntry<bool> FixDirectInvest, FixLosingBig, FixOrgBuying, FixMissionRisk, FixSavingDeadlock;
         public readonly ConfigEntry<int> MaxOrgBuyPasses;
         public readonly ConfigEntry<bool> HumanMissionControl, HumanBoostForShips, HumanMineWhatYouLack, HumanBiggerHulls, HumanQueueUnblock;
         public readonly ConfigEntry<bool> HumanMCBuildings, HumanFleetMCReserveOn, HumanPersonalities, HumanClients, HumanMarket;
@@ -245,6 +245,8 @@ namespace ImprovedAI
             FixOrgBuying = cfg.Bind("HumanAI", "FixOrgBuying", false, "Vanilla bug H3: AI org buying stops at the first conflicting candidate (break instead of continue).");
             MaxOrgBuyPasses = cfg.Bind("HumanAI", "MaxOrgBuyPasses", 3, "Extra org-buying passes after a pass that bought something.");
             FixMissionRisk = cfg.Bind("HumanAI", "FixMissionRisk", true, "Vanilla bug H4: the high-payoff mission risk relaxation reads payoff before it is assigned.");
+            FixSavingDeadlock = cfg.Bind("HumanAI", "FixSavingDeadlock", true,
+                "Vanilla bug H5: savings banked for a ship queued behind another build (it cannot start for months) starve every ship that could start now. While the target is idle, other ships may tap them.");
             HumanMissionControl = cfg.Bind("HumanAI", "MissionControl", true,
                 "AI humans starved of generic mission control while wanting warships invest in it (MC priority / spaceflight programme) and value MC income more.");
             HumanMissionControlValue = cfg.Bind("HumanAI", "MissionControlValue", 3f, "While starved, AI valuation of MC income is multiplied by this.");
@@ -307,6 +309,7 @@ namespace ImprovedAI
         public bool UseFixLosingBig => !VanillaAI.Value && FixLosingBig.Value;
         public bool UseFixOrgBuying => !VanillaAI.Value && FixOrgBuying.Value;
         public bool UseFixMissionRisk => !VanillaAI.Value && FixMissionRisk.Value;
+        public bool UseFixSavingDeadlock => !VanillaAI.Value && FixSavingDeadlock.Value;
         public bool UseHumanMissionControl => !VanillaAI.Value && HumanMissionControl.Value;
         public bool UseHumanBoostForShips => !VanillaAI.Value && HumanBoostForShips.Value;
         public bool UseHumanMineWhatYouLack => !VanillaAI.Value && HumanMineWhatYouLack.Value;
