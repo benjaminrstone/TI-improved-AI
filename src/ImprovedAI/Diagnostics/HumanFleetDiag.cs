@@ -27,6 +27,8 @@ namespace ImprovedAI.Diagnostics
             }
         }
 
+        private static T Try<T>(Func<T> f) { try { return f(); } catch { return default; } }
+
         private static object Row(TIFactionState f, TIFactionState alien)
         {
             var goals = f.factionGoals.Values.SelectMany(l => l).OfType<FactionGoal_Fleet>().Where(g => g != null && g.importance > 0).ToList();
@@ -60,7 +62,17 @@ namespace ImprovedAI.Diagnostics
                 mcGenericAvailable = GameRead.Safe(() => f.AI_GenericMissionControlAvailable),
                 shipyards = GameRead.Safe(() => f.nShipyardQueues.Count),
                 queued,
-                saving = save != null && save.active ? new { what = save.desiredPurchase?.dataName, goal = save.relatedGoal?.GetGoalType().ToString(), imp = save.relatedGoal?.importance } : null,
+                saving = save != null && save.active ? new
+                {
+                    what = save.desiredPurchase?.dataName, goal = save.relatedGoal?.GetGoalType().ToString(), imp = save.relatedGoal?.importance,
+                    cost = Try(() => save.GetResourcesToSave().resourceCosts.Where(x => x.value > 0f).ToDictionary(x => x.resource.ToString(), x => (float)Math.Round(x.value))),
+                    banked = Try(() => save.bankedResources.ToDictionary(x => x.Key.ToString(), x => (float)Math.Round(x.Value))),
+                    canSave = Try(() => save.CanSaveFor),
+                } : null,
+                stock = Try(() => ((FactionResource[])Enum.GetValues(typeof(FactionResource))).Where(r => f.UnlockedResource(r) || r == FactionResource.Money)
+                    .ToDictionary(r => r.ToString(), r => (float)Math.Round(f.GetCurrentResourceAmount(r)))),
+                income = Try(() => new[] { FactionResource.Water, FactionResource.Volatiles, FactionResource.Metals, FactionResource.NobleMetals, FactionResource.Fissiles, FactionResource.Antimatter, FactionResource.Exotics, FactionResource.Boost }
+                    .ToDictionary(r => r.ToString(), r => (float)Math.Round(GameRead.Safe(() => f.GetMonthlyIncome(r)), 1))),
                 atWarWithAliens,
                 alienHate = alien == null ? (float?)null : GameRead.Safe(() => f.GetFactionHate(alien)),
                 money = (float)Math.Round(f.GetCurrentResourceAmount(FactionResource.Money)),

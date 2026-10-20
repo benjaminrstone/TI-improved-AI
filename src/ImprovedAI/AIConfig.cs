@@ -252,7 +252,7 @@ namespace ImprovedAI
                 "Gang-up on the leader by faction personality (docs/HUMAN-AI.md 9): hate toward the strongest faction scales with its lead, grudges from injuries, alien-aware weighting.");
             HumanClients = cfg.Bind("HumanAI", "ClientAllies", true,
                 "Compatible weaker factions become clients of the leader (no jealousy either way, a non-aggression pact allowed). Needs Personalities.");
-            HumanMarket = cfg.Bind("HumanAI", "Market", true,
+            HumanMarket = cfg.Bind("HumanAI", "Market", false,
                 "AI humans short of metals or noble metals for warships buy them with money from other AI humans with a surplus (vanilla AIs never trade with each other).");
             HumanMarketShortStock = cfg.Bind("HumanAI", "MarketShortStock", 2000f, "A buyer is short below this stock of a ship metal.");
             HumanMarketSurplusStock = cfg.Bind("HumanAI", "MarketSurplusStock", 8000f, "A seller keeps this much; only stock above it is for sale.");
