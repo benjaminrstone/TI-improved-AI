@@ -381,3 +381,21 @@ Sources: Steam reviews and discussions, the Something Awful thread, and Steam pa
   - Humanity First against pro-alien factions: 7 vs 9 (vanilla 8). **The ×1.5 zeal does not show.** Its hostile missions there seem capped by something other than payoff (goal multipliers, free councilors), and scaling the payoff only reorders missions it would already consider.
   - The Resistance is the player in these fixtures, so its bias is untested.
 - **Exodus objective focus: never applied.** Exodus had no active objective project all year, with 13 objective projects done. Its next step is gated elsewhere (the deep space telescope for BeginTheSearch, or HydraInterrogation), so research focus is not the lever.
+
+### The Initiative's metal deficit (2026-10-19, `human-fleet.flow`, vanilla 2034)
+- Metals come only from habs, for every faction: ships, nations, HQ and orgs are all 0.
+
+  | Faction | Habs | Net metals a month |
+  |---|---|---|
+  | Initiative | 49 | **−316** |
+  | Humanity First | 40 | +491 |
+  | Protectorate | 32 | +680 |
+  | Exodus | 50 | +1,302 |
+  | Player (Resistance) | 54 | +2,347 |
+
+- The Initiative's worst drains are stations at −38 to −45 a month each (Diogo Cao, Ma Huan, Cordoba), with few metal mines.
+- By the user's rule (a hab should pay for itself, or not be founded), the Initiative has over-built metal-draining stations. That is why it completes 3 ships a year in every run.
+- **Next:** while a faction's net flow of a ship metal is negative, its AI should:
+  - not found or extend habs that drain it further (only mining sites with that metal, via need weighting);
+  - prefer developing existing habs into positive flow.
+  Vanilla has the hook for aliens (`ResourcesExperiencingUpkeepInsecurityInTheFuture`, see Economy); check the human planner for the same.

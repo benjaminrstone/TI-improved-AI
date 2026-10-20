@@ -67,14 +67,17 @@ State at the end of the second working session. Read this first, then `docs/M2-P
 - **The four vanilla bugs (H1–H4):**
   - H1, H2 and H4 are fixed.
   - H3 brought no gain, so it is off.
-- **Fleets:** the binding cap is mission control (generic MC is 0 for 5 of 6 AI factions).
-  - Built:
-    - the MC investment/valuation;
-    - boost for ships, bigger hulls, queue unblocking;
-    - the MC plan: Ops→Command Center upgrades first (one MC building per hab), then new MC buildings, with power, upkeep and offline caps;
-    - the fleet MC reserve against hab founding.
-  - Result: MC income rises and generic MC is positive by year end, but fleet growth is not yet above vanilla within one year (the upgrades take 240 days).
-  - **Next:** a 2-year or 2034-start run.
+- **Fleets.** Metric: **ships completed** (`human-ship-built`, `tools/hfleet.py`). Gross SCV is drowned by combat noise.
+  - Vanilla 69 ships a year (2034 + 365 days, ×3). Defaults 79. Batch 2, now the defaults, 83.
+  - On:
+    - the MC group (investment, Ops→Command upgrades, MC buildings, fleet MC reserve);
+    - **H5 idle savings** (a vanilla bug: savings for a ship queued behind another build starve every startable ship);
+    - queue unblock, boost for ships, mine what you lack.
+  - Off:
+    - bigger hulls (it delayed builds and didn't raise SCV per ship);
+    - the human market (no gain).
+  - The real stall is in the ship queues: water shortfalls (propellant) and the daily queue walk stopping at the first unaffordable head.
+  - **Next: the Initiative** completes 3 ships a year in every run. Its habs drain −316 metals a month (over-built stations). Rule: no new drains while a ship metal's net flow is negative.
 - **Gang-up and personalities (§9):**
   - Built:
     - the lead / grudge / alien terms per personality;
@@ -84,10 +87,16 @@ State at the end of the second working session. Read this first, then `docs/M2-P
   - Results:
     - Close race (2031): jealousy is ~off, and an Academy→Exodus client pair forms and breaks.
     - Runaway player (2039): more jealousy, but hate was already saturated. With forgiveness, Exodus's hate toward the player falls 830 → 136 in a year (war ends at ~89).
+  - Personality actions (batch 2):
+    - Exodus restraint cuts its mission hate ~40%;
+    - Humanity First's zeal (×1.5 payoff) doesn't show: its missions are capped elsewhere;
+    - the Exodus objective focus never applies (its next objective step is gated by a build, not research).
   - **Next:**
-    - a fresh-campaign run (hate never saturates there), to see client pairs with the player;
-    - the AI→player pact offer (the player must currently propose it);
-    - more anti-alien differentiation in actions, not only hate (e.g. Exodus spending on its escape objective, HF zeal missions).
+    - a fresh-campaign run, to see client pairs with the player;
+    - the AI→player pact offer (via a Contact mission + `TradeAI.CreateTradeAgreement`; test in a playtest);
+    - HF zeal through goals rather than payoff;
+    - the Exodus telescope/Bifrost builds.
+  - Testing: **batch disjoint changes into one run** (user, 2026-10-19), each with its own metric.
 - **Not started:** the Admin-building rule (high-value habs / CP-capped Earth orbit); queue unblock v2.
 
 ## Next steps (recommended order)
