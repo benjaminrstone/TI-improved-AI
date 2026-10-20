@@ -271,16 +271,16 @@ namespace ImprovedAI
             HumanFleetMCReserveOn = cfg.Bind("HumanAI", "FleetMCReserve", true,
                 "While warships are wanted, founding new habs may only use generic MC beyond FleetMCReserveShare x MC income (user, 2026-10-19).");
             HumanFleetMCReserve = cfg.Bind("HumanAI", "FleetMCReserveShare", 0.3f, "Share of MC income reserved for warships against new hab founding.");
-            HumanBoostForShips = cfg.Bind("HumanAI", "BoostForShips", false,
+            HumanBoostForShips = cfg.Bind("HumanAI", "BoostForShips", true,
                 "AI humans wanting warships may pay a ship's missing space resources with boost + money (Earth-system yards) down to BoostReserve.");
             HumanBoostReserve = cfg.Bind("HumanAI", "BoostReserve", 150f, "Boost kept in reserve when paying ships from Earth.");
-            HumanMineWhatYouLack = cfg.Bind("HumanAI", "MineWhatYouLack", false, "AI human hab sites are scored by need (the aliens' need weighting, per faction).");
+            HumanMineWhatYouLack = cfg.Bind("HumanAI", "MineWhatYouLack", true, "AI human hab sites are scored by need (the aliens' need weighting, per faction).");
             HumanBiggerHulls = cfg.Bind("HumanAI", "BiggerHulls", false,
                 "AI human build picks favour larger hulls (scaled size weights) and upsize to a larger design of the same role when affordable.");
             HumanSmallsFactor = cfg.Bind("HumanAI", "SmallsFactor", 0.33f, "Multiplier on vanilla fleetSmalls (Large weight is fixed at 1).");
             HumanMediumsFactor = cfg.Bind("HumanAI", "MediumsFactor", 0.6f, "Multiplier on vanilla fleetMediums.");
             HumanUpsizeDays = cfg.Bind("HumanAI", "UpsizeDays", 120f, "Upsize only to designs the faction can pay for within this many days.");
-            HumanQueueUnblock = cfg.Bind("HumanAI", "QueueUnblock", false,
+            HumanQueueUnblock = cfg.Bind("HumanAI", "QueueUnblock", true,
                 "One unaffordable ship no longer stops the AI's whole ship-queue loop, nor every other shipyard's start.");
             AlienBattlecruiserFix = cfg.Bind("Fixes", "AlienBattlecruiserName", true,
                 "Fix vanilla bug: the alien designer asks for hull 'AlienBattleCruiser' (data name 'AlienBattlecruiser'), so the exotics medium interceptor gets the wrong hull.");

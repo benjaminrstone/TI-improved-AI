@@ -365,3 +365,19 @@ Sources: Steam reviews and discussions, the Something Awful thread, and Steam pa
 - The Protectorate builds more in all three mod runs (21 / 20 / 23 vs 15 / 15 / 10), consistent with H5.
 - **The Initiative completes exactly 3 ships a year in every run, both arms.** Its metal income is negative (upkeep −316 a month), so it can never stock metals. This is a separate problem: its habs and fleet upkeep exceed what it mines.
 - Gross SCV (net + losses) is too noisy to judge changes, since combat losses swing 0.6–1.8k between runs. Ships completed is the metric from now on.
+
+### Batch 2 (2026-10-19; three changes in one run, ×3, same fixture as the A/B)
+- **Fleet subgroup** (queue unblock + boost for ships + mine what you lack; bigger hulls stays off):
+
+  | Arm | Ships completed | Mean SCV |
+  |---|---|---|
+  | Vanilla | mean 69 | 2,098 |
+  | Defaults | mean 79 | 2,548 |
+  | **Batch 2** | **82 / 82 / 84 (mean 83)** | **2,694** |
+
+  It is the best and steadiest arm, so **all three are on by default again**. Bigger hulls was the harmful member of the old fleet group.
+- **Mission bias** (mission hate caused, per run, mean of 3):
+  - Exodus caused **20** with the bias vs 34 with the defaults (vanilla 26): its restraint works.
+  - Humanity First against pro-alien factions: 7 vs 9 (vanilla 8). **The ×1.5 zeal does not show.** Its hostile missions there seem capped by something other than payoff (goal multipliers, free councilors), and scaling the payoff only reorders missions it would already consider.
+  - The Resistance is the player in these fixtures, so its bias is untested.
+- **Exodus objective focus: never applied.** Exodus had no active objective project all year, with 13 objective projects done. Its next step is gated elsewhere (the deep space telescope for BeginTheSearch, or HydraInterrogation), so research focus is not the lever.
