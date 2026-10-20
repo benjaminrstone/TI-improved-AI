@@ -408,3 +408,17 @@ Sources: Steam reviews and discussions, the Something Awful thread, and Steam pa
   - Single batches of 3 can't resolve effects under ~10%.
 - The guard stays on: it is harmless and prevents new drains.
 - Next for the Initiative: the market again (it has the money). It failed before only because the queues were jammed (before H5 and queue unblock).
+
+### Batch 4 (2026-10-20): the market again, after the queue fixes
+- Ships completed: **93 / 103 / 100 (mean 99)**, vs ~93 over batches 2 and 3 without the market, and vanilla 69.
+- **The Initiative: 7 / 6 / 14 ships vs 3–6.** Its 14-ship run is the one where it bought 7.6k metals from Exodus in July 2034. With the queues unjammed, metals now become ships.
+- 14–16 deals a year, mostly noble metals and metals from Exodus.
+- **Market on by default.**
+- Summary of the human fleet track (ships completed by the six AI factions, 2034 + 365 days):
+
+  | Arm | Ships |
+  |---|---|
+  | Vanilla | 69 |
+  | First defaults | 79 |
+  | Batch 2/3 (+ queue fixes) | ~90–93 |
+  | Batch 4 (+ market) | 99 |

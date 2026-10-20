@@ -68,16 +68,17 @@ State at the end of the second working session. Read this first, then `docs/M2-P
   - H1, H2 and H4 are fixed.
   - H3 brought no gain, so it is off.
 - **Fleets.** Metric: **ships completed** (`human-ship-built`, `tools/hfleet.py`). Gross SCV is drowned by combat noise.
-  - Vanilla 69 ships a year (2034 + 365 days, ×3). Defaults 79. Batch 2, now the defaults, 83.
+  - Ships a year (2034 + 365 days, ×3 each): vanilla 69; first defaults 79; batches 2/3 ~90–93; batch 4 (+ market, now the defaults) 99. Run noise is about ±12.
   - On:
     - the MC group (investment, Ops→Command upgrades, MC buildings, fleet MC reserve);
     - **H5 idle savings** (a vanilla bug: savings for a ship queued behind another build starve every startable ship);
-    - queue unblock, boost for ships, mine what you lack.
+    - queue unblock, boost for ships, mine what you lack;
+    - the human market (the Initiative 7–14 ships vs 3–6);
+    - the drain guard (no new stations while hab metal flow is negative; it never fired in tests).
   - Off:
     - bigger hulls (it delayed builds and didn't raise SCV per ship);
-    - the human market (no gain).
   - The real stall is in the ship queues: water shortfalls (propellant) and the daily queue walk stopping at the first unaffordable head.
-  - **Next: the Initiative** completes 3 ships a year in every run. Its habs drain −316 metals a month (over-built stations). Rule: no new drains while a ship metal's net flow is negative.
+  - Next: water for propellant; the Initiative's existing draining stations (its module upkeep).
 - **Gang-up and personalities (§9):**
   - Built:
     - the lead / grudge / alien terms per personality;

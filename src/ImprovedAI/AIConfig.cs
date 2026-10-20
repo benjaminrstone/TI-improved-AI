@@ -256,7 +256,7 @@ namespace ImprovedAI
                 "Compatible weaker factions become clients of the leader (no jealousy either way, a non-aggression pact allowed). Needs Personalities.");
             HumanDrainGuard = cfg.Bind("HumanAI", "DrainGuard", true,
                 "While an AI human's net hab flow of metals or noble metals is negative, it doesn't found stations (they can't mine; their modules and crew draw metals). Bases stay allowed.");
-            HumanMarket = cfg.Bind("HumanAI", "Market", false,
+            HumanMarket = cfg.Bind("HumanAI", "Market", true,
                 "AI humans short of metals or noble metals for warships buy them with money from other AI humans with a surplus (vanilla AIs never trade with each other).");
             HumanMarketShortStock = cfg.Bind("HumanAI", "MarketShortStock", 2000f, "A buyer is short below this stock of a ship metal.");
             HumanMarketSurplusStock = cfg.Bind("HumanAI", "MarketSurplusStock", 8000f, "A seller keeps this much; only stock above it is for sale.");
