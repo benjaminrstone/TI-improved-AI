@@ -351,3 +351,17 @@ Sources: Steam reviews and discussions, the Something Awful thread, and Steam pa
   3. **Vanilla bug H5, idle savings.** The saving target is usually a ship queued **behind a ship already under construction** (Humanity First: yard 23 of 26). It can't start for months, but its savings stay reserved (`GetShortfall` subtracts them unless `ShouldTapSavings`). So the startable heads show a shortfall caused by the savings themselves, and the first one blocks the walk.
 - **Fix H5** (`FixIdleSavings`, a `ShouldTapSavings` postfix, AI humans, ships only): while the target ship is queued but not at the head of any unpaid queue, other ships may tap the savings.
 - An earlier version (attempt the target's yard when blocked) never fired: the target is never at a head.
+
+### Clean A/B with ships completed (2026-10-19; `human-ship-built`, accel-2034-fusion-drives, 365 days, vanilla ×3 vs defaults ×3)
+- Defaults: the MC group and H5 (idle savings) on; the fleet group and the market off.
+- **Ships completed by the six AI factions:**
+
+  | | Ships | SCV |
+  |---|---|---|
+  | Vanilla | 72 / 74 / 60 (mean 69) | 2,259 / 2,272 / 1,763 (mean 2,098) |
+  | Mod | 74 / 71 / 93 (mean 79) | 2,383 / 2,241 / 3,021 (mean 2,548) |
+
+  **+15% ships, +21% SCV**: noisy but positive.
+- The Protectorate builds more in all three mod runs (21 / 20 / 23 vs 15 / 15 / 10), consistent with H5.
+- **The Initiative completes exactly 3 ships a year in every run, both arms.** Its metal income is negative (upkeep −316 a month), so it can never stock metals. This is a separate problem: its habs and fleet upkeep exceed what it mines.
+- Gross SCV (net + losses) is too noisy to judge changes, since combat losses swing 0.6–1.8k between runs. Ships completed is the metric from now on.
