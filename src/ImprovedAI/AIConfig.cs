@@ -92,7 +92,8 @@ namespace ImprovedAI
         public readonly ConfigEntry<bool> FixDirectInvest, FixLosingBig, FixOrgBuying, FixMissionRisk;
         public readonly ConfigEntry<int> MaxOrgBuyPasses;
         public readonly ConfigEntry<bool> HumanMissionControl, HumanBoostForShips, HumanMineWhatYouLack, HumanBiggerHulls, HumanQueueUnblock;
-        public readonly ConfigEntry<bool> HumanMCBuildings, HumanFleetMCReserveOn, HumanPersonalities, HumanClients;
+        public readonly ConfigEntry<bool> HumanMCBuildings, HumanFleetMCReserveOn, HumanPersonalities, HumanClients, HumanMarket;
+        public readonly ConfigEntry<float> HumanMarketShortStock, HumanMarketSurplusStock, HumanMarketShareOfSurplus, HumanMarketMargin, HumanMarketMaxHate;
         public readonly ConfigEntry<int> HumanMCBuildingsPerMonth;
         public readonly ConfigEntry<float> HumanFleetMCReserve, HumanMCUpkeepMonths, HumanMCUpgradeOffline;
         public readonly ConfigEntry<float> HumanMissionControlValue, HumanBoostReserve, HumanSmallsFactor, HumanMediumsFactor, HumanUpsizeDays;
@@ -251,6 +252,13 @@ namespace ImprovedAI
                 "Gang-up on the leader by faction personality (docs/HUMAN-AI.md 9): hate toward the strongest faction scales with its lead, grudges from injuries, alien-aware weighting.");
             HumanClients = cfg.Bind("HumanAI", "ClientAllies", true,
                 "Compatible weaker factions become clients of the leader (no jealousy either way, a non-aggression pact allowed). Needs Personalities.");
+            HumanMarket = cfg.Bind("HumanAI", "Market", true,
+                "AI humans short of metals or noble metals for warships buy them with money from other AI humans with a surplus (vanilla AIs never trade with each other).");
+            HumanMarketShortStock = cfg.Bind("HumanAI", "MarketShortStock", 2000f, "A buyer is short below this stock of a ship metal.");
+            HumanMarketSurplusStock = cfg.Bind("HumanAI", "MarketSurplusStock", 8000f, "A seller keeps this much; only stock above it is for sale.");
+            HumanMarketShareOfSurplus = cfg.Bind("HumanAI", "MarketShareOfSurplus", 0.3f, "Share of a seller's surplus sold in one deal.");
+            HumanMarketMargin = cfg.Bind("HumanAI", "MarketMargin", 1.1f, "The seller must gain this times what it gives up (vanilla trade valuation).");
+            HumanMarketMaxHate = cfg.Bind("HumanAI", "MarketMaxHate", 40f, "No deals between factions hating each other more than this (or at war).");
             HumanMCBuildings = cfg.Bind("HumanAI", "MCBuildings", true,
                 "MC-starved AI humans build the best MC building they can afford on developed habs that have none (vanilla can't: module upgrades need generic MC).");
             HumanMCBuildingsPerMonth = cfg.Bind("HumanAI", "MCBuildingsPerMonth", 4, "MC buildings started or upgraded (Ops -> Command Center) per faction per month at most.");
@@ -308,6 +316,7 @@ namespace ImprovedAI
         public bool UseHumanFleetMCReserve => !VanillaAI.Value && HumanFleetMCReserveOn.Value;
         public bool UseHumanPersonalities => !VanillaAI.Value && HumanPersonalities.Value;
         public bool UseHumanClients => UseHumanPersonalities && HumanClients.Value;
+        public bool UseHumanMarket => !VanillaAI.Value && HumanMarket.Value;
         public bool UseRaidCaptures => UseRaidPlanner && RaidCaptures.Value && UseAlienMarineFix;
 
         /// <summary>Apply section → key → value overrides for this run only (not saved).</summary>

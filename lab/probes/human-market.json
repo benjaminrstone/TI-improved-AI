@@ -1,0 +1,12 @@
+{
+  "name": "human-market",
+  "notes": "Human market (2026-10-19): metal-starved AI humans that want warships buy metals/nobles with money from AI humans with a surplus. Baseline: human-fleet-abl-nofleet (same defaults without the market; gross 3.18k/3.24k in the first year from 2034; vanilla 3.80k/3.48k). Compare with tools/hfleet.py --months 12.",
+  "fixture": "accel-2034-fusion-drives",
+  "runDays": 365,
+  "asserts": ["count('human-market', ok=True) >= 4"],
+  "info": [
+    "count('human-market', ok=True)",
+    "[(e['t'][:7], e['buyer'][:6], e['seller'][:6], e['resource'], e['q'], e['money']) for e in events('human-market', ok=True)][:20]",
+    "{f: [(e['t'][:7], e['metals']) for e in events('human-fleet', f=f)][::3] for f in ['ExploitCouncil','CooperateCouncil','AppeaseCouncil']}"
+  ]
+}
