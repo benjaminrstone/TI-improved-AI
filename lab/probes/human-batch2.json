@@ -1,0 +1,13 @@
+{
+  "name": "human-batch2",
+  "notes": "Batch of disjoint changes (user, 2026-10-19: fit disjoint changes into one test run). Baseline: the hbuilt soak (vanilla x3 and current defaults x3, same fixture/days). (1) Fleet: queue unblock + boost for ships + mine what you lack back on (bigger hulls stays off; the 2034 ablation lumped them). Metric: tools/hfleet.py BUILT (ships completed). (2) Personality actions: mission bias (HF vs pro-alien x1.5, Resistance vs very pro-alien x1.3, Exodus x0.5 unless hurt, clients x0.2). Metric: tools/hate.py missions bucket by actor; human-persona missionBias counts. (3) Exodus objective focus. Metric: human-persona objective progress vs the baseline's Exodus completedProjects.",
+  "fixture": "accel-2034-fusion-drives",
+  "runDays": 365,
+  "config": { "HumanAI": { "QueueUnblock": "true", "BoostForShips": "true", "MineWhatYouLack": "true", "BiggerHulls": "false" } },
+  "asserts": [],
+  "info": [
+    "count('human-ship-built')",
+    "[(e['t'][:7], e.get('objectiveActive'), len(e.get('objectiveDone') or [])) for e in events('human-persona')][::3]",
+    "events('human-persona')[-1].get('missionBias') if events('human-persona') else None"
+  ]
+}
