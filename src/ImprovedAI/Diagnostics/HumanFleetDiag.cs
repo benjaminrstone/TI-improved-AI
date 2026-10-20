@@ -113,6 +113,17 @@ namespace ImprovedAI.Diagnostics
                 metals = (float)Math.Round(f.GetCurrentResourceAmount(FactionResource.Metals)),
                 goals = byType,
                 queues = Try(() => Queues(f)),
+                flow = Try(() => new[] { FactionResource.Water, FactionResource.Metals, FactionResource.NobleMetals }.ToDictionary(r => r.ToString(), r => new
+                {
+                    habs = (float)Math.Round(f.GetYearlyIncomeFromHabs(r) / 12f),
+                    ships = (float)Math.Round(f.GetMonthlyNetIncomeFromShips(r)),
+                    nations = (float)Math.Round(f.GetYearlyIncomeFromNations(r) / 12f),
+                    hq = (float)Math.Round(f.GetYearlyIncomeFromHQ(r) / 12f),
+                    diplomacy = (float)Math.Round(f.GetNetYearlyIncomeFromDiplomacy(r) / 12f),
+                    orgs = (float)Math.Round(f.GetNegativeYearlyIncomeFromUnassignedOrgs(r) / 12f),
+                    worstHabs = f.habs.Select(h => (h, v: GameRead.Safe(() => h.GetAnnualNetResourceIncome(f, r) / 12f))).Where(x => x.v < 0f)
+                        .OrderBy(x => x.v).Take(3).Select(x => $"{x.h.displayName}:{Math.Round(x.v)}").ToList(),
+                })),
             };
         }
     }
