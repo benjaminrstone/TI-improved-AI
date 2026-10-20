@@ -1,0 +1,9 @@
+{
+  "name": "human-fleet-abl-nomc",
+  "notes": "Ablation (2026-10-19): the 2034 2-year soak built ~14% less human SCV with the mod (gross ~7.0k vs ~8.1k). This run turns off the MC group (MC investment, MC buildings/upgrades, fleet MC reserve), keeping hulls/boost/queue. Compare with human-fleet-abl-nofleet and the first year of the hfleet2y soaks.",
+  "fixture": "accel-2034-fusion-drives",
+  "runDays": 365,
+  "config": { "HumanAI": { "MissionControl": "false", "MCBuildings": "false", "FleetMCReserve": "false" } },
+  "asserts": [],
+  "info": []
+}

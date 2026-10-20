@@ -1,0 +1,9 @@
+{
+  "name": "human-fleet-abl-nofleet",
+  "notes": "Ablation (2026-10-19): turns off the fleet group (boost for ships, bigger hulls, queue unblock, mine what you lack), keeping the MC group. See human-fleet-abl-nomc.",
+  "fixture": "accel-2034-fusion-drives",
+  "runDays": 365,
+  "config": { "HumanAI": { "BoostForShips": "false", "BiggerHulls": "false", "QueueUnblock": "false", "MineWhatYouLack": "false" } },
+  "asserts": [],
+  "info": []
+}
