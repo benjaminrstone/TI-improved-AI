@@ -313,3 +313,27 @@ Sources: Steam reviews and discussions, the Something Awful thread, and Steam pa
 
 - Still at war with the player all year (60 faction-months in each run). No clients formed, since the player is the only possible patron.
 - This is vanilla's accumulated hate in a late save bleeding off. In a campaign that starts with the mod, hate settles near the injury rate divided by the forgiveness rate.
+
+### Mod: 2-year test from 2034 and ablation (2026-10-19; `tools/hfleet.py`, gross SCV built = net + combat losses)
+- **Two-year soak, accel-2034-fusion-drives, 22 months, vanilla ×2 vs mod ×2:**
+  - The mod built less: gross 6.5k / 7.0k vs vanilla 7.7k / 8.2k.
+  - Combat losses, mostly to the aliens, are about half of gross.
+  - Generic MC ended higher with the mod (189–279 vs 144–164): **MC is not binding in 2034**.
+  - Metals are: the Initiative sits at 0 all run, the Academy near 1k, and money idles at $30–100k.
+- **Ablation (first year, 2 runs per arm):**
+
+  | Arm | Gross built |
+  |---|---|
+  | Vanilla | 3.80 / 3.48k (mean 3.64k) |
+  | Full mod | 2.37 / 3.10k (2.73k) |
+  | Mod without the MC group | 2.80 / 2.61k (2.71k) |
+  | **Mod without the fleet group** | **3.18 / 3.24k (3.21k)** |
+
+- **Verdict:**
+  - **The fleet group costs ships:** boost for ships, bigger hulls, queue unblock, mine what you lack. Bigger hulls didn't even raise SCV per ship (25–27 vs vanilla 26–30), so the upsizer only delayed builds.
+  - **The fleet group is now off by default.**
+  - The MC group is neutral in 2034 and raises MC income by 2039, so it stays on.
+  - The remaining gap to vanilla (~0.4k) is within run noise. One part is by design: the alien proxy supply line takes ~1k metals a quarter from the Servants, Protectorate and Academy.
+- **Next bottleneck: metals.**
+  - Vanilla AI humans never trade with each other (0 human-to-human trades in all four runs).
+  - Candidate: metal-starved AIs with idle money buy metals from other humans with a surplus (the ProxyTrade machinery).
