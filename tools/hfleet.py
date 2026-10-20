@@ -1,4 +1,5 @@
-"""AI human fleet output of runs: net SCV change, SCV lost in combat, and gross SCV built (net + lost).
+"""AI human fleet output of runs: net SCV change, SCV lost in combat, and gross SCV built (net + lost); with
+human-ship-built records (2026-10-19 on), also the ships actually completed (free of combat luck).
 
 Fleet SCV alone hides combat losses (in the 2034 soaks the AI humans lost 3.6-5.1k SCV, mostly to the aliens, against
 ~3k net growth), so compare gross built. human-fleet records give SCV; combat records give losses.
@@ -38,11 +39,12 @@ def one(run, months=None):
     net = {f: b.get(f, {}).get('scv', 0) - a.get(f, {}).get('scv', 0) for f in AI}
     gross = sum(net.values()) + sum(lost.values())
     ships = sum(b.get(f, {}).get('ships', 0) for f in AI)
+    built = [r for r in rows if r.get('kind') == 'human-ship-built' and r.get('f') in AI and ts[0] <= r['t'] <= end]
     mc = sum(b.get(f, {}).get('mcIncome', 0) for f in AI)
     gen = sum(b.get(f, {}).get('mcGenericAvailable', 0) for f in AI)
     print(f"{Path(run).name[16:]:55s} {ts[0][:7]}->{end[:7]}  net {sum(net.values()):6.0f}  lost {sum(lost.values()):6.0f}"
           f" (alien {vs['alien']:.0f})  gross {gross:6.0f}  per ship {sum(b.get(f, {}).get('scv', 0) for f in AI) / max(1, ships):4.0f}"
-          f"  MC {mc:5.0f} generic {gen:4.0f}")
+          f"  MC {mc:5.0f} generic {gen:4.0f}" + (f"  BUILT {len(built)} ships, {sum(r.get('scv', 0) for r in built):.0f} SCV" if built else ''))
     return gross
 
 

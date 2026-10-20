@@ -66,7 +66,22 @@ namespace ImprovedAI.Diagnostics
     {
         private static void Postfix(TIFactionState __instance, TISpaceShipTemplate template)
         {
-            if (__instance == null || !__instance.IsAlienFaction || template == null || !Plugin.Cfg.DecisionJournal.Value) return;
+            if (__instance == null || template == null || !Plugin.Cfg.DecisionJournal.Value) return;
+            if (!__instance.IsAlienFaction)
+            {
+                // Human track: ships completed, a fleet-output measure free of combat luck (tools/hfleet.py).
+                try
+                {
+                    Session.Journal?.Write(new
+                    {
+                        t = GameRead.Now(), kind = "human-ship-built", f = GameRead.Faction(__instance), player = __instance.isActivePlayer,
+                        template.dataName, size = FleetComposition.SizeOf(template),
+                        scv = (float)Math.Round(template.TemplateSpaceCombatValue(), 1),
+                    });
+                }
+                catch (Exception e) { Plugin.Log.LogWarning($"[FleetComposition] human-ship-built: {e.Message}"); }
+                return;
+            }
             try
             {
                 Session.Journal?.Write(new
