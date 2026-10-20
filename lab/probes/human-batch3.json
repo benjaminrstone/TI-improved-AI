@@ -1,0 +1,13 @@
+{
+  "name": "human-batch3",
+  "notes": "Batch 3 (2026-10-19): the drain guard (no new stations while an AI human's hab flow of metals or nobles is negative). Baseline: human-batch2 (same defaults without the guard: 82/82/84 ships completed; the Initiative 3 ships a year in every run, hab metal flow -316/month in 2034). Metrics: tools/hfleet.py BUILT; the Initiative's ships, habs and flow.",
+  "fixture": "accel-2034-fusion-drives",
+  "runDays": 365,
+  "asserts": [],
+  "info": [
+    "count('human-drain-guard')",
+    "sorted({(e['faction'], e['resource']) for e in events('human-drain-guard')})",
+    "count('human-ship-built', f='ExploitCouncil')",
+    "[(e['t'][:7], e['habs'], e['ships'], (e.get('flow') or {}).get('Metals', {}).get('habs')) for e in events('human-fleet', f='ExploitCouncil')][::3]"
+  ]
+}

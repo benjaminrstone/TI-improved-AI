@@ -92,7 +92,7 @@ namespace ImprovedAI
         public readonly ConfigEntry<bool> FixDirectInvest, FixLosingBig, FixOrgBuying, FixMissionRisk, FixSavingDeadlock;
         public readonly ConfigEntry<int> MaxOrgBuyPasses;
         public readonly ConfigEntry<bool> HumanMissionControl, HumanBoostForShips, HumanMineWhatYouLack, HumanBiggerHulls, HumanQueueUnblock;
-        public readonly ConfigEntry<bool> HumanMCBuildings, HumanFleetMCReserveOn, HumanPersonalities, HumanClients, HumanMarket;
+        public readonly ConfigEntry<bool> HumanMCBuildings, HumanFleetMCReserveOn, HumanPersonalities, HumanClients, HumanMarket, HumanDrainGuard;
         public readonly ConfigEntry<float> HumanMarketShortStock, HumanMarketSurplusStock, HumanMarketShareOfSurplus, HumanMarketMargin, HumanMarketMaxHate;
         public readonly ConfigEntry<int> HumanMCBuildingsPerMonth;
         public readonly ConfigEntry<float> HumanFleetMCReserve, HumanMCUpkeepMonths, HumanMCUpgradeOffline;
@@ -254,6 +254,8 @@ namespace ImprovedAI
                 "Gang-up on the leader by faction personality (docs/HUMAN-AI.md 9): hate toward the strongest faction scales with its lead, grudges from injuries, alien-aware weighting.");
             HumanClients = cfg.Bind("HumanAI", "ClientAllies", true,
                 "Compatible weaker factions become clients of the leader (no jealousy either way, a non-aggression pact allowed). Needs Personalities.");
+            HumanDrainGuard = cfg.Bind("HumanAI", "DrainGuard", true,
+                "While an AI human's net hab flow of metals or noble metals is negative, it doesn't found stations (they can't mine; their modules and crew draw metals). Bases stay allowed.");
             HumanMarket = cfg.Bind("HumanAI", "Market", false,
                 "AI humans short of metals or noble metals for warships buy them with money from other AI humans with a surplus (vanilla AIs never trade with each other).");
             HumanMarketShortStock = cfg.Bind("HumanAI", "MarketShortStock", 2000f, "A buyer is short below this stock of a ship metal.");
@@ -320,6 +322,7 @@ namespace ImprovedAI
         public bool UseHumanPersonalities => !VanillaAI.Value && HumanPersonalities.Value;
         public bool UseHumanClients => UseHumanPersonalities && HumanClients.Value;
         public bool UseHumanMarket => !VanillaAI.Value && HumanMarket.Value;
+        public bool UseHumanDrainGuard => !VanillaAI.Value && HumanDrainGuard.Value;
         public bool UseRaidCaptures => UseRaidPlanner && RaidCaptures.Value && UseAlienMarineFix;
 
         /// <summary>Apply section → key → value overrides for this run only (not saved).</summary>
