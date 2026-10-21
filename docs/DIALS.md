@@ -84,6 +84,9 @@ Direction key:
 | Economy / HugeShipExoticsUpkeep | 2 / month | `−` | Motherships. |
 | Economy / ExoticsStockHorizonMonths | 240 (was 60) | `−` | The cap counts stock/this as monthly budget. Shorter means the hoard turns into bases faster. |
 | Economy / MaxAlienBasesCeiling | 40 | `+` | Hard ceiling. |
+| Economy / ExoticsWarChest | on | = | Outside escalation the aliens keep a war chest. Exotic-tier builds read only the stock above it, and the exotics slack counts (stock − chest) / ExoticsHoardMonths as extra monthly budget. Spent freely when escalated (the P4 surge). |
+| Economy / ExoticsWarChestMonths | 12 | `+` | Chest size in months of drip (~700 in 2034). Bigger means a larger surge when escalated, fewer exotic builds before. |
+| Economy / ExoticsHoardMonths | 60 | `−` | How fast the hoard above the chest may fund upkeep above the drip. Shorter means more capital hulls now, a tighter squeeze later. |
 
 ## Vanilla difficulty knobs we expect to retune
 

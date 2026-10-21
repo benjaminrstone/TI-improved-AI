@@ -63,6 +63,8 @@ namespace ImprovedAI
         public readonly ConfigEntry<float> CapitalShipExoticsUpkeep;
         public readonly ConfigEntry<float> HugeShipExoticsUpkeep;
         public readonly ConfigEntry<float> ExoticsStockHorizonMonths;
+        public readonly ConfigEntry<bool> ExoticsWarChest;
+        public readonly ConfigEntry<float> ExoticsWarChestMonths, ExoticsHoardMonths;
         public readonly ConfigEntry<int> MaxAlienBasesCeiling;
         public readonly ConfigEntry<bool> ThreatMemory;
         public readonly ConfigEntry<float> ThreatMemoryDays;
@@ -89,7 +91,7 @@ namespace ImprovedAI
         public readonly ConfigEntry<int> MaxCaptureGoals;
         public readonly ConfigEntry<bool> AlienMarineFix;
         public readonly ConfigEntry<bool> AlienBattlecruiserFix;
-        public readonly ConfigEntry<bool> FixDirectInvest, FixLosingBig, FixOrgBuying, FixMissionRisk, FixSavingDeadlock;
+        public readonly ConfigEntry<bool> FixDirectInvest, FixLosingBig, FixOrgBuying, FixMissionRisk, FixSavingDeadlock, FixTradeZeroStock, HumanMarketWater;
         public readonly ConfigEntry<int> MaxOrgBuyPasses;
         public readonly ConfigEntry<bool> HumanMissionControl, HumanBoostForShips, HumanMineWhatYouLack, HumanBiggerHulls, HumanQueueUnblock;
         public readonly ConfigEntry<bool> HumanMCBuildings, HumanFleetMCReserveOn, HumanPersonalities, HumanClients, HumanMarket, HumanDrainGuard;
@@ -199,6 +201,11 @@ namespace ImprovedAI
             ExoticsStockHorizonMonths = cfg.Bind("Economy", "ExoticsStockHorizonMonths", 240f,
                 "The base cap counts the exotics stockpile as an extra monthly budget of stock / this.");
             MaxAlienBasesCeiling = cfg.Bind("Economy", "MaxAlienBasesCeiling", 40, "Hard ceiling on the exotics-based alien base cap.");
+            ExoticsWarChest = cfg.Bind("Economy", "ExoticsWarChest", true,
+                "Outside escalation the aliens keep a war chest of exotics: exotic-tier builds use only the stock above it, and capital-hull building tightens as the hoard above it runs down. Needs ExoticsUpkeep.");
+            ExoticsWarChestMonths = cfg.Bind("Economy", "ExoticsWarChestMonths", 12f, "War chest size, in months of the exotics drip.");
+            ExoticsHoardMonths = cfg.Bind("Economy", "ExoticsHoardMonths", 60f,
+                "Upkeep may run above the drip by (stock above the war chest) / this many months before capital-hull building tightens.");
             ThreatMemory = cfg.Bind("Perception", "ThreatMemory", true,
                 "Aliens judge human fleets by their best recent per-ship SCV, not the currently fitted design (defeats bait refits / empty magazines).");
             ThreatMemoryDays = cfg.Bind("Perception", "ThreatMemoryDays", 180f,
@@ -247,6 +254,8 @@ namespace ImprovedAI
             FixMissionRisk = cfg.Bind("HumanAI", "FixMissionRisk", true, "Vanilla bug H4: the high-payoff mission risk relaxation reads payoff before it is assigned.");
             FixSavingDeadlock = cfg.Bind("HumanAI", "FixSavingDeadlock", true,
                 "Vanilla bug H5: savings banked for a ship queued behind another build (it cannot start for months) starve every ship that could start now. While the target is idle, other ships may tap them.");
+            FixTradeZeroStock = cfg.Bind("HumanAI", "FixTradeZeroStock", true,
+                "Vanilla bug H6: a faction holding none of a resource values receiving it at almost nothing (divide by zero in TradeAI's storage modifier). AI human valuers only.");
             HumanMissionControl = cfg.Bind("HumanAI", "MissionControl", true,
                 "AI humans starved of generic mission control while wanting warships invest in it (MC priority / spaceflight programme) and value MC income more.");
             HumanMissionControlValue = cfg.Bind("HumanAI", "MissionControlValue", 3f, "While starved, AI valuation of MC income is multiplied by this.");
@@ -258,7 +267,9 @@ namespace ImprovedAI
                 "While an AI human's net hab flow of metals or noble metals is negative, it doesn't found stations (they can't mine; their modules and crew draw metals). Bases stay allowed.");
             HumanMarket = cfg.Bind("HumanAI", "Market", true,
                 "AI humans short of metals or noble metals for warships buy them with money from other AI humans with a surplus (vanilla AIs never trade with each other).");
-            HumanMarketShortStock = cfg.Bind("HumanAI", "MarketShortStock", 2000f, "A buyer is short below this stock of a ship metal.");
+            HumanMarketWater = cfg.Bind("HumanAI", "MarketWater", true,
+                "The market also sells water (propellant is in every ship's build cost; water is the most common ship-queue shortfall in 2034).");
+            HumanMarketShortStock = cfg.Bind("HumanAI", "MarketShortStock", 2000f, "A buyer is short below this stock of a ship resource.");
             HumanMarketSurplusStock = cfg.Bind("HumanAI", "MarketSurplusStock", 8000f, "A seller keeps this much; only stock above it is for sale.");
             HumanMarketShareOfSurplus = cfg.Bind("HumanAI", "MarketShareOfSurplus", 0.3f, "Share of a seller's surplus sold in one deal.");
             HumanMarketMargin = cfg.Bind("HumanAI", "MarketMargin", 1.1f, "The seller must gain this times what it gives up (vanilla trade valuation).");
@@ -312,6 +323,7 @@ namespace ImprovedAI
         public bool UseFixOrgBuying => !VanillaAI.Value && FixOrgBuying.Value;
         public bool UseFixMissionRisk => !VanillaAI.Value && FixMissionRisk.Value;
         public bool UseFixSavingDeadlock => !VanillaAI.Value && FixSavingDeadlock.Value;
+        public bool UseFixTradeZeroStock => !VanillaAI.Value && FixTradeZeroStock.Value;
         public bool UseHumanMissionControl => !VanillaAI.Value && HumanMissionControl.Value;
         public bool UseHumanBoostForShips => !VanillaAI.Value && HumanBoostForShips.Value;
         public bool UseHumanMineWhatYouLack => !VanillaAI.Value && HumanMineWhatYouLack.Value;

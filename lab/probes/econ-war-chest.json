@@ -1,0 +1,17 @@
+{
+  "name": "econ-war-chest",
+  "notes": "Exotics v2 gate (2026-10-20). Outside escalation the aliens keep a war chest (12 months of drip, ~700 in 2034): exotic-tier builds read only the stock above it, and capital-hull building tightens as the hoard above it runs down (slack counts (stock - chest) / 60 months). Setup: alien exotics set to 900, just above the chest. Expect: the stock holds near or above the chest for a year; the control (econ-war-chest-control, switch off) spends below it. Context: 2-year soak 2026-10-18 took the stock 2.0k -> 1.3-1.7k, mostly exotic builds; ship upkeep 14 -> 31-44/month.",
+  "fixture": "accel-2034-fusion-drives",
+  "runDays": 365,
+  "commands": ["ai.setresource AlienCouncil Exotics 900"],
+  "config": { "Economy": { "ExoticsWarChest": "true" } },
+  "asserts": [
+    "events('economy')[-1]['stock']['Exotics'] >= 0.8 * events('economy')[-1]['warChest']",
+    "sum(e.get('warChestHeld', 0) for e in events('economy')) > 0"
+  ],
+  "info": [
+    "[(e['t'][:7], e['stock']['Exotics'], e['warChest'], round(e['drip'], 1), round(e['upkeep'], 1), e['shipUpkeep'], e['slack'], e['largeFactor'], e['warChestHeld']) for e in events('economy')]",
+    "faction(last,'AlienCouncil')['scv'] if 'scv' in faction(last,'AlienCouncil') else None",
+    "count('ship-built')"
+  ]
+}

@@ -7,6 +7,7 @@ using ImprovedAI.Diagnostics;
 using PavonisInteractive.TerraInvicta;
 using PavonisInteractive.TerraInvicta.Actions;
 using PavonisInteractive.TerraInvicta.Tasks;
+using UnityEngine;
 
 namespace ImprovedAI.Human
 {
@@ -205,6 +206,76 @@ namespace ImprovedAI.Human
             if (__result || !Plugin.Cfg.UseFixSavingDeadlock || faction?.player == null || !faction.player.isAI || faction.IsAlienFaction) return;
             if (!(desiredPurchase is TISpaceShipTemplate)) return;   // ships only: the deadlock is in the ship queues
             if (Idle(faction)) __result = true;
+        }
+    }
+
+    /// <summary>
+    /// H6: a faction with (almost) none of a resource values receiving it at (almost) nothing. TradeAI's
+    /// GetResourceStorageModifier scales a resource's storage days by (stock + extra) / stock to price each further slice
+    /// of a trade. At zero stock that divides by zero: the first slice gets modifier 1 (0/0 is NaN, which fails the
+    /// "days > 0" test) and every later slice +infinity days, so modifier 0. In the 2034 market the Initiative, holding 0
+    /// metals, valued 7.7k metals from Exodus at 153 and refused every deal while its ship queues starved; with 359 noble
+    /// metals it valued 467 more at 10k. Storage days are (stock + floor) / (daily cost + c) in GetResourceTradeData, with a
+    /// per-resource floor (300 for metals); the intended rescale is (stock + floor + extra) / (stock + floor), which is
+    /// what this computes. It differs from vanilla only when stock is small against the floor.
+    /// AI human valuers only: this also changes how an AI human prices the player's offers (it now pays for what it lacks).
+    /// </summary>
+    [HarmonyPatch(typeof(TradeAI), nameof(TradeAI.GetResourceStorageModifier))]
+    internal static class FixTradeZeroStock
+    {
+        private static readonly MethodInfo DataM = AccessTools.Method(typeof(TradeAI), "GetResourceTradeData");
+        private static readonly FieldInfo DaysF = AccessTools.Field(AccessTools.Inner(typeof(TradeAI), "ResourceTradeData"), "StorageDays");
+        private static readonly FactionResource[] NotCompared = { FactionResource.Boost, FactionResource.Antimatter, FactionResource.Exotics };
+
+        private static float Days(TIFactionState f, FactionResource r) => (float)DaysF.GetValue(DataM.Invoke(null, new object[] { f, r }));
+
+        /// <summary>The stock floor GetResourceTradeData adds to the numerator of storage days (build 1.0.53b).</summary>
+        private static float Floor(FactionResource r)
+        {
+            switch (r)
+            {
+                case FactionResource.Water: case FactionResource.Volatiles: return 500f;
+                case FactionResource.Metals: return 300f;
+                case FactionResource.NobleMetals: return 150f;
+                case FactionResource.Fissiles: return 50f;
+                case FactionResource.Antimatter: case FactionResource.Exotics: return 1f;
+                case FactionResource.Boost: return 30f;
+                case FactionResource.Influence: return 120f;
+                case FactionResource.Money: return 3000f;
+                case FactionResource.Operations: return 60f;
+                default: return 0f;
+            }
+        }
+
+        private static float Median(List<float> xs)
+        {
+            xs.Sort();
+            int n = xs.Count;
+            return n % 2 == 0 ? xs[n / 2 - 1] / 2f + xs[n / 2] / 2f : xs[n / 2];
+        }
+
+        private static bool Prefix(TIFactionState faction, FactionResource resource, float hypotheticalAdditionalStoredQuantity, ref float __result)
+        {
+            if (!Plugin.Cfg.UseFixTradeZeroStock || DataM == null || DaysF == null || !HumanFixes.AI(faction)) return true;
+            if (TIResourcesCost.unAccumulatableResources.Contains(resource)) return true;
+            try
+            {
+                float stock = faction.GetCurrentResourceAmount(resource), basis = stock + Floor(resource);
+                if (basis <= 0f) return true;
+                float days = Days(faction, resource) * Mathf.Max(0f, basis + hypotheticalAdditionalStoredQuantity) / basis;
+                var others = TIResourcesCost.tradeableResources.Except(NotCompared).Select(r => Days(faction, r)).Where(x => x >= 0f).ToList();
+                if (others.Count == 0) return true;
+                float typical = Mathf.Lerp(Median(others), others.Average(), 0.35f);
+                float a = 1f, b = 1f;
+                if (days > 0f)
+                {
+                    a = Mathf.Pow(180f / days, 0.4f);
+                    b = Mathf.Pow(typical / days, 0.7f);
+                }
+                __result = Mathf.Pow(a * b, 0.8f);
+                return false;
+            }
+            catch { return true; }
         }
     }
 }

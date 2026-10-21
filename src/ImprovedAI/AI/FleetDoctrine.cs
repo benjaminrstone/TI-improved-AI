@@ -161,6 +161,7 @@ namespace ImprovedAI.AI
             __instance.aiValues.fleetSmalls *= w.smalls / large;
             __instance.aiValues.fleetMediums *= w.mediums / large;
             FleetDoctrine.Judging++;
+            ExoticsWarChestScope.Open(__instance);   // last: everything above read the true stock
         }
 
         /// <summary>What the build picker returned this month, by size (diagnostic: picks vs ships actually built).</summary>
@@ -177,6 +178,7 @@ namespace ImprovedAI.AI
         {
             if (__state.active)
             {
+                ExoticsWarChestScope.Close();
                 __instance.aiValues.fleetSmalls = __state.smalls;
                 __instance.aiValues.fleetMediums = __state.mediums;
                 FleetDoctrine.Judging--;

@@ -1,0 +1,20 @@
+{
+  "name": "econ-war-chest-control",
+  "notes": "Control for econ-war-chest: same setup (alien exotics 900), war chest off. Expect the stock to fall below ~700 within the year.",
+  "fixture": "accel-2034-fusion-drives",
+  "runDays": 365,
+  "commands": [
+    "ai.setresource AlienCouncil Exotics 900"
+  ],
+  "config": {
+    "Economy": {
+      "ExoticsWarChest": "false"
+    }
+  },
+  "asserts": [],
+  "info": [
+    "[(e['t'][:7], e['stock']['Exotics'], round(e['drip'], 1), round(e['upkeep'], 1), e['shipUpkeep']) for e in events('economy')]",
+    "faction(last,'AlienCouncil')['scv'] if 'scv' in faction(last,'AlienCouncil') else None",
+    "count('ship-built')"
+  ]
+}

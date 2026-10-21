@@ -22,7 +22,9 @@ namespace ImprovedAI.Human
     /// </summary>
     internal static class HumanMarket
     {
-        private static readonly FactionResource[] Wanted = { FactionResource.Metals, FactionResource.NobleMetals };
+        private static readonly FactionResource[] ShipMetals = { FactionResource.Metals, FactionResource.NobleMetals };
+        private static readonly FactionResource[] WithWater = { FactionResource.Metals, FactionResource.NobleMetals, FactionResource.Water };
+        private static FactionResource[] Wanted => Plugin.Cfg.HumanMarketWater.Value ? WithWater : ShipMetals;
 
         private static float Gain(TIFactionState f, FactionResource r, float q) => TradeAI.GetTradeValue(f, r, q);
         private static float Loss(TIFactionState f, FactionResource r, float q) => -TradeAI.GetTradeValue(f, r, -q);

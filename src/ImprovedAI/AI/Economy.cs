@@ -119,7 +119,7 @@ namespace ImprovedAI.AI
             string today = GameRead.Now();
             if (_slackDate == today) return _slack;
             float drip = Drip(alien);
-            _slack = drip <= 0f ? -1f : (drip - MonthlyUpkeep(alien, out _, out _)) / drip;
+            _slack = drip <= 0f ? -1f : (drip + HoardIncome(alien) - MonthlyUpkeep(alien, out _, out _)) / drip;
             _slackDate = today;
             return _slack;
         }
@@ -134,6 +134,27 @@ namespace ImprovedAI.AI
 
         /// <summary>Gross monthly exotics income (the wormhole drip, before upkeep).</summary>
         public static float Drip(TIFactionState alien) => Mathf.Max(0f, GameRead.Safe(() => alien.GetMonthlyIncome(FactionResource.Exotics)));
+
+        // ---- The war chest (exotics v2, 2026-10-20) ----
+        // The 2-year soak (2026-10-18) took the stock 2.0k -> 1.3-1.7k. Most of that is exotics spent on warships (their
+        // purpose); upkeep was only ~5/month over the drip on average, but capital-hull upkeep climbs steadily (14 -> 31-44)
+        // and nothing stops it eating the hoard. A competent command spends its hoard down to a war chest and lives within
+        // the drip below that; the chest is for the P4 surge (escalated, it is spent freely).
+        public static bool WarChestOn => UpkeepOn && Plugin.Cfg.ExoticsWarChest.Value;
+
+        /// <summary>Exotics the command keeps back outside escalation: ExoticsWarChestMonths of drip.</summary>
+        public static float WarChest(TIFactionState alien) => WarChestOn ? Mathf.Max(0f, Plugin.Cfg.ExoticsWarChestMonths.Value) * Drip(alien) : 0f;
+
+        /// <summary>
+        /// The hoard above the war chest, spread over ExoticsHoardMonths: what the command may run its upkeep above the
+        /// drip by. It shrinks to 0 as the stock nears the chest, so capital-hull building tightens before the chest is hit.
+        /// </summary>
+        public static float HoardIncome(TIFactionState alien)
+        {
+            if (!WarChestOn) return 0f;
+            float above = Mathf.Max(0f, alien.GetCurrentResourceAmount(FactionResource.Exotics) - WarChest(alien));
+            return above / Mathf.Max(1f, Plugin.Cfg.ExoticsHoardMonths.Value);
+        }
 
         /// <summary>
         /// How many bases the aliens can SUSTAIN (user, 2026-10-16: intelligent aliens, sustainable cap). The budget is a
@@ -179,6 +200,8 @@ namespace ImprovedAI.AI
                 stock = Basic.Concat(new[] { FactionResource.Exotics }).ToDictionary(r => r.ToString(), r => (float)Math.Round(alien.GetCurrentResourceAmount(r))),
                 drip, widening = (float)Math.Round(Wormhole.Widening, 3), campaignYears = (float)Math.Round(Wormhole.CampaignYears, 2),
                 upkeep, baseUpkeep = baseUp, shipUpkeep = shipUp, charged,
+                warChest = (float)Math.Round(WarChest(alien)), slack = (float)Math.Round(ExoticsSlack(alien), 3),
+                largeFactor = (float)Math.Round(LargeHullBuildFactor(alien), 3), warChestHeld = ExoticsWarChestScope.Held,
                 bases = Bases(alien),
                 cap,
                 // Alien cost computations this month that lacked a space resource (vanilla would price Earth boost +
@@ -190,6 +213,40 @@ namespace ImprovedAI.AI
                 moneyIncome = (float)Math.Round(GameRead.Safe(() => alien.GetMonthlyIncome(FactionResource.Money)), 1),
             });
             NoEarthPurchases.Shortfalls = NoEarthPurchases.Blocked = 0;
+            ExoticsWarChestScope.Held = 0;
+        }
+    }
+
+    /// <summary>
+    /// The war chest in the build pick: while the aliens pick a ship to build (GetDesiredShipToBuild, opened and closed by
+    /// FleetDoctrineBuildPick), their exotics read as the stock above the war chest, unless escalated. Vanilla's pick
+    /// drops designs whose exotics cost exceeds that amount (x its build share), and designs new ships without exotics
+    /// when it reads 0, so exotic-tier builds pause at the chest instead of spending it.
+    /// </summary>
+    [HarmonyPatch(typeof(TIFactionState), nameof(TIFactionState.GetCurrentResourceAmount))]
+    internal static class ExoticsWarChestScope
+    {
+        [ThreadStatic] internal static TIFactionState Alien;
+        [ThreadStatic] internal static float Reserve;
+        /// <summary>Picks this month that read a reduced stock (diagnostic, monthly economy record).</summary>
+        internal static int Held;
+
+        internal static void Open(TIFactionState alien)
+        {
+            if (!Economy.WarChestOn || Escalation.Escalated) return;
+            float reserve = Economy.WarChest(alien);
+            if (reserve <= 0f) return;
+            Reserve = reserve;
+            Alien = alien;
+            Held++;
+        }
+
+        internal static void Close() { Alien = null; }
+
+        private static void Postfix(TIFactionState __instance, FactionResource resourceType, ref float __result)
+        {
+            if (Alien == null || resourceType != FactionResource.Exotics || !ReferenceEquals(__instance, Alien)) return;
+            __result = Mathf.Max(0f, __result - Reserve);
         }
     }
 

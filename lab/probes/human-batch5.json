@@ -1,0 +1,17 @@
+{
+  "name": "human-batch5",
+  "notes": "Batch 5 (2026-10-20): two disjoint changes on top of batch 4 (market on). (1) H6 FixTradeZeroStock: a faction holding 0 of a resource valued receiving it at ~0 (divide by zero in TradeAI.GetResourceStorageModifier); the Initiative at 0 metals valued 7.7k metals at 153 and refused 12/12 metal deals with Exodus per run. Metric: Initiative metal deals ok/failed, Initiative ships. (2) MarketWater: water joins the market (water is the most common ship-queue shortfall: HF, Initiative, Academy, Exodus). Metric: water deals; water shortfalls in human-fleet.queues. Baseline: batch 4 (93/103/100 ships, Initiative 7/6/14). Overall: tools/hfleet.py BUILT.",
+  "fixture": "accel-2034-fusion-drives",
+  "runDays": 365,
+  "config": { "HumanAI": { "Market": "true", "FixTradeZeroStock": "true", "MarketWater": "true" } },
+  "asserts": [],
+  "info": [
+    "count('human-market', ok=True)",
+    "count('human-market', ok=True, resource='Water')",
+    "count('human-market', ok=True, buyer='ExploitCouncil', resource='Metals')",
+    "count('human-market', ok=False, buyer='ExploitCouncil', resource='Metals')",
+    "count('human-ship-built', f='ExploitCouncil')",
+    "{f: sum(1 for e in events('human-ship-built', f=f)) for f in ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil']}",
+    "[(e['t'][:7], e['buyer'][:6], e['seller'][:6], e['resource'], e['q'], e['money']) for e in events('human-market', ok=True)][:16]"
+  ]
+}

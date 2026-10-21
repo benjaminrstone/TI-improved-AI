@@ -66,6 +66,18 @@ namespace ImprovedAI.Harness
                     case "ai.drainammo":
                         output.Add(DrainAmmo(parts[1], parts[2]));
                         break;
+                    case "ai.setresource":
+                    {
+                        // ai.setresource <factionTemplate> <resource> <amount>: set a stock (e.g. AlienCouncil Exotics 900).
+                        var f = Faction(parts[1]);
+                        var r = (FactionResource)Enum.Parse(typeof(FactionResource), parts[2], true);
+                        float target = float.Parse(parts[3], System.Globalization.CultureInfo.InvariantCulture);
+                        float now = f.GetCurrentResourceAmount(r);
+                        if (target > now) f.AddToCurrentResource(target - now, r, true, "ImprovedAI harness");
+                        else if (target < now) f.SubtractFromCurrentResource(now - target, r, true, "ImprovedAI harness");
+                        output.Add($"> {f.templateName} {r} {now:0} -> {f.GetCurrentResourceAmount(r):0}");
+                        break;
+                    }
                     default:
                         output.Add("! unknown harness command " + parts[0]);
                         break;

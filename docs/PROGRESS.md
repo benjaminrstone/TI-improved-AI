@@ -2,6 +2,34 @@
 
 What is built, what the probes show, and what is next. Newest first. Every claim here is backed by a run in `lab/results/` (gitignored); probe definitions live in `lab/probes/`.
 
+## 2026-10-20/21: regression pass after the human AI track, flow probes
+
+### Regression pass (22 probes, build `518e5d6`; the last full-roster pass, see TESTING L1)
+19 of 22 pass: every alien probe except two, and all five human probes with asserts except one. None of the failures traces to the human AI work:
+- **e9-jupiter-plateau:** the Jupiter pool matches the 2026-10-18 run day by day until August: have ≥ need from April, but only 344–471 SCV present. In the old run the force arrived on 1 November (7.5k present) and launched; this time it never arrived within the year. Pooled strikes landed in 2 of 3 runs before, so this looks like the same variance. The slow muster is what rendezvous v2 would address.
+- **doctrine-bastion:** 6 CaptureHab goals were created against an assert of ≤ 4. The dial keeps at most 3 open at once, so this is goal turnover; the probe has failed on variance before.
+- **human-fleet-growth:** its 1.4× SCV target is aspirational (×1.17 vs vanilla ×1.18); it failed the same way on 2026-10-19.
+- Throughput dipped to ~2 days/min during contempt-arc and doctrine-raider (50 and 69 minutes); the other probes ran at the usual ~20.
+
+### New build: H6, water market, exotics war chest (flow probes + 3 × 2-year mod soak from 2034)
+All pass: flow-2034, flow-2039, econ-war-chest.
+
+| 2 years from 2034 | Vanilla (`soak2yv5`) | Mod 2026-10-18 (`soak2yv5`) | **Mod now (`soak2yv6`)** |
+|---|---|---|---|
+| Alien SCV at end | 35.3k | 40.8k | **42.8k [39.8–44.5]** |
+| Alien ships lost | 29 | 8 | **4.3** |
+| Human ships destroyed by aliens | 144 | 141 | **190** (more AI human ships to lose) |
+| Habs lost, all / Resistance | 95 / 24 | 93 / 29 | **81 / 26** |
+| Alien attack launches | 64 | 47 | **50** |
+| AI human ships completed, year 1 | 69 (A/B, 2026-10-19) | — | **102 / 117 / 113** |
+| Exotics stock | 2.0k → 2.4–2.7k | 2.0k → 1.3–1.7k | **2.0k → 1.37–1.39k** |
+
+- **War chest:** in the gate (stock set to 900), the aliens spent down to the chest (~700) and then held it (681 at the end, with upkeep equal to the drip). In the soak the stock fell as before (spending above the chest is allowed), and capital-hull building began to tighten at the end of year 2 (large-hull weight 0.81–0.85 in two runs), with the stock still ~650 above the chest.
+- **flow-2039:** escalated in April, the terminus started on its own, and contempt for the Resistance fell 0.40 → 0.16. Again no Jupiter strike was launched: the pool covered its need by August, but only ~600 SCV was present (see e9 above).
+
+### The regression check becomes two flow probes (user, 2026-10-21)
+`flow-2034` and `flow-2039`: natural years with nothing injected, health asserts plus wide floors and many observations. Calibrated on five past runs, which all pass.
+
 ## 2026-10-18: the full M2 build, then the pivot to human factions
 
 ### Regression pass (`probes.ps1 -All`, build `221b8d6`)

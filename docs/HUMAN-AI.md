@@ -93,6 +93,8 @@ Code references are relative to `_ref/decompiled/`. Abbreviations:
 | H2 | **"Losing big" is unreachable.** `Losing` (< 0.8) is tested before `LosingBig` (< 0.5). | ADFP:370-377 | A faction far behind its strongest human rival never reacts as if losing badly (war threshold, risk aversion). |
 | H3 | **Org buying stops at the first conflict.** `PurchaseOrgs` uses `break` where `continue` was meant, as soon as a candidate org or councilor is already taken. | ADFP:2604-2607 | About one org bought per weekly pass; councilors stay under-equipped. |
 | H4 | **The mission risk relaxation is dead.** `acceptableMinimumSuccess` uses `payoff` before `payoff` is assigned. | AIMissionEntry.cs:74 vs 91 | High-value missions never get their lower success threshold. |
+| H5 | **Idle savings** (found 2026-10-19, see "Human market and the real queue bottleneck"). | `ShouldTapSavings` | Savings for a ship that can't start for months starve every startable ship. |
+| H6 | **Zero stock values a resource at ~0** (found 2026-10-20). `GetResourceStorageModifier` rescales storage days by `(stock + extra) / stock`; at stock 0 that is 0/0 (NaN, modifier 1) for the first slice, then +∞ days (modifier 0) for every later slice. | TradeAI.cs:353 | A faction with none of a resource will not pay for it. The Initiative at 0 metals valued 7.7k metals at 153 and refused 12 of 12 deals a run. Also affects how an AI prices the player's offers. |
 
 **Step 1 results** (2031 save, 90–120 days, one run each against vanilla; `Human/VanillaFixes.cs`):
 
@@ -422,3 +424,28 @@ Sources: Steam reviews and discussions, the Something Awful thread, and Steam pa
   | First defaults | 79 |
   | Batch 2/3 (+ queue fixes) | ~90–93 |
   | Batch 4 (+ market) | 99 |
+
+### Batch 5 (2026-10-20/21): H6 and water in the market
+
+**Results** (measured in `flow-2034` and the first year of three 2-year soak runs, `soak2yv6`, instead of separate batch runs):
+
+| | Ships completed by the six AI factions, first year |
+|---|---|
+| Vanilla | 69 (mean of 3) |
+| Batch 4 (market) | 93 / 103 / 100 (mean 99) |
+| **Batch 5 (+ H6, water)** | **114 / 102 / 117 / 113 (mean 112)** |
+
+- **The Initiative now buys:** 10 deals succeeded and 3 failed (flow-2034), against 1–4 successes and ~20 failures a run before. It completed 14 ships in the 2034 run and 19 in the 2039 run.
+- **Water trades:** 8 water deals in the 2034 year; 0 in 2039, where nobody was short.
+- Defaults: both on.
+
+**Diagnosis** (from the batch-4 journals, 3 runs):
+Diagnosis from the batch-4 journals (3 runs):
+- **Water is the most common ship-queue shortfall.** Humanity First, the Initiative, the Academy and Exodus all show water-short heads. The Protectorate holds 20–26k water and the Servants 7–15k. Propellant is part of every ship's build cost (`propellantTanks` × 100 t × the drive's per-tank mix).
+- **The Initiative's drain is Nanofactories.** In the 2034 save they are 540 of its 828 metals/month of module upkeep (54 modules, 3–4 per station, mostly on stations without shipyards). Each pays +90 money for 10 metals + 1 noble. At market prices (~0.9 money per metal) that is a good trade, *if* it can buy metals. So the market is the right lever, not decommissioning.
+- **It can't buy, because of H6.** With 0 metals it valued 7.7k metals at 153 against $7.1k asked, so 12 of 12 metal deals with Exodus failed in each of two runs. With 359 nobles, 467 more were worth 10k to it, and those deals went through.
+
+Changes (probe `human-batch5`, each with its own metric):
+- **H6 fix** (`FixTradeZeroStock`, AI human valuers): storage days are rescaled by `(stock + floor + extra) / (stock + floor)`, with vanilla's own per-resource floor (300 for metals). That is exactly recomputing storage days with the extra stock, and it differs from vanilla only at low stock. Metric: the Initiative's metal deals that succeed, and its ships.
+- **Water in the market** (`MarketWater`). Metric: water deals; water shortfalls in `human-fleet.queues`.
+- Not done: including propellant in the human need weights. At near-zero water stock the need weight is already at its cap, so it would change little.

@@ -1,4 +1,4 @@
-# Handoff (2026-10-13; human AI track 2026-10-19)
+# Handoff (2026-10-13; human AI track 2026-10-19; updated 2026-10-21)
 
 State at the end of the second working session. Read this first, then `docs/M2-PLAN.md`.
 
@@ -29,15 +29,14 @@ State at the end of the second working session. Read this first, then `docs/M2-P
 | 5. Disposition (contempt) | ✅ v1, gate passed (2039 Resistance starts at 0.40, falls 0.02/month while holding Jupiter). **Now per difficulty** (user decision 2026-10-12). |
 | 6. Economy (mine what they lack; base cap → exotics upkeep) | ✅ v2, probe gate passed (single run; soak pending): bases 13 → 18, the cap self-limits as exotics drain, new bases yield 34% metals + nobles against 24% in alien income. v1: bases 13 → 19, then the cap self-limited as exotics fell. Generic picks went metal-rich; the "insecure upkeep" rule kept founding water moons; v2 redirects it. See M2-PLAN step 6. |
 
-**Also not started:**
-- the doctrine "shame" shift: **v1 built 2026-10-13**, gate probe `doctrine-shame-shift` runs in the pending regression pass;
-- opening-weighted doctrine selection;
+**Also built since:** the doctrine "shame" shift (gate passes), `NoEarthPurchases` (`econ-earth-buy` passes), desperation → P4 escalation, pooled-strike rendezvous, proxy trade, and the terminus clock (a hard alien victory, `ec1d9b5`).
+
+**Not started:**
 - fury;
-- desperation → P4 escalation;
 - the posture panel UI;
 - the info-game (WS5);
-- stations (WS6), the tech extension (WS7), fleet controls (WS8);
-- the terminus clock (decided: a hard alien victory).
+- stations (WS6), the tech extension (WS7), fleet controls (WS8).
+- (Opening-weighted doctrine selection: dropped, user decision 2026-10-13.)
 
 ## Decisions from 2026-10-12 (recorded in DESIGN.md)
 
@@ -77,8 +76,8 @@ State at the end of the second working session. Read this first, then `docs/M2-P
     - the drain guard (no new stations while hab metal flow is negative; it never fired in tests).
   - Off:
     - bigger hulls (it delayed builds and didn't raise SCV per ship);
-  - The real stall is in the ship queues: water shortfalls (propellant) and the daily queue walk stopping at the first unaffordable head.
-  - Next: water for propellant; the Initiative's existing draining stations (its module upkeep).
+  - The real stall was in the ship queues: water shortfalls (propellant) and the daily queue walk stopping at the first unaffordable head.
+  - **Batch 5 (2026-10-21): vanilla bug H6** (a faction holding 0 of a resource values receiving it at ~0, so the Initiative refused every metals deal) **fixed, and water added to the market.** Year-one ships: **mean 112** (4 runs) vs 99 (batch 4) and 69 (vanilla). The Initiative's drain is Nanofactories (+90 money for 10 metals each), which is a fair trade now that it can buy metals.
 - **Gang-up and personalities (§9):**
   - Built:
     - the lead / grudge / alien terms per personality;
@@ -113,22 +112,21 @@ State 2026-10-17 (details in PROGRESS):
   - Strikes at Jupiter land in 2/3 runs, 6–10 months after the trigger.
 - The AlienBattlecruiser fix, Brawler and Bastion are done.
 
-1. **Chapter playtest by the user** (`tools\playtest.ps1 -Fixture accel-2031-hot-war`, or `accel-2039-clean-jupiter` to feel the escalation). Most M2 systems now exist, so this is the right moment for a human eye.
-2. **Exotics-aware shipbuilding:** capital-hull upkeep grows after bases are built, so exotics drain ~20/month. Make the build picker respect the exotics budget.
-3. **P4 still to do:**
-   - an explicit exotics surge into wormhole-tier warships when escalated;
-   - the terminus (hard alien victory) and its construction site;
-   - widening setbacks from strikes at the terminus.
-4. **Rendezvous v2:** muster at empty staging points (Sun–planet L4/L5, moons) needs a move order that keeps the attack goal. A command node (mothership) could shorten the muster (pherocyte command).
-5. **Proxy trade v2:** offer deals to a player-controlled pro-alien faction too (vanilla's TradeToPlayerInitiated prompt).
-6. **Regression pass on the current build:** `tools\probes.ps1 -All`, then aggregate a fresh 2-year soak.
+1. **Chapter playtest by the user: postponed** (user, 2026-10-20) while improvements are still landing. When it happens: `tools\playtest.ps1 -Fixture accel-2031-hot-war`, or `accel-2039-clean-jupiter` to feel the escalation. Check whether a passive player's station losses (15 vs 3 in 6 months, 2034) feel like pressure or unfair.
+2. **Exotics: war chest built (2026-10-21).** Most of the old "drain" was exotics spent on warships; upkeep ran only ~5/month above the drip. Outside escalation the aliens now spend down to a 12-month chest and then live within the drip (gate passes). Watch in longer runs: ship upkeep keeps climbing (14 → 30–41 in two years), and the chest's capital-hull squeeze only starts at the end of year 2.
+3. **Jupiter muster is the weak spot (2026-10-21):** in 3 of the last 4 natural 2039 runs the pool covered its need by August, but only ~600 SCV was ever present, so no strike launched. That is the case for rendezvous v2 (item 5).
+4. **P4 still to do:** widening setbacks from strikes at the terminus beyond the current HQ-system losses; a visible construction site.
+5. **Rendezvous v2:** muster at empty staging points (Sun–planet L4/L5, moons) needs a move order that keeps the attack goal. A command node (mothership) could shorten the muster (pherocyte command).
+6. **Proxy trade v2:** offer deals to a player-controlled pro-alien faction too (vanilla's TradeToPlayerInitiated prompt).
+7. **Regression check:** from now on, `tools\probes.ps1 flow-2034, flow-2039` (two natural years, ~45 min; see TESTING L1), not the whole roster (user, 2026-10-21). The last full-roster pass ran on `518e5d6` (2026-10-20; see PROGRESS).
 
 ## How to run things
 
 ```
 tools\run.ps1 -Probe e5-undefended-mines                 # one probe (exit 2 on fail)
 tools\run.ps1 -Probe e1-empty-magazine-bait -Vanilla     # vanilla baseline of a probe
-tools\probes.ps1 -All                                    # every probe except smoke
+tools\probes.ps1 flow-2034, flow-2039                    # the regression check (~45 min)
+tools\probes.ps1 -All                                    # every probe except smoke (~4 h+; rarely)
 tools\soaks.ps1 -Fixture accel-2031-hot-war -Days 365 -Runs 3
 python -I tools\summarize.py lab\results\<run>           # story of a run
 python -I tools\compare.py lab\results\<A> lab\results\<B>
@@ -139,6 +137,7 @@ Probe roster (`lab/probes/`):
 
 | Probe | Kind | Status (mod) |
 |---|---|---|
+| **flow-2034, flow-2039** | **the regression check** (natural years, many observations) | pass on 5 past runs (calibration) |
 | smoke | harness check | pass |
 | e1-empty-magazine-bait | exploit | pass |
 | e3-attack-sizing | regression guard | pass |
