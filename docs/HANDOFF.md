@@ -114,11 +114,12 @@ State 2026-10-17 (details in PROGRESS):
 
 1. **Chapter playtest by the user: postponed** (user, 2026-10-20) while improvements are still landing. When it happens: `tools\playtest.ps1 -Fixture accel-2031-hot-war`, or `accel-2039-clean-jupiter` to feel the escalation. Check whether a passive player's station losses (15 vs 3 in 6 months, 2034) feel like pressure or unfair.
 2. **Exotics: war chest built (2026-10-21).** Most of the old "drain" was exotics spent on warships; upkeep ran only ~5/month above the drip. Outside escalation the aliens now spend down to a 12-month chest and then live within the drip (gate passes). Watch in longer runs: ship upkeep keeps climbing (14 → 30–41 in two years), and the chest's capital-hull squeeze only starts at the end of year 2.
-3. **Jupiter muster is the weak spot (2026-10-21):** in 3 of the last 4 natural 2039 runs the pool covered its need by August, but only ~600 SCV was ever present, so no strike launched. That is the case for rendezvous v2 (item 5).
-4. **P4 still to do:** widening setbacks from strikes at the terminus beyond the current HQ-system losses; a visible construction site.
-5. **Rendezvous v2:** muster at empty staging points (Sun–planet L4/L5, moons) needs a move order that keeps the attack goal. A command node (mothership) could shorten the muster (pherocyte command).
-6. **Proxy trade v2:** offer deals to a player-controlled pro-alien faction too (vanilla's TradeToPlayerInitiated prompt).
-7. **Regression check:** from now on, `tools\probes.ps1 flow-2034, flow-2039` (two natural years, ~45 min; see TESTING L1), not the whole roster (user, 2026-10-21). The last full-roster pass ran on `518e5d6` (2026-10-20; see PROGRESS).
+3. **Jupiter strike fixed: time-aware pooling (2026-10-21).** The pool counted every joiner the moment it was ordered, so fleets 300–470 days out (Triton, Luison, Anansi → Titan) filled the need on paper; recruiting stopped and the strike waited a year for the slowest. Now joiners count only if they arrive within `RendezvousMaxJoinDays` (240), donors are recruited nearest-first within it (`PoolTimeAware`), and the travel estimate assumes 80% of delta-v spent (`RendezvousDvShare`). **Result: the strike launches in 3 of 3 runs** (21–24 Oct 2039, 14.8–15.0k, 75 ships), against 0 of the 3 runs before. flow-2034 unchanged.
+4. **Next for the strike: transit time.** It flies Titan → Io in ~197 days (arriving May 2040), because vanilla plans attack moves keeping half the fleet's delta-v in reserve. Escalated, the strike could burn harder, as joiners already do (`EscalatedJoinBurn`). Rendezvous v2 (item 6) would also shorten the joins.
+5. **P4 still to do:** widening setbacks from strikes at the terminus beyond the current HQ-system losses; a visible construction site.
+6. **Rendezvous v2:** muster at empty staging points (Sun–planet L4/L5, moons) needs a move order that keeps the attack goal. A command node (mothership) could shorten the muster (pherocyte command).
+7. **Proxy trade v2:** offer deals to a player-controlled pro-alien faction too (vanilla's TradeToPlayerInitiated prompt).
+8. **Regression check:** from now on, `tools\probes.ps1 flow-2034, flow-2039` (two natural years, ~45 min; see TESTING L1), not the whole roster (user, 2026-10-21). The last full-roster pass ran on `518e5d6` (2026-10-20; see PROGRESS).
 
 ## How to run things
 

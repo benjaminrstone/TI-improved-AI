@@ -72,7 +72,21 @@ namespace ImprovedAI.AI
                 }
             }
             float present = anchor.SpaceCombatValue();
-            float have = present + goal.pendingFleets.Where(TIGameState.Valid).Sum(x => x.SpaceCombatValue());
+            // Time-aware pooling (2026-10-21). Counting every joiner the moment it was ordered let fleets 300-470 days
+            // out (Triton, Luison, Anansi -> Titan) fill the need on paper; recruiting stopped and the 2039 strike waited
+            // a year for the slowest. Now only joiners that arrive within the join horizon count; the rest still come,
+            // as reinforcements that follow the strike.
+            bool timeAware = Plugin.Cfg.PoolTimeAware.Value;
+            float horizon = Plugin.Cfg.RendezvousMaxJoinDays.Value;
+            var pending = goal.pendingFleets.Where(TIGameState.Valid).ToList();
+            float late = 0f;
+            float have = present;
+            foreach (var p in pending)
+            {
+                float v = p.SpaceCombatValue();
+                if (timeAware && Rendezvous.Eta(p, anchor) > horizon) late += v;
+                else have += v;
+            }
             // The goal stays in Pooling (so LeaveMyFleetAlone protects it) until its attack is under way; the cleanup
             // above drops it then. Releasing it at "ready" let vanilla's weekly 2.3% random discard of war attack goals
             // (FactionGoal_WarOnFaction.DailyGoalMaintenance) kill an assembled Jupiter strike while its joiners were
@@ -100,21 +114,32 @@ namespace ImprovedAI.AI
             {
                 // Enough is on its way: wait for the joiners (logged monthly so the assembly can be followed).
                 if (TITimeState.Now().day <= 4)
-                    Session.Journal?.Write(new { t = GameRead.Now(), kind = "pool-wait", goalId = GameRead.Id(goal), target = GameRead.Name(goal.target()), targetSystem = GameRead.System(goal.target()), need, have, present, fleet = anchor.displayName });
+                    Session.Journal?.Write(new
+                    {
+                        t = GameRead.Now(), kind = "pool-wait", goalId = GameRead.Id(goal), target = GameRead.Name(goal.target()), targetSystem = GameRead.System(goal.target()),
+                        need, have, present, late, fleet = anchor.displayName,
+                        // The slowest counted joiner: when the force can be complete.
+                        lastEta = pending.Select(p => Rendezvous.Eta(p, anchor)).Where(x => x <= horizon || !timeAware).DefaultIfEmpty(0f).Max(),
+                    });
                 return;
             }
 
             // Why fleets are not donors (diagnostics for tuning).
             var rej = new Dictionary<string, int>();
             bool Ok(bool cond, string why) { if (!cond) rej[why] = (rej.TryGetValue(why, out var n) ? n : 0) + 1; return cond; }
-            var donors = faction.fleets
+            var eta = new Dictionary<TISpaceFleetState, float>();
+            float Eta(TISpaceFleetState f) => eta.TryGetValue(f, out var e) ? e : eta[f] = Rendezvous.Eta(f, anchor);
+            var candidates = faction.fleets
                 .Where(f => f != anchor && TIGameState.Valid(f) && !goal.pendingFleets.Contains(f)
                             && Ok(!f.transferAssigned, "inTransfer") && Ok(f.isCapableOfTransfering, "cantTransfer")
                             && Ok(f.CombatFleet() && !f.InvasionFleet(), "notCombat") && Ok(!f.AI_NeedsRepairBadly(), "needsRepair")
                             && Ok(!AIEvaluators.ShouldSystemBeInDefenseMode(faction, f.ref_system), "defenseMode")
-                            && Ok(Releasable(faction, f, goal), "goal:" + (f.AssignedGoal()?.GetGoalType().ToString() ?? "none")))
-                .OrderBy(f => f.ref_system == anchor.ref_system ? 0 : 1)
-                .ThenByDescending(f => f.SpaceCombatValue())
+                            && Ok(Releasable(faction, f, goal), "goal:" + (f.AssignedGoal()?.GetGoalType().ToString() ?? "none")));
+            // Time-aware: nearest arrival first, and only within the join horizon. Otherwise vanilla-like: same system
+            // first, then the strongest.
+            var donors = (timeAware
+                    ? candidates.Where(f => Ok(Eta(f) <= horizon, "tooFar")).OrderBy(Eta)
+                    : candidates.OrderBy(f => f.ref_system == anchor.ref_system ? 0 : 1).ThenByDescending(f => f.SpaceCombatValue()))
                 .ToList();
 
             // Per-system release budget: what the aliens hold there beyond max(local human threat x superiority,
@@ -145,13 +170,13 @@ namespace ImprovedAI.AI
                 faction.AddGoal(new FactionGoal_JoinFleet(faction, anchor), HandleDuplicateGoalRule.ResetImportance, d);
                 float v = d.SpaceCombatValue();
                 have += v;
-                sent.Add(new { fleet = d.displayName, scv = v, at = GameRead.System(d), was = from?.GetGoalType().ToString() });
+                sent.Add(new { fleet = d.displayName, scv = v, at = GameRead.System(d), was = from?.GetGoalType().ToString(), eta = (float)System.Math.Round(Eta(d)) });
             }
             Session.Journal?.Write(new
             {
                 t = GameRead.Now(), kind = "pool", goalId = GameRead.Id(goal), imp = goal.importance,
                 target = GameRead.Name(goal.target()), targetSystem = GameRead.System(goal.target()),
-                anchor = anchor.displayName, at = GameRead.System(anchor), need, have, present, donors = sent, rejected = rej,
+                anchor = anchor.displayName, at = GameRead.System(anchor), need, have, present, late, donors = sent, rejected = rej,
                 maxRatio = GameRead.Safe(() => goal.GetMaximumFleetCombatValueRatio()),
             });
         }

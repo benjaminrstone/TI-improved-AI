@@ -76,7 +76,8 @@ namespace ImprovedAI
         public readonly ConfigEntry<float> AttackMaxRatioFloor;
         public readonly ConfigEntry<bool> Rendezvous;
         public readonly ConfigEntry<float> RendezvousGain;
-        public readonly ConfigEntry<float> RendezvousMaxJoinDays;
+        public readonly ConfigEntry<float> RendezvousMaxJoinDays, RendezvousDvShare;
+        public readonly ConfigEntry<bool> PoolTimeAware;
         public readonly ConfigEntry<float> MusterDays;
         public readonly ConfigEntry<float> ShortcutSuperiority;
         public readonly ConfigEntry<bool> StanceCourage;
@@ -223,7 +224,12 @@ namespace ImprovedAI
             Rendezvous = cfg.Bind("Commitment", "Rendezvous", true,
                 "A pooled strike musters at the best-placed alien fleet by time to strike (slowest needed joiner + transfer to target), not wherever vanilla anchored it.");
             RendezvousGain = cfg.Bind("Commitment", "RendezvousGain", 0.85f, "Re-anchor only if the new muster point's time to strike is below this fraction of the current one.");
-            RendezvousMaxJoinDays = cfg.Bind("Commitment", "RendezvousMaxJoinDays", 365f, "Fleets that can't reach a muster point within this many days don't count toward it.");
+            RendezvousMaxJoinDays = cfg.Bind("Commitment", "RendezvousMaxJoinDays", 240f,
+                "The join horizon: fleets that can't reach a muster point within this many days don't count toward it (muster choice), and with PoolTimeAware aren't recruited or counted toward a pooled strike.");
+            PoolTimeAware = cfg.Bind("Commitment", "PoolTimeAware", true,
+                "A pooled strike recruits donors in order of arrival time, only within the join horizon, and counts joiners toward its need only if they arrive within it (far joiners still come, as reinforcements).");
+            RendezvousDvShare = cfg.Bind("Commitment", "RendezvousDvShare", 0.8f,
+                "Share of a fleet's delta-v the travel-time estimate assumes it spends (calibrated on six 2039 joins: the game's planner spent 74-83%).");
             MusterDays = cfg.Bind("Commitment", "MusterDays", 14f, "Days a complete pooled force musters (coordinating) before setting out.");
             AttackMaxRatioFloor = cfg.Bind("Commitment", "AttackMaxRatioFloor", 1.5f,
                 "Floor on an alien attack goal's max fleet/desired ratio (vanilla can drop it to 0, splitting waiting fleets).");

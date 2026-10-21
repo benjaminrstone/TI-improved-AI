@@ -27,6 +27,24 @@ All pass: flow-2034, flow-2039, econ-war-chest.
 - **War chest:** in the gate (stock set to 900), the aliens spent down to the chest (~700) and then held it (681 at the end, with upkeep equal to the drip). In the soak the stock fell as before (spending above the chest is allowed), and capital-hull building began to tighten at the end of year 2 (large-hull weight 0.81–0.85 in two runs), with the stock still ~650 above the chest.
 - **flow-2039:** escalated in April, the terminus started on its own, and contempt for the Resistance fell 0.40 → 0.16. Again no Jupiter strike was launched: the pool covered its need by August, but only ~600 SCV was present (see e9 above).
 
+### The stuck Jupiter strike: time-aware pooling
+- **Diagnosis** (`rdv-diag`, 45 days from 2039, transfer records now log launch, arrival, flight days, AU and delta-v): the pool ordered joins from all over the outer system and counted each joiner the moment it was ordered. Six joins to Titan:
+
+  | From | AU | Flight | Delta-v spent |
+  |---|---|---|---|
+  | Bononia | 13 | 166 d | 70% |
+  | Hippasus | 15 | 138 d | 76% |
+  | Oberon | 17 | 200 d | 75% |
+  | Triton | 39 | 305 d | 78% |
+  | Luison | 51 | 388 d | 79% |
+  | Anansi | 44 | 474 d | 83% |
+
+  The far ones filled the need on paper, so recruiting stopped and the strike waited for the slowest. The rendezvous travel estimate (40% delta-v reserve) was 20–40% long; at 80% spent it is within ~10%.
+- **Fix:** joiners count only within the join horizon (240 days); donors are recruited nearest-first within it; far fleets stay on their tasks; joiners already ordered still follow as reinforcements.
+- **Result (flow-2039 ×3):** the force is complete at Titan on 21 October in all three runs and sets out on 23–24 October with 14.8–15.0k (75 ships, need 13.7k). Before: 0 of the 3 most recent runs launched. Six far fleets rejected as too far each run.
+- **flow-2034:** 14 attack launches (15 before), 21 of 21 alien-started battles won, alien SCV 33.9k (33.0k), AI human ships 110 (114).
+- **Next:** the strike's own flight Titan → Io is ~197 days (vanilla plans attacks keeping half the delta-v in reserve).
+
 ### The regression check becomes two flow probes (user, 2026-10-21)
 `flow-2034` and `flow-2039`: natural years with nothing injected, health asserts plus wide floors and many observations. Calibrated on five past runs, which all pass.
 

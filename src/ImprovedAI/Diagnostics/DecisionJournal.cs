@@ -30,6 +30,27 @@ namespace ImprovedAI.Diagnostics
 
         private static void Emit(object rec) => Session.Journal?.Write(rec);
 
+        /// <summary>How a transfer is flown: launch and arrival dates, wait before launch, flight time, distance, delta-v.</summary>
+        private static object Flight(Trajectory traj, TISpaceFleetState f)
+        {
+            try
+            {
+                return new
+                {
+                    launch = GameRead.Date(traj.launchTime), arrive = GameRead.Date(traj.arrivalTime),
+                    waitDays = (float)Math.Round(traj.launchTime.DifferenceInDays(traj.assignedTime), 1),
+                    flightDays = (float)Math.Round(traj.flightDuration_s / 86400.0, 1),
+                    au = (float)Math.Round(traj.straightLineDistance_m / 149597870700.0, 2),
+                    dvKps = (float)Math.Round(traj.DV_kps, 1),
+                    fleetDvKps = (float)Math.Round(f.currentDeltaV_kps, 1),
+                    accel = (float)Math.Round(traj.fleetCruiseAcceleration_mps2, 3),
+                    intercept = traj.interceptTrajectory,
+                    model = traj.GetType().Name,
+                };
+            }
+            catch { return null; }
+        }
+
         private static int _day;
 
         public static void Daily(bool emit = true)
@@ -143,6 +164,8 @@ namespace ImprovedAI.Diagnostics
                         // What the alien expects to meet at the goal target (remembered defenders + half the system), for launch-ratio analysis.
                         defThreat = (gt == null || gt.ref_faction == null || gt.ref_faction.IsAlienFaction || gt.ref_system == null) ? (float?)null
                             : GameRead.Safe(() => AI.DecisiveForce.DefenderThreat(alien, gt)),
+                        // How the move is flown (rendezvous v2 diagnosis, 2026-10-21): joins to the Jupiter muster took 4-10 months.
+                        flight = Flight(traj, f),
                     });
                 }
                 _fleets[id] = snap;

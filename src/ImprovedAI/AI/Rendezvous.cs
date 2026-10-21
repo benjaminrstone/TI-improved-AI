@@ -27,6 +27,24 @@ namespace ImprovedAI.AI
     {
         private static TIGameState Place(TISpaceFleetState f) => (TIGameState)f.ref_orbit ?? f.ref_spaceBody;
 
+        /// <summary>
+        /// Days until fleet <paramref name="f"/> can be at <paramref name="anchor"/>: its scheduled arrival when it is
+        /// already flying there, else the travel estimate from where it is now.
+        /// </summary>
+        public static float Eta(TISpaceFleetState f, TISpaceFleetState anchor)
+        {
+            if (f == null || anchor == null) return float.PositiveInfinity;
+            try
+            {
+                var traj = f.transferAssigned ? f.trajectory : null;
+                if (traj?.arrivalTime != null && traj.destination != null
+                    && (traj.destination == anchor || ReferenceEquals(traj.destination.ref_fleet, anchor) || traj.destination == (TIGameState)anchor.ref_orbit))
+                    return Math.Max(0f, (float)traj.arrivalTime.DifferenceInDays(TITimeState.Now()));
+            }
+            catch { }
+            return Time(f, Pos(f), Pos(anchor));
+        }
+
         /// <summary>Where something is now: the natural body it sits at (moon, planet, asteroid), else the object itself.</summary>
         private static Vector3d? Pos(TIGameState s)
         {
@@ -49,17 +67,20 @@ namespace ImprovedAI.AI
 
         /// <summary>
         /// Days for fleet <paramref name="mover"/> to fly from one point to another as the planets stand now: a constant-
-        /// thrust flip-and-burn at its cruise acceleration, or burn-coast-burn when its delta-v (keeping a 40% reserve
-        /// for combat and return) can't cover the full brachistochrone. The game's GenericTransferTime_d is a minimum-
+        /// thrust flip-and-burn at its cruise acceleration, or burn-coast-burn when the delta-v it spends
+        /// (RendezvousDvShare) can't cover the full brachistochrone. The game's GenericTransferTime_d is a minimum-
         /// energy Hohmann estimate meant for slow logistics: it put Titan -> Jupiter at ~4,500 days, which the alien
-        /// strike fleet actually flies in ~5 months (2039 probe, 2026-10-17).
+        /// strike fleet actually flies in ~5 months (2039 probe, 2026-10-17). Calibration (2026-10-21, six joins to
+        /// Titan, 13-51 AU): the planner spent 74-83% of each fleet's delta-v; at 0.8 the estimate is within ~10% of the
+        /// flown time (at the old 0.6 it was 20-40% long).
         /// </summary>
-        private static float Time(TISpaceFleetState mover, Vector3d? from, Vector3d? to)
+        internal static float Time(TISpaceFleetState mover, Vector3d? from, Vector3d? to)
         {
             if (mover == null || from == null || to == null) return float.PositiveInfinity;
             double d = (from.Value - to.Value).magnitude;
             if (d < 1e6) return 0f;
-            double a = GameRead.Safe(() => mover.cruiseAcceleration_mps2), dv = 0.6 * GameRead.Safe(() => mover.currentDeltaV_mps);
+            double share = Math.Min(0.95, Math.Max(0.1, Plugin.Cfg.RendezvousDvShare.Value));
+            double a = GameRead.Safe(() => mover.cruiseAcceleration_mps2), dv = share * GameRead.Safe(() => mover.currentDeltaV_mps);
             if (!(a > 0) || !(dv > 0)) return float.PositiveInfinity;
             double t;
             if (dv >= 2.0 * Math.Sqrt(d * a)) t = 2.0 * Math.Sqrt(d / a);

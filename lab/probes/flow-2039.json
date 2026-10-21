@@ -21,6 +21,8 @@
     "[(e['t'][:7], e['desperation'], e['escalated']) for e in events('escalation')][::2]",
     "[(e['t'][:7], e['target'], e['targetSystem'], round(e['need']), round(e['have']), round(e['present'])) for e in events('pool')]",
     "[(e['t'][:7], e['anchorAt'], e['chosenAt'], e['moved'], e['anchorDays'], e['chosenDays']) for e in events('rendezvous')]",
+    "[(e['t'][:7], round(e['present']), round(e['have']), round(e.get('late', 0)), round(e['need']), round(e.get('lastEta', 0))) for e in events('pool-wait')]",
+    "[(e['t'][:7], e['targetSystem'], round(e['have']), round(e['need'])) for e in events('pool-ready')]",
     "[(r['t'][:7], r['fleet'], round(r['scv']), r['toBody']) for r in events('transfer', goal='AttackWithFleet', toSystem='Jupiter')]",
     "(faction(first, 'ResistCouncil').get('scvBySystem', {}).get('Jupiter', 0), faction(last, 'ResistCouncil').get('scvBySystem', {}).get('Jupiter', 0))",
     "(faction(first, 'ResistCouncil').get('habsBySystem', {}).get('Jupiter', 0), faction(last, 'ResistCouncil').get('habsBySystem', {}).get('Jupiter', 0))",
