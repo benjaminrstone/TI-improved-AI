@@ -61,6 +61,8 @@ tools\probes.ps1 flow-2034, flow-2039     # ~45 min: two natural years, nothing 
 - **`flow-2034`**: alien economy (bases, exotics cap and war chest, widening, no Earth purchases), proxy trade, attack launches, contempt, and the whole human AI track (market, H-fixes, personalities, ships completed).
 - **`flow-2039`**: escalation, pooled strikes at Jupiter and rendezvous, the terminus starting on its own, contempt falling against a strong player, and late-game human fleet growth.
 
+**`flow-2039-long`** (540 days, ~35 min) is the same game run on until the Jupiter strike arrives and fights. It is not part of the routine check; run it when strike behaviour changes. In all flow probes the player is passive: the Autopilot clears prompts and resolves combat but gives no fleet orders or missions.
+
 Their asserts are health checks plus wide regression floors, calibrated on past runs so that natural variance passes. The many `info` lines are the observations: read them to see how a change moved the flow of the game. Probes with injected setups (e1, e5, doctrines, shame shift, fleet doctrines, terminus, war chest) are run only for the feature being changed. Balance is still judged by soaks.
 
 Each probe carries `baseline: "vanilla"`, so the same probe runs with the mod disabled to show the delta. Runs aren't deterministic: the RNG is clock-seeded, mission planning runs on a worker thread, and frame time varies. We seed what we can (`TIUtilities.InitRandom`). For behavioural asserts we run a probe 3–5 times and assert on the rate ("raids mines in ≥ 4 of 5 runs").

@@ -43,7 +43,13 @@ All pass: flow-2034, flow-2039, econ-war-chest.
 - **Fix:** joiners count only within the join horizon (240 days); donors are recruited nearest-first within it; far fleets stay on their tasks; joiners already ordered still follow as reinforcements.
 - **Result (flow-2039 ×3):** the force is complete at Titan on 21 October in all three runs and sets out on 23–24 October with 14.8–15.0k (75 ships, need 13.7k). Before: 0 of the 3 most recent runs launched. Six far fleets rejected as too far each run.
 - **flow-2034:** 14 attack launches (15 before), 21 of 21 alien-started battles won, alien SCV 33.9k (33.0k), AI human ships 110 (114).
-- **Next:** the strike's own flight Titan → Io is ~197 days (vanilla plans attacks keeping half the delta-v in reserve).
+- The strike's own flight Titan → Io is ~198 days: vanilla plans attacks keeping half the delta-v in reserve (88 of the merged fleet's 201 km/s spent).
+
+### flow-2039-long (540 days from 2039, one run): does the strike win?
+- **Yes, decisively.** It arrived at Io on 8 May 2040 with 14.9k (76 ships) against the Resistance's 2.25k (28 assets). 27 Resistance assets were destroyed, with no alien losses. The Io station fell two days later. Resistance Jupiter: SCV 3.4k → 1.1k, habs 5 → 2.
+- **No defender growth during the 198-day flight** (Jupiter SCV flat at 3,370 from August to May). The harness player is passive: the Autopilot clears prompts and resolves combat but gives no fleet orders or missions. So this run can't show whether the slow flight lets a real defender catch up. That needs an AI-controlled or scripted Resistance.
+- **No case for a faster burn yet:** the strike was sized ~6× the defending fleet, and burning harder would leave it ~40 km/s for the fight and no way home.
+- After the strike the command pooled again (August 2040: need 10.5k, 5.6k present at Triton). Terminus at 15% after 17 months, on pace for ~9–10 years.
 
 ### The regression check becomes two flow probes (user, 2026-10-21)
 `flow-2034` and `flow-2039`: natural years with nothing injected, health asserts plus wide floors and many observations. Calibrated on five past runs, which all pass.
