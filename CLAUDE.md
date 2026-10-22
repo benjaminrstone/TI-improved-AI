@@ -12,6 +12,7 @@ A Terra Invicta mod that makes the alien opponent constrained but competent: it 
 | `docs/FINDINGS.md` | How vanilla AI works, with code refs; vanilla bugs found |
 | `docs/EXPLOITS.md` | Exploit catalogue and probe status |
 | `docs/HUMAN-AI.md` | The human AI factions track (2026-10-18): how vanilla works, verified bugs, likely weaknesses |
+| `docs/STRATEGIST.md` | Design: a stronger model directs a faction at checkpoints, the game AI plays in between (open decisions for the user) |
 | `docs/DIALS.md` | Every tunable and its intended difficulty direction; scenario pacing levers |
 | `docs/TESTING.md`, `docs/HARNESS.md` | Test layers and how the harness works |
 

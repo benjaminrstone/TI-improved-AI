@@ -27,6 +27,22 @@ All pass: flow-2034, flow-2039, econ-war-chest.
 - **War chest:** in the gate (stock set to 900), the aliens spent down to the chest (~700) and then held it (681 at the end, with upkeep equal to the drip). In the soak the stock fell as before (spending above the chest is allowed), and capital-hull building began to tighten at the end of year 2 (large-hull weight 0.81–0.85 in two runs), with the stock still ~650 above the chest.
 - **flow-2039:** escalated in April, the terminus started on its own, and contempt for the Resistance fell 0.40 → 0.16. Again no Jupiter strike was launched: the pool covered its need by August, but only ~600 SCV was present (see e9 above).
 
+### Defenders that act: AI control, scripted orders, the player bot (2026-10-22)
+New harness tools: `ai.control <faction> ai|human` (hand a faction to the game's AI mid-game), `ai.move` / `ai.merge` (real orders through the game's own operations), `ai.bot <faction> reinforce,merge` (rule-based player). See TESTING L1.
+
+**The Jupiter strike against three defenders** (540 days from 2039, one run each):
+
+| Defender | Jupiter battle | Resistance Jupiter habs | Resistance SCV at end | Resistance habs lost |
+|---|---|---|---|---|
+| Passive (`flow-2039-long`) | 8 May 2040: 14.9k vs 2.25k, aliens win, no losses | 5 → 2 | 10.9k | 7 |
+| Bot (`flow-2039-long-bot`) | 23 Apr 2040: 12.0k vs 2.37k, aliens win | 5 → 2 | 10.8k | 10 |
+| Game AI (`flow-2039-long-ai`) | 5 Jan 2040: 7.2k vs 0.3k, aliens win | **5 → 0** | **15.5k** | 10 |
+
+- The strike wins against every defender: still no case for a faster burn.
+- **The AI-run Resistance abandons Jupiter.** Its Jupiter fleet left by September 2039, and 5–9k of its fleet spent most of the year in interplanetary transit ("Sol"). The strike then needed less and launched earlier (August, in two legs). It kept its fleet (15.5k vs 10.9k passive) but lost every Jupiter hab. See HUMAN-AI (AI factions don't hold remote holdings against an alien strike).
+- **The bot:** 13 orders (10 merges, 3 moves), none refused. It judged Jupiter outmatched every time the strike was inbound (12–15k against what could arrive in time) and, by its rule, didn't feed fleets in piecemeal, so Jupiter played out as in the passive run.
+- **Harness:** an AI-run player raises many event notifications that pause the clock (11 stalls of 90 s, 8 days/min). The harness now resumes a pause after 10 s when nothing blocks the player (`resumes` in results).
+
 ### The stuck Jupiter strike: time-aware pooling
 - **Diagnosis** (`rdv-diag`, 45 days from 2039, transfer records now log launch, arrival, flight days, AU and delta-v): the pool ordered joins from all over the outer system and counted each joiner the moment it was ordered. Six joins to Titan:
 

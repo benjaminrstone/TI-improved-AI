@@ -61,6 +61,8 @@ tools\probes.ps1 flow-2034, flow-2039     # ~45 min: two natural years, nothing 
 - **`flow-2034`**: alien economy (bases, exotics cap and war chest, widening, no Earth purchases), proxy trade, attack launches, contempt, and the whole human AI track (market, H-fixes, personalities, ships completed).
 - **`flow-2039`**: escalation, pooled strikes at Jupiter and rendezvous, the terminus starting on its own, contempt falling against a strong player, and late-game human fleet growth.
 
+**Defenders that act** (2026-10-22). `ai.control <faction> ai|human` hands a faction to the game's AI mid-game. `ai.move <faction> <fleet|strongest|all|idle[@System]> <fleet|hab|body> [reserve]` and `ai.merge <faction> <fleets> <intoFleet>` issue real orders through the game's own operations; probes can schedule them (`@N`). `ai.bot <faction> reinforce,merge` runs the rule-based player (`Harness/PlayerBot.cs`), which sees true enemy strengths, a v1 simplification. Variants: `flow-2039-long-ai`, `flow-2039-long-bot`. An AI-run player slows the game to ~13 days/min.
+
 **`flow-2039-long`** (540 days, ~35 min) is the same game run on until the Jupiter strike arrives and fights. It is not part of the routine check; run it when strike behaviour changes. In all flow probes the player is passive: the Autopilot clears prompts and resolves combat but gives no fleet orders or missions.
 
 Their asserts are health checks plus wide regression floors, calibrated on past runs so that natural variance passes. The many `info` lines are the observations: read them to see how a change moved the flow of the game. Probes with injected setups (e1, e5, doctrines, shame shift, fleet doctrines, terminus, war chest) are run only for the feature being changed. Balance is still judged by soaks.

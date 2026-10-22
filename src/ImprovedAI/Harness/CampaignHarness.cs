@@ -112,7 +112,8 @@ namespace ImprovedAI.Harness
         private float _menuSeenAt = -1f, _loadRequestedAt, _readyAt, _lastHeartbeat, _lastDateChangeAt;
         private TIDateTime _startDate;
         private string _lastDate;
-        private int _stalls, _consecutiveStalls, _unsticks;
+        private int _stalls, _consecutiveStalls, _unsticks, _resumes;
+        private float _lastResume = -100f;
         private float _lastUnstick;
         private readonly List<string> _exceptions = new List<string>();
         private int _exceptionCount;
@@ -294,6 +295,16 @@ namespace ImprovedAI.Harness
                 var p = GameControl.control.activePlayer;
                 p.playerControl.StartAction(new PavonisInteractive.TerraInvicta.Actions.FinalizeCouncilorMissions(p));
             }
+            else if (gtm != null && gtm.currentSpeedIndex == 0 && now - _lastDateChangeAt > 10f && now - _lastResume > 10f
+                     && !TIPromptQueueState.anyActivePlayerBlockingPrompt)
+            {
+                // Paused with nothing blocking: an event notification (e.g. "fleet returns to operations") paused the
+                // clock. An AI-run player faction raises many of these (ai.control, 2026-10-22: 11 stalls of 90 s in one
+                // run). Resume rather than wait for the stall handler.
+                _lastResume = now;
+                _resumes++;
+                gtm.SetSpeed(Run.speedIndex, pushBeyondCap: true);
+            }
             else if (now - _lastDateChangeAt > Run.stallSeconds)
             {
                 _stalls++;
@@ -350,6 +361,7 @@ namespace ImprovedAI.Harness
                 exceptions = _exceptionCount,
                 stalls = _stalls,
                 unsticks = _unsticks,
+                resumes = _resumes,
             };
         }
 

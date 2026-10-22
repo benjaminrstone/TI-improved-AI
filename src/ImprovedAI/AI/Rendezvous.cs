@@ -46,7 +46,7 @@ namespace ImprovedAI.AI
         }
 
         /// <summary>Where something is now: the natural body it sits at (moon, planet, asteroid), else the object itself.</summary>
-        private static Vector3d? Pos(TIGameState s)
+        internal static Vector3d? Pos(TIGameState s)
         {
             try { var n = s?.ref_naturalSpaceObject; if (n != null && !n.isSun) return n.GetGlobalPosition(); } catch { }
             try { if (s is TISpaceObjectState o) return o.GetGlobalPosition(); } catch { }

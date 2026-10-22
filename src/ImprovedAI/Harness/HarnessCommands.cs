@@ -66,6 +66,33 @@ namespace ImprovedAI.Harness
                     case "ai.drainammo":
                         output.Add(DrainAmmo(parts[1], parts[2]));
                         break;
+                    case "ai.move":
+                    {
+                        // ai.move <faction> <fleet|strongest|all|idle[@System]> <fleet|hab|body> [reserve 0..0.9]
+                        var f = Faction(parts[1]);
+                        var target = Orders.Target(parts[3]);
+                        float reserve = parts.Length > 4 ? float.Parse(parts[4], System.Globalization.CultureInfo.InvariantCulture) : 0.5f;
+                        var fleets = Orders.Fleets(f, parts[2]);
+                        if (fleets.Count == 0) { output.Add($"! no {parts[1]} fleet matches {parts[2]}"); break; }
+                        foreach (var fl in fleets) output.Add(Orders.Move(fl, target, reserve, "script"));
+                        break;
+                    }
+                    case "ai.merge":
+                    {
+                        // ai.merge <faction> <fleet|all@System> <intoFleet>
+                        var f = Faction(parts[1]);
+                        var into = Orders.Fleets(f, parts[3]).FirstOrDefault() ?? throw new ArgumentException("no fleet " + parts[3]);
+                        foreach (var fl in Orders.Fleets(f, parts[2]).Where(x => x != into)) output.Add(Orders.MergeInto(fl, into, "script"));
+                        break;
+                    }
+                    case "ai.bot":
+                        // ai.bot <faction> <reinforce,merge|off>: the rule-based player (PlayerBot).
+                        output.Add(PlayerBot.Set(Faction(parts[1]), parts[2]));
+                        break;
+                    case "ai.control":
+                        // ai.control <factionTemplate> ai|human: hand a faction to the game's AI (or back).
+                        output.Add(FactionControl.Set(Faction(parts[1]), !parts[2].Equals("human", StringComparison.OrdinalIgnoreCase)));
+                        break;
                     case "ai.setresource":
                     {
                         // ai.setresource <factionTemplate> <resource> <amount>: set a stock (e.g. AlienCouncil Exotics 900).

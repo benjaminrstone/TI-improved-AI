@@ -17,7 +17,9 @@ namespace ImprovedAI.Human
     /// </summary>
     internal static class HumanFixes
     {
-        public static bool AI(TIFactionState f) => f != null && !f.IsAlienFaction && !f.isActivePlayer;
+        // AI-controlled human factions. Same set as "not the active player" in a normal game, but also covers a player
+        // faction handed to the AI (harness ai.control, 2026-10-22).
+        public static bool AI(TIFactionState f) => f != null && !f.IsAlienFaction && f.player != null && f.player.isAI;
     }
 
     /// <summary>

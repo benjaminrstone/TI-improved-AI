@@ -1,0 +1,21 @@
+{
+  "name": "control-smoke",
+  "notes": "Harness check for ai.control (2026-10-22): the player faction handed to the game's AI mid-game must run cleanly and act (planner tasks, investment, ship builds), with the Autopilot still clearing prompts.",
+  "fixture": "accel-2039-clean-jupiter",
+  "runDays": 60,
+  "commands": ["ai.control ResistCouncil ai"],
+  "asserts": [
+    "results['endReason'] == 'days-elapsed'",
+    "status['stalls'] == 0",
+    "count('control', faction='ResistCouncil', ai=True) == 1",
+    "count('direct-invest', faction='ResistCouncil') + count('human-mc-invest', faction='ResistCouncil') + count('human-ship-built', f='ResistCouncil') >= 1"
+  ],
+  "info": [
+    "status.get('exceptions')",
+    "results.get('unsticks')",
+    "events('control')",
+    "(count('direct-invest', faction='ResistCouncil'), count('human-mc-invest', faction='ResistCouncil'), count('human-ship-built', f='ResistCouncil'))",
+    "[(e['t'], e['nation'], e['priority']) for e in events('direct-invest', faction='ResistCouncil')][:8]",
+    "(faction(first, 'ResistCouncil').get('ships'), faction(last, 'ResistCouncil').get('ships'), faction(first, 'ResistCouncil').get('scv'), faction(last, 'ResistCouncil').get('scv'))"
+  ]
+}

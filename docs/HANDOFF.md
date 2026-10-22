@@ -99,6 +99,11 @@ State at the end of the second working session. Read this first, then `docs/M2-P
   - Testing: **batch disjoint changes into one run** (user, 2026-10-19), each with its own metric.
 - **Not started:** the Admin-building rule (high-value habs / CP-capped Earth orbit); queue unblock v2.
 
+## Testing tools and the strategist (user, 2026-10-22)
+
+- Built: `ai.control` (hand a faction to the game's AI), `ai.move` / `ai.merge` (real scripted orders), `ai.bot` (rule-based player: reinforce, merge). See TESTING L1.
+- **The strategist** (`docs/STRATEGIST.md`, design only): a stronger model sets a faction's goals a few times a game-year, and the game AI plays under those directives in between, also in a game with a human player. **Five decisions for the user are listed at the end of that doc**; the next steps are a directive schema v0, a brief v0 for the aliens, and a harness checkpoint loop.
+
 ## Next steps (recommended order)
 
 State 2026-10-17 (details in PROGRESS):
@@ -115,7 +120,7 @@ State 2026-10-17 (details in PROGRESS):
 1. **Chapter playtest by the user: postponed** (user, 2026-10-20) while improvements are still landing. When it happens: `tools\playtest.ps1 -Fixture accel-2031-hot-war`, or `accel-2039-clean-jupiter` to feel the escalation. Check whether a passive player's station losses (15 vs 3 in 6 months, 2034) feel like pressure or unfair.
 2. **Exotics: war chest built (2026-10-21).** Most of the old "drain" was exotics spent on warships; upkeep ran only ~5/month above the drip. Outside escalation the aliens now spend down to a 12-month chest and then live within the drip (gate passes). Watch in longer runs: ship upkeep keeps climbing (14 → 30–41 in two years), and the chest's capital-hull squeeze only starts at the end of year 2.
 3. **Jupiter strike fixed: time-aware pooling (2026-10-21).** The pool counted every joiner the moment it was ordered, so fleets 300–470 days out (Triton, Luison, Anansi → Titan) filled the need on paper; recruiting stopped and the strike waited a year for the slowest. Now joiners count only if they arrive within `RendezvousMaxJoinDays` (240), donors are recruited nearest-first within it (`PoolTimeAware`), and the travel estimate assumes 80% of delta-v spent (`RendezvousDvShare`). **Result: the strike launches in 3 of 3 runs** (21–24 Oct 2039, 14.8–15.0k, 75 ships), against 0 of the 3 runs before. flow-2034 unchanged.
-4. **Strike transit: leave it (2026-10-21).** The ~198-day Titan → Io flight is vanilla keeping half the delta-v in reserve. In `flow-2039-long` (540 days) the strike arrived 8 May 2040 with 14.9k against 2.25k and won without losses. But the harness Resistance is passive (no fleet orders), so whether a real defender can use the transit time is untested: give the Resistance AI control (`TIPlayerState.AssignAIStatus`) or a scripted defence first.
+4. **Strike transit: leave it (2026-10-22).** The ~198-day Titan → Io flight is vanilla keeping half the delta-v in reserve. The strike wins against all three defenders tried (540 days from 2039): passive, the rule-based bot, and the Resistance under the game's AI, which abandoned Jupiter (5 habs → 0) while keeping its fleet. See PROGRESS 2026-10-22.
 5. **P4 still to do:** widening setbacks from strikes at the terminus beyond the current HQ-system losses; a visible construction site.
 6. **Rendezvous v2:** muster at empty staging points (Sun–planet L4/L5, moons) needs a move order that keeps the attack goal. A command node (mothership) could shorten the muster (pherocyte command).
 7. **Proxy trade v2:** offer deals to a player-controlled pro-alien faction too (vanilla's TradeToPlayerInitiated prompt).

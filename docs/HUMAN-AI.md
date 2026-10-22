@@ -449,3 +449,8 @@ Changes (probe `human-batch5`, each with its own metric):
 - **H6 fix** (`FixTradeZeroStock`, AI human valuers): storage days are rescaled by `(stock + floor + extra) / (stock + floor)`, with vanilla's own per-resource floor (300 for metals). That is exactly recomputing storage days with the extra stock, and it differs from vanilla only at low stock. Metric: the Initiative's metal deals that succeed, and its ships.
 - **Water in the market** (`MarketWater`). Metric: water deals; water shortfalls in `human-fleet.queues`.
 - Not done: including propellant in the human need weights. At near-zero water stock the need weight is already at its cap, so it would change little.
+
+### The AI-run Resistance against the 2039 Jupiter strike (2026-10-22, `flow-2039-long-ai`, one run)
+- With the Resistance handed to the game's AI (`ai.control`), it **pulled its Jupiter fleet out by September 2039**, and 5–9k of its fleet spent most of the year in interplanetary transit. The alien strike took Jupiter completely (5 habs → 0), while the passive player kept 2.
+- It kept its fleet (15.5k at the end vs 10.9k passive), so this is a choice of where to fight, not a loss of strength. But a human player would rarely give up a gas-giant foothold without a fight.
+- Candidate weakness (one run, to confirm): AI human factions don't weigh holding remote habs against an incoming alien strike, and their fleets wander between goals. A natural lever for the strategist (docs/STRATEGIST.md: defence priorities).
