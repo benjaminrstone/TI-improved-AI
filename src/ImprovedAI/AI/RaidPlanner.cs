@@ -63,12 +63,13 @@ namespace ImprovedAI.AI
                 foreach (var hab in enemy.habs)
                 {
                     if (hab == null || targeted.Contains(hab) || hab.ref_system == null) continue;
+                    if (Strategist.Directives.Spared(GameRead.System(hab))) continue;
                     if (!hab.IsBase && !hab.IsStation) continue;
                     float value = (1 + hab.tier) * (hab.HasActiveMine ? 2f : 1f) * (hab.CompletedShipyards().Count > 0 ? 1.5f : 1f);
                     float threat = GameRead.Safe(() => hab.SpaceCombatValue())
                                    + enemy.fleets.Where(f => f.ref_system == hab.ref_system).Sum(f => ThreatMemory.Remembered(f));
                     if (float.IsNaN(threat)) continue;
-                    candidates.Add((hab, value / (1f + threat / 200f) * hateFactor, value, threat));
+                    candidates.Add((hab, value / (1f + threat / 200f) * hateFactor * Strategist.Directives.RaidFactionWeight(enemy), value, threat));
                 }
             }
 

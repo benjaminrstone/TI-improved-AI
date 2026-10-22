@@ -47,7 +47,9 @@ namespace ImprovedAI.AI
             var goal = faction.GoalsOfType(GoalType.AttackWithFleet, orderByImportance: true)
                 .OfType<FactionGoal_AttackWithFleet>()
                 .Where(g => !g.skipGoal && g.importance > 0 && !g.InProgress() && TIGameState.Valid(g.target()))
-                .OrderByDescending(g => Pooling.Contains(g))          // stick with the current focus
+                .Where(g => !Strategist.Directives.Spared(GameRead.System(g.target())))
+                .OrderBy(g => Strategist.Directives.StrikeRank(GameRead.System(g.target())))   // the strategist's targets first
+                .ThenByDescending(g => Pooling.Contains(g))          // stick with the current focus
                 .ThenByDescending(g => g.importance)
                 .ThenByDescending(g => g.desiredFleetCombatValue)
                 .FirstOrDefault();

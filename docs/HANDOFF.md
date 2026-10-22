@@ -102,7 +102,7 @@ State at the end of the second working session. Read this first, then `docs/M2-P
 ## Testing tools and the strategist (user, 2026-10-22)
 
 - Built: `ai.control` (hand a faction to the game's AI), `ai.move` / `ai.merge` (real scripted orders), `ai.bot` (rule-based player: reinforce, merge). See TESTING L1.
-- **The strategist** (`docs/STRATEGIST.md`, design only): a stronger model sets a faction's goals a few times a game-year, and the game AI plays under those directives in between, also in a game with a human player. **Five decisions for the user are listed at the end of that doc**; the next steps are a directive schema v0, a brief v0 for the aliens, and a harness checkpoint loop.
+- **The strategist v0 is built** (`docs/STRATEGIST.md`; user decisions 2026-10-22: all non-player factions, local, pause while thinking, intel to the player through pacts, intel-sharing, clients or turned councilors, every 3 months). Use it with `tools\playtest.ps1 -Fixture <name> -Strategist`; in the harness, probe `strategist-2039` with `tools\strategist.ps1 -Harness`. First run: in character and coherent; watch the gang-up on the player over longer runs.
 
 ## Next steps (recommended order)
 

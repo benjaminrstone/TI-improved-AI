@@ -357,6 +357,7 @@ The user made these on 2026-10-11:
 - **Proxy supply line (2026-10-17).** The aliens actively seek deals with pro-alien human factions (Servants, Protectorate; maybe the Academy later). A proxy can send only what its own mines produce, never its stockpile: difficulty bonuses (Veteran/Brutal AI ship-cost discounts leave stockpiles unspent) must not flow to the aliens, because the player has no counterplay against a bonus. The counterplay is to hit the proxies' mines or flip the proxies.
 - **Human AI factions, later (user, 2026-10-17).** Look for better ways to strengthen the human AI factions than bonus resources (their difficulty bonuses today: +50/+100 CP cap and +20/+50 mission control on Veteran/Brutal, ships at ×0.75/×0.5 cost, mission bonuses). This means competence over handouts, as for the aliens. Out of scope for now (aliens only).
 - **Doctrine selection stays seeded (2026-10-13).** No opening-weighted selection. Variety comes from the campaign seed and from shame shifts.
+- **The strategist (2026-10-22).** A stronger model directs **all non-player factions** (the aliens and every AI human faction), checking in **every 3 months**. It runs **locally** (a local agent answers through files, no API key in the mod). **The game pauses while it thinks.** The player sees a faction's intentions only if that faction is **allied** with them, is their **client**, or has a councilor the player has **turned**. Design: `docs/STRATEGIST.md`.
 
 ## Engineering rules
 

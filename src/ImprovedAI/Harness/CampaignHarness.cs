@@ -114,6 +114,7 @@ namespace ImprovedAI.Harness
         private string _lastDate;
         private int _stalls, _consecutiveStalls, _unsticks, _resumes;
         private float _lastResume = -100f;
+        private bool _autopilotHeld;
         private float _lastUnstick;
         private readonly List<string> _exceptions = new List<string>();
         private int _exceptionCount;
@@ -280,11 +281,21 @@ namespace ImprovedAI.Harness
         private void Tick()
         {
             var gtm = GameTimeManager.Singleton;
-            if (gtm != null && gtm.currentSpeedIndex != 0 && gtm.currentSpeedIndex != Run.speedIndex)
-                gtm.SetSpeed(Run.speedIndex, pushBeyondCap: true);
-
             float now = Time.realtimeSinceStartup;
             string date = GameRead.Now();
+            if (Strategist.Checkpoint.Waiting)
+            {
+                // Paused on purpose while the strategist thinks: not a stall, not to be resumed here, and the Autopilot
+                // (which presses play) is held off: in strategist-2039 the clock still crept on 2 days per checkpoint.
+                if (_autopilot != null && _autopilot.Activated) { _autopilot.Activated = false; _autopilotHeld = true; }
+                if (gtm != null && gtm.currentSpeedIndex != 0) gtm.SetSpeed(0, false);
+                _lastDateChangeAt = now;
+                _consecutiveStalls = 0;
+                return;
+            }
+            if (_autopilotHeld && _autopilot != null) { _autopilot.Activated = true; _autopilotHeld = false; }
+            if (gtm != null && gtm.currentSpeedIndex != 0 && gtm.currentSpeedIndex != Run.speedIndex)
+                gtm.SetSpeed(Run.speedIndex, pushBeyondCap: true);
             if (date != _lastDate) { _lastDate = date; _lastDateChangeAt = now; _consecutiveStalls = 0; }
             else if (now - _lastDateChangeAt > 20f && now - _lastUnstick > 20f && BlockingPrompts().Contains("faction:PromptSelectCouncilorMissions"))
             {

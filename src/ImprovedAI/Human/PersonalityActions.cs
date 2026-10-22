@@ -83,6 +83,9 @@ namespace ImprovedAI.Human
             TIFactionState owner = null;
             try { owner = target.ref_faction; } catch { }
             float k = PersonalityActions.MissionFactor(faction, owner);
+            // The strategist's rivals and friends steer hostile missions too.
+            int stance = Strategist.Directives.Stance(faction, owner);
+            if (stance != 0) k *= 1f + 0.8f * Strategist.Directives.MissionFocus(faction) * stance;
             if (k == 1f) return;
             __result *= k;
             string key = $"{faction.templateName}>{owner?.templateName}:{(k > 1f ? "up" : "down")}";

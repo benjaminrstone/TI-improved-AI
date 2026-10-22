@@ -143,7 +143,8 @@ namespace ImprovedAI.AI
         public static bool WarChestOn => UpkeepOn && Plugin.Cfg.ExoticsWarChest.Value;
 
         /// <summary>Exotics the command keeps back outside escalation: ExoticsWarChestMonths of drip.</summary>
-        public static float WarChest(TIFactionState alien) => WarChestOn ? Mathf.Max(0f, Plugin.Cfg.ExoticsWarChestMonths.Value) * Drip(alien) : 0f;
+        public static float WarChest(TIFactionState alien) =>
+            WarChestOn ? Mathf.Max(0f, Strategist.Directives.WarChestMonths ?? Plugin.Cfg.ExoticsWarChestMonths.Value) * Drip(alien) : 0f;
 
         /// <summary>
         /// The hoard above the war chest, spread over ExoticsHoardMonths: what the command may run its upkeep above the

@@ -27,6 +27,14 @@ All pass: flow-2034, flow-2039, econ-war-chest.
 - **War chest:** in the gate (stock set to 900), the aliens spent down to the chest (~700) and then held it (681 at the end, with upkeep equal to the drip). In the soak the stock fell as before (spending above the chest is allowed), and capital-hull building began to tighten at the end of year 2 (large-hull weight 0.81–0.85 in two runs), with the stock still ~650 above the chest.
 - **flow-2039:** escalated in April, the terminus started on its own, and contempt for the Resistance fell 0.40 → 0.16. Again no Jupiter strike was launched: the pool covered its need by August, but only ~600 SCV was present (see e9 above).
 
+### The strategist v0, end to end (2026-10-22, `strategist-2039`, 200 days)
+All asserts pass: three checkpoints (23 March, 1 June, 1 September 2039), all seven non-player factions directed each time, no timeouts, no stalls. Each checkpoint took ~12 s (seven headless Opus calls in parallel).
+- **In character and coherent over time.** The aliens: "The Resistance alone has learned to fight, and that makes it the only human power worth breaking"; strikes Jupiter → Mercury → Mars; the pro-alien factions' asteroid holdings spared (the list grew each checkpoint); in June they noticed the terminus had begun and raised the war chest 12 → 15 months. The Initiative went from "protects its investments" to "cutting its losses", dropping outlying belt posts from its defence list. Humanity First held Mars and Earth, added its Venus foothold in September, and kept its rivals (Protectorate, Servants) and friends (Resistance, Exodus).
+- **Levers acted:** defence goals created where vanilla had none (13 Egeria, 5 Astraea, 45 Eugenia).
+- **Intel:** the Resistance has a turned councilor in the Initiative, so the Initiative's intent reached the player at every checkpoint (journaled; no popups in unattended runs).
+- **To watch:** five of six human factions named the Resistance a rival at every checkpoint (only Humanity First courted it). Each decided alone, and in this save the Resistance is the runaway leader, already at war with most of them, but it is the gang-up pattern to judge over longer runs.
+- **Fixed after the run:** the harness clock crept on ~2 days per checkpoint (the Autopilot pressed play). The harness now holds the Autopilot off while the strategist thinks, and the probe asserts the directives apply on the brief's own date. The watcher's log write can no longer kill it (a `tail` held the file at the first checkpoint).
+
 ### Defenders that act: AI control, scripted orders, the player bot (2026-10-22)
 New harness tools: `ai.control <faction> ai|human` (hand a faction to the game's AI mid-game), `ai.move` / `ai.merge` (real orders through the game's own operations), `ai.bot <faction> reinforce,merge` (rule-based player). See TESTING L1.
 

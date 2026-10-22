@@ -68,6 +68,7 @@ namespace ImprovedAI
             _patched = true;
             Plugin.ApplyPatches();
             gameObject.AddComponent<Diagnostics.Observer>();
+            gameObject.AddComponent<Strategist.Checkpoint>();
             if (Harness.CampaignHarness.Active)
                 gameObject.AddComponent<Harness.CampaignHarness>();
         }

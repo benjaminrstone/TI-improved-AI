@@ -28,7 +28,11 @@ param(
     [string[]]$Commands,
     [string]$Name,
     [switch]$Vanilla,
-    [switch]$NoDeploy
+    [switch]$NoDeploy,
+    # The strategist directs every non-player faction (docs/STRATEGIST.md): enables it for this launch and runs the
+    # local watcher (tools\strategist.ps1) alongside the game; the game pauses at each 3-month checkpoint.
+    [switch]$Strategist,
+    [string]$StrategistModel = 'opus'
 )
 $ErrorActionPreference = 'Stop'
 . "$PSScriptRoot\paths.ps1"
@@ -86,6 +90,14 @@ try {
     if ($Doctrine) { $run.commands = @("ai.doctrine $Doctrine") }
     if ($Commands) { $run.commands = @($run.commands) + @($Commands) }
     if ($Vanilla) { $run.config = @{ General = @{ VanillaAI = 'true' } } }
+    $watcher = $null
+    if ($Strategist -and -not $Vanilla) {
+        $stratDir = Join-Path $outDir 'strategist'
+        $run.config = @{ Strategist = @{ Enabled = 'true'; Folder = $stratDir } }
+        $watcher = Start-Process -FilePath 'powershell.exe' -PassThru -WindowStyle Minimized -ArgumentList @(
+            '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', (Join-Path $PSScriptRoot 'strategist.ps1'), '-Folder', $stratDir, '-Model', $StrategistModel)
+        Write-Host "Strategist on: watcher running (minimized window), exchange folder $stratDir"
+    }
     New-Item -ItemType Directory -Force $PluginDir | Out-Null
     $run | ConvertTo-Json -Depth 6 | Set-Content -Path $runFile -Encoding utf8
 
@@ -95,6 +107,7 @@ try {
     $p.WaitForExit()
 }
 finally {
+    if ($watcher -and -not $watcher.HasExited) { Stop-Process -Id $watcher.Id -Force -ErrorAction SilentlyContinue }
     Remove-Item $runFile -ErrorAction SilentlyContinue
     if ($lock) { $lock.Dispose() }
 }

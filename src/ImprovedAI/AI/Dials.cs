@@ -66,6 +66,16 @@ namespace ImprovedAI.AI
                 m.raidImportance += 2;
                 m.hateWeight *= 1f + 2f * e;
             }
+            // The strategist's posture (-1 cautious .. +1 aggressive), docs/STRATEGIST.md.
+            float p = Strategist.Directives.On ? Strategist.Directives.AlienPosture : 0f;
+            if (p != 0f)
+            {
+                m.superiority *= 1f - 0.25f * p;
+                m.reserve *= 1f - 0.4f * p;
+                m.raidSlots *= 1f + 0.5f * p;
+                m.captureSlots *= 1f + 0.5f * p;
+                m.arrivalFight *= 1f - 0.15f * p;
+            }
             return m;
         }
 

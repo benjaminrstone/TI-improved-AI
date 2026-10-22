@@ -1,0 +1,31 @@
+{
+  "name": "strategist-2039",
+  "notes": "Strategist v0 end to end (user decisions 2026-10-22): every non-player faction directed every 3 months, the game paused while the local watcher (tools/strategist.ps1, one headless Claude call per faction) answers. Run the watcher alongside: tools/strategist.ps1 -Harness -StopAfterMinutes 120 (it follows the newest run folder; each run keeps its exchange files in lab/results/<run>/strategist). Checkpoints at the start, June and September 2039.",
+  "fixture": "accel-2039-clean-jupiter",
+  "runDays": 200,
+  "config": {
+    "Strategist": {
+      "Enabled": "true",
+      "TimeoutMinutes": "15"
+    }
+  },
+  "asserts": [
+    "results['endReason'] == 'days-elapsed'",
+    "status['stalls'] == 0",
+    "count('strategist', ev='brief') >= 3",
+    "count('strategist', ev='applied') >= 3",
+    "count('strategist', ev='timeout') == 0",
+    "all(len(e['applied']) >= 7 for e in events('strategist', ev='applied'))",
+    "all(e['t'] == e['checkpoint'] for e in events('strategist', ev='applied'))"
+  ],
+  "info": [
+    "[(e['t'], e['ev'], e.get('applied'), e.get('ignored')) for e in events('strategist')]",
+    "[(e['t'], k, v.get('intent')) for e in events('strategist', ev='applied') for k, v in e['directives'].items()]",
+    "[(e['t'], {k: {f: v.get(f) for f in ('posture', 'strikeTargets', 'spare', 'raidFactions', 'warChestMonths', 'rivals', 'friends', 'defend') if v.get(f) is not None} for k, v in e['directives'].items()}) for e in events('strategist', ev='applied')]",
+    "[(e['t'], e['faction'], e['system'], e['target']) for e in events('strategist-defend')]",
+    "[(e['t'], e['faction'], e['source']) for e in events('strategist-intel')]",
+    "[(e['t'][:7], e['target'], e['targetSystem'], round(e['need']), round(e['have']), round(e['present'])) for e in events('pool')][:12]",
+    "(count('transfer', goal='AttackWithFleet'), count('raid'), count('goal+', type='CaptureHab'))",
+    "{f: (faction(first, f).get('scv'), faction(last, f).get('scv'), faction(last, f).get('bases', 0) + faction(last, f).get('stations', 0)) for f in ['AlienCouncil', 'ResistCouncil', 'DestroyCouncil', 'CooperateCouncil', 'ExploitCouncil', 'EscapeCouncil', 'SubmitCouncil', 'AppeaseCouncil']}"
+  ]
+}

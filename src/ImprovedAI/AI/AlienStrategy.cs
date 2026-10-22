@@ -65,6 +65,9 @@ namespace ImprovedAI.AI
         public Dictionary<string, string> clients = new Dictionary<string, string>();
         /// <summary>Human track: grudge memory "victim>actor" (decayed sum of injury hate), per personality half-life.</summary>
         public Dictionary<string, float> grudges = new Dictionary<string, float>();
+        /// <summary>The strategist (docs/STRATEGIST.md): directives in force, per faction template, and the last checkpoint date.</summary>
+        public Dictionary<string, Strategist.Directive> directives = new Dictionary<string, Strategist.Directive>();
+        public string lastCheckpoint;
     }
 
     public class LedgerMonth

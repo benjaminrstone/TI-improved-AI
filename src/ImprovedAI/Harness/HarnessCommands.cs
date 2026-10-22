@@ -85,6 +85,10 @@ namespace ImprovedAI.Harness
                         foreach (var fl in Orders.Fleets(f, parts[2]).Where(x => x != into)) output.Add(Orders.MergeInto(fl, into, "script"));
                         break;
                     }
+                    case "ai.strategist":
+                        // ai.strategist checkpoint: force a strategist checkpoint now (needs [Strategist] Enabled).
+                        output.Add(Strategist.Directives.On ? Strategist.Checkpoint.Begin() : "! [Strategist] Enabled is off");
+                        break;
                     case "ai.bot":
                         // ai.bot <faction> <reinforce,merge|off>: the rule-based player (PlayerBot).
                         output.Add(PlayerBot.Set(Faction(parts[1]), parts[2]));

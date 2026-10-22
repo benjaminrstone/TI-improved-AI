@@ -64,6 +64,10 @@ namespace ImprovedAI
         public readonly ConfigEntry<float> HugeShipExoticsUpkeep;
         public readonly ConfigEntry<float> ExoticsStockHorizonMonths;
         public readonly ConfigEntry<bool> ExoticsWarChest;
+        public readonly ConfigEntry<bool> StrategistOn, StrategistIntel;
+        public readonly ConfigEntry<int> StrategistMonths;
+        public readonly ConfigEntry<float> StrategistTimeoutMinutes;
+        public readonly ConfigEntry<string> StrategistFolder;
         public readonly ConfigEntry<float> ExoticsWarChestMonths, ExoticsHoardMonths;
         public readonly ConfigEntry<int> MaxAlienBasesCeiling;
         public readonly ConfigEntry<bool> ThreatMemory;
@@ -202,6 +206,12 @@ namespace ImprovedAI
             ExoticsStockHorizonMonths = cfg.Bind("Economy", "ExoticsStockHorizonMonths", 240f,
                 "The base cap counts the exotics stockpile as an extra monthly budget of stock / this.");
             MaxAlienBasesCeiling = cfg.Bind("Economy", "MaxAlienBasesCeiling", 40, "Hard ceiling on the exotics-based alien base cap.");
+            StrategistOn = cfg.Bind("Strategist", "Enabled", false,
+                "A stronger model directs every non-player faction (docs/STRATEGIST.md). At each checkpoint the game pauses, the mod writes a brief, and a local watcher (tools/strategist.ps1) writes directives back.");
+            StrategistMonths = cfg.Bind("Strategist", "MonthsBetween", 3, "Months between checkpoints.");
+            StrategistFolder = cfg.Bind("Strategist", "Folder", "", "Exchange folder for briefs and directives (default: BepInEx/ImprovedAI-strategist).");
+            StrategistTimeoutMinutes = cfg.Bind("Strategist", "TimeoutMinutes", 20f, "Real minutes to wait for directives before playing on under the previous ones (0 = wait indefinitely).");
+            StrategistIntel = cfg.Bind("Strategist", "ShowIntel", true, "Show the player a faction's intent when it has a pact or intel-sharing treaty with them, is their client, or has a councilor they turned.");
             ExoticsWarChest = cfg.Bind("Economy", "ExoticsWarChest", true,
                 "Outside escalation the aliens keep a war chest of exotics: exotic-tier builds use only the stock above it, and capital-hull building tightens as the hoard above it runs down. Needs ExoticsUpkeep.");
             ExoticsWarChestMonths = cfg.Bind("Economy", "ExoticsWarChestMonths", 12f, "War chest size, in months of the exotics drip.");
@@ -330,6 +340,7 @@ namespace ImprovedAI
         public bool UseFixMissionRisk => !VanillaAI.Value && FixMissionRisk.Value;
         public bool UseFixSavingDeadlock => !VanillaAI.Value && FixSavingDeadlock.Value;
         public bool UseFixTradeZeroStock => !VanillaAI.Value && FixTradeZeroStock.Value;
+        public bool UseStrategist => !VanillaAI.Value && StrategistOn.Value;
         public bool UseHumanMissionControl => !VanillaAI.Value && HumanMissionControl.Value;
         public bool UseHumanBoostForShips => !VanillaAI.Value && HumanBoostForShips.Value;
         public bool UseHumanMineWhatYouLack => !VanillaAI.Value && HumanMineWhatYouLack.Value;

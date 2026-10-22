@@ -353,6 +353,9 @@ namespace ImprovedAI.Human
             // Grudges: an injured faction keeps hating the actor for a while (per personality). Not between a client and
             // its patron: the injury itself breaks the relation (and the pact, through vanilla's rising-hate check).
             if (!client) num += 0.1f * ProfileOf(faction).GrudgeWeight * Grudge(faction, enemy);
+            // The strategist's rivals and friends (docs/STRATEGIST.md): +/-1.5 hate a month, on top of the personality.
+            int stance = Strategist.Directives.Stance(faction, enemy);
+            if (stance != 0) num = Mathf.Max(stance < 0 ? -1.5f : 0f, num + 1.5f * stance);
             if (periodic) faction.GainFactionHate(enemy, -1f, cantConflagrate: true, "Periodic hate");
             return num;
         }
