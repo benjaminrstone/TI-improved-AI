@@ -27,6 +27,21 @@ All pass: flow-2034, flow-2039, econ-war-chest.
 - **War chest:** in the gate (stock set to 900), the aliens spent down to the chest (~700) and then held it (681 at the end, with upkeep equal to the drip). In the soak the stock fell as before (spending above the chest is allowed), and capital-hull building began to tighten at the end of year 2 (large-hull weight 0.81–0.85 in two runs), with the stock still ~650 above the chest.
 - **flow-2039:** escalated in April, the terminus started on its own, and contempt for the Resistance fell 0.40 → 0.16. Again no Jupiter strike was launched: the pool covered its need by August, but only ~600 SCV was present (see e9 above).
 
+### Early game with the strategist (2026-10-22, `flow-2026`: a year from the 2026 fixture, one run + one vanilla run)
+The harness can't start a new campaign, so "fresh 2026" = the user's accelerated Resistance campaign at 28 Aug 2026, just past the start. All asserts pass: five checkpoints, seven factions each, all applied on the checkpoint date, no stalls.
+- **No gang-up on the player here.** Humanity First, the Academy, Exodus and the Initiative all name the Resistance a friend; only the Protectorate and the Servants treat it as a rival. In 2039 five of six did, so that looks like the runaway-leader situation, not a strategist bias.
+- **The aliens start patient and grow bolder:** posture −0.2 → 0, war chest 12 → 8 months ("they will feel our hulls now, before they have a navy"); raids aimed at the Resistance and Humanity First.
+- **Relationships feed the plans:** the Initiative became the Protectorate's client in September 2026, and its strategist then dropped the Protectorate from its rivals ("fighting our patron costs more than it earns").
+- No human fleets yet, so no space war, alien attacks or ships built. No intel (the Resistance has no pacts, clients or turned councilors).
+- **Alien bases** (watch, not yet a finding):
+
+  | | Sep 2026 | Jan 2027 | Apr 2027 | Jun 2027 | Aug 2027 | All alien habs at end |
+  |---|---|---|---|---|---|---|
+  | Vanilla | 2 | 3 | 7 | 7 | 8 | 15 |
+  | Mod + strategist | 2 | 3 | 7 | 8 | 12 | 21 |
+
+  The same until April, then the mod keeps founding (the exotics-based cap allows 15–17 this early; vanilla's Normal cap is 12). One run each; check in a longer early-game run before changing the cap.
+
 ### The strategist v0, end to end (2026-10-22, `strategist-2039`, 200 days)
 All asserts pass: three checkpoints (23 March, 1 June, 1 September 2039), all seven non-player factions directed each time, no timeouts, no stalls. Each checkpoint took ~12 s (seven headless Opus calls in parallel).
 - **In character and coherent over time.** The aliens: "The Resistance alone has learned to fight, and that makes it the only human power worth breaking"; strikes Jupiter → Mercury → Mars; the pro-alien factions' asteroid holdings spared (the list grew each checkpoint); in June they noticed the terminus had begun and raised the war chest 12 → 15 months. The Initiative went from "protects its investments" to "cutting its losses", dropping outlying belt posts from its defence list. Humanity First held Mars and Earth, added its Venus foothold in September, and kept its rivals (Protectorate, Servants) and friends (Resistance, Exodus).

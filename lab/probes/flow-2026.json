@@ -1,0 +1,53 @@
+{
+  "name": "flow-2026",
+  "notes": "Early game from the 2026 fixture (accel-2026-start, 28 Aug 2026, just past the start of the user's accelerated Resistance campaign; the harness cannot start a brand-new campaign) for a year, with the strategist directing every non-player faction (user, 2026-10-22: 'try a fresh 2026 run'). One consolidated run: flow-2034's observations plus the strategist's. Run tools/strategist.ps1 -Harness alongside. Passive player (the Autopilot gives no orders).",
+  "fixture": "accel-2026-start",
+  "runDays": 365,
+  "config": {
+    "Strategist": {
+      "Enabled": "true",
+      "TimeoutMinutes": "15"
+    }
+  },
+  "asserts": [
+    "results['endReason'] == 'days-elapsed'",
+    "status['stalls'] == 0",
+    "count('init') == 1",
+    "count('strategist', ev='applied') >= 4",
+    "count('strategist', ev='timeout') == 0",
+    "all(e['t'] == e['checkpoint'] for e in events('strategist', ev='applied'))",
+    "all(len(e['applied']) >= 7 for e in events('strategist', ev='applied'))"
+  ],
+  "info": [
+    "[(e['t'], e['ev'], e.get('applied'), e.get('ignored')) for e in events('strategist')]",
+    "[(e['t'], k, v.get('intent')) for e in events('strategist', ev='applied') for k, v in e['directives'].items()]",
+    "[(e['t'], {k: {f: v.get(f) for f in ('posture', 'strikeTargets', 'spare', 'raidFactions', 'warChestMonths', 'rivals', 'friends', 'defend') if v.get(f) is not None} for k, v in e['directives'].items()}) for e in events('strategist', ev='applied')]",
+    "[(e['t'], e['faction'], e['system'], e['target']) for e in events('strategist-defend')]",
+    "[(e['t'], e['faction'], e['source']) for e in events('strategist-intel')]",
+    "[(e['t'], e.get('faction'), e.get('what'), e.get('client'), e.get('patron')) for e in events('human-client')]",
+    "[(e['t'], e['f'], e.get('self'), {k: (v.get('hate'), v.get('war')) for k, v in e.get('toward', {}).items()}) for e in events('human-hate', f='ResistCouncil')][-1:]",
+    "{f: (faction(first, f).get('habs') if faction(first, f).get('habs') is not None else faction(first, f).get('bases', 0) + faction(first, f).get('stations', 0), faction(last, f).get('bases', 0) + faction(last, f).get('stations', 0), faction(first, f).get('cps'), faction(last, f).get('cps')) for f in ['AlienCouncil', 'ResistCouncil', 'DestroyCouncil', 'CooperateCouncil', 'ExploitCouncil', 'EscapeCouncil', 'SubmitCouncil', 'AppeaseCouncil']}",
+    "events('doctrine')[0]['doctrine'] if count('doctrine') else None",
+    "(count('doctrine', ev='shifted'), count('shame'))",
+    "(faction(first, 'AlienCouncil').get('scv'), faction(last, 'AlienCouncil').get('scv'), faction(last, 'AlienCouncil').get('ships'))",
+    "(faction(first, 'AlienCouncil').get('bases'), faction(last, 'AlienCouncil').get('bases'))",
+    "[(e['t'][:7], e['bases'], e['cap'], round(e['drip'], 1), round(e['upkeep'], 1), e['stock']['Exotics'], e.get('warChest'), e.get('largeFactor')) for e in events('economy')][::3]",
+    "(count('transfer', goal='AttackWithFleet'), count('goal+', type='CaptureHab'), count('raid'))",
+    "median([r['scv'] / r['defThreat'] for r in events('transfer', goal='AttackWithFleet') if r.get('defThreat')] or [0])",
+    "(count('combat', attacker='AlienCouncil', occurred=True), count('combat', attacker='AlienCouncil', occurred=True, winner='AlienCouncil'))",
+    "{f: count('hab-', faction=f) for f in ['ResistCouncil'] + ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil']}",
+    "events('fleet')[-1]['bySize'] if count('fleet') else None",
+    "(count('ship-built'), {s: count('ship-built', size=s) for s in ['Small', 'Medium', 'Large', 'Huge']})",
+    "sum(e['earthBlocked'] for e in events('economy'))",
+    "(count('trade', to='AlienCouncil'), sum(e['resources'].get('Metals', 0) for e in events('trade', to='AlienCouncil')))",
+    "[(f['faction'], round(f['contempt'], 2)) for f in events('disposition')[-1]['factions']] if count('disposition') else None",
+    "{f: count('human-ship-built', f=f) for f in ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil']}",
+    "sum(count('human-ship-built', f=f) for f in ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil'])",
+    "{f: (faction(first, f).get('scv'), faction(last, f).get('scv'), faction(last, f).get('ships')) for f in ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil']}",
+    "{r: count('human-market', ok=True, resource=r) for r in ['Metals', 'NobleMetals', 'Water']}",
+    "(count('human-market', ok=True, buyer='ExploitCouncil'), count('human-market', ok=False, buyer='ExploitCouncil'))",
+    "(count('human-drain-guard'), count('human-yard-unblock'), count('human-mc-invest'), count('direct-invest'), count('losing-big-fix'))",
+    "{f: (faction(first, f).get('bases', 0) + faction(first, f).get('stations', 0), faction(last, f).get('bases', 0) + faction(last, f).get('stations', 0)) for f in ['ResistCouncil'] + ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil']}",
+    "{f: faction(last, f).get('self') for f in ['ResistCouncil'] + ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil']}"
+  ]
+}
