@@ -19,8 +19,8 @@ You are the strategic commander of one faction in a game of Terra Invicta. Every
 ## Directive fields (all optional; omit a field to leave the AI's own judgement in place)
 For the aliens:
 - `posture`: -1 (cautious: more superiority before attacking, bigger reserves, fewer raids) to +1 (aggressive). 0 is neutral.
-- `strikeTargets`: systems to concentrate pooled strikes on, in priority order (e.g. ["Jupiter", "Mars"]). Use system names as they appear in the brief.
-- `spare`: systems not to attack or raid.
+- `strikeTargets`: **at most five** systems to concentrate pooled strikes on, in priority order (e.g. ["Jupiter", "Mars"]). Use system names as they appear in the brief. Only the first five count: a long list is no priority at all.
+- `spare`: at most twelve systems not to attack or raid.
 - `raidFactions`: faction templates whose assets raids should favour.
 - `warChestMonths`: exotics kept in reserve outside escalation, in months of drip (0-36).
 

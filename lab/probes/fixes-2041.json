@@ -1,0 +1,36 @@
+{
+  "name": "fixes-2041",
+  "notes": "Consolidated check of the four fixes from the 15-year campaign (user, 2026-10-23): a year from that campaign's final save (2041, campaign year ~15.6), strategist on. Run: tools/run.ps1 -Probe fixes-2041 -SavePath lab/results/20261022-232243-campaign-2026-15y/final.gz, with tools/strategist.ps1 -Harness. Expect: the terminus begins by date in the first month; no new capital hulls while the exotics stock is at or below the war chest in deficit; dry ships split off (Victor-27 at Aspasia); fleets on send orders join strikes; strategist strike lists of at most five.",
+  "fixture": "accel-2026-start",
+  "runDays": 365,
+  "config": {
+    "Strategist": {
+      "Enabled": "true",
+      "TimeoutMinutes": "5"
+    }
+  },
+  "asserts": [
+    "results['endReason'] == 'days-elapsed'",
+    "status['stalls'] <= 1",
+    "count('terminus', ev='started', why='date') == 1",
+    "events('terminus', ev='started')[0]['t'] <= '2041-10-01'",
+    "sum(e['invest'] for e in events('terminus', ev='month')) > 0",
+    "count('strategist', ev='applied') >= 4",
+    "all(len(e['directives'].get('AlienCouncil', {}).get('strikeTargets') or []) <= 5 for e in events('strategist', ev='applied'))"
+  ],
+  "info": [
+    "[(e['t'], e['ev'], e.get('why'), round(e.get('after', 0), 3), round(e.get('invest', 0), 1)) for e in events('terminus')][::3]",
+    "[(e['t'][:7], e['stock']['Exotics'], e.get('warChest'), round(e['drip'], 1), e['upkeep'], e['shipUpkeep'], e.get('slack'), e.get('largeFactor')) for e in events('economy')]",
+    "(count('ship-built'), {s: count('ship-built', size=s) for s in ['Small', 'Medium', 'Large', 'Huge']})",
+    "[(e['t'], e['fleet'], e['at'], e['ships'], e['dry'], e['dvBefore'], e['dvAfter'], e.get('goal')) for e in events('dry-split')]",
+    "[(e['t'][:7], e['targetSystem'], round(e['need']), round(e['have']), [(d['fleet'], round(d['scv']), d.get('was')) for d in e['donors']]) for e in events('pool') if e['donors']]",
+    "sum(1 for e in events('pool') for d in e['donors'] if d.get('was') == 'SendFleet')",
+    "[(e['t'][:7], e['targetSystem'], round(e['have']), round(e['need'])) for e in events('pool-muster')]",
+    "[(r['t'][:7], r['fleet'], round(r['scv']), r['toSystem'], r.get('targetFaction')) for r in events('transfer', goal='AttackWithFleet') if r['scv'] > 1000]",
+    "(count('combat', attacker='AlienCouncil', occurred=True), count('combat', attacker='AlienCouncil', occurred=True, winner='AlienCouncil'))",
+    "{f: count('hab-', faction=f) for f in ['ResistCouncil', 'DestroyCouncil', 'CooperateCouncil', 'ExploitCouncil', 'EscapeCouncil', 'SubmitCouncil', 'AppeaseCouncil']}",
+    "[(e['t'], e['directives'].get('AlienCouncil', {}).get('posture'), e['directives'].get('AlienCouncil', {}).get('strikeTargets'), (e['directives'].get('AlienCouncil', {}).get('intent') or '')[:220]) for e in events('strategist', ev='applied')]",
+    "(faction(first, 'AlienCouncil').get('scv'), faction(last, 'AlienCouncil').get('scv'), faction(first, 'AlienCouncil').get('ships'), faction(last, 'AlienCouncil').get('ships'))",
+    "{f: (round(faction(first, f).get('scv', 0)), round(faction(last, f).get('scv', 0))) for f in ['DestroyCouncil', 'CooperateCouncil', 'ExploitCouncil', 'EscapeCouncil', 'SubmitCouncil', 'AppeaseCouncil']}"
+  ]
+}

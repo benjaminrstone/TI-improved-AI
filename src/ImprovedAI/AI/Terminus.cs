@@ -14,7 +14,7 @@ namespace ImprovedAI.AI
     ///  - Site: the alien HQ (Kuiper dwarf planet, hosts the AlienWormholeFacility; vanilla makes its core and wormhole
     ///    modules indestructible and aims the human victory missions at it).
     ///  - Start: when the aliens take humanity seriously: escalation (P4), or contempt for any faction at or below
-    ///    TerminusStartContempt.
+    ///    TerminusStartContempt; and in any case by TerminusStartYear (calendar campaign years, per difficulty).
     ///  - Funding: TerminusDripShare of the monthly exotics drip, really spent; a wider wormhole builds it faster, and
     ///    progress = exotics invested / TerminusCost (per difficulty).
     ///  - Setbacks: alien defeats in the HQ's system knock it back; alien habs lost there knock it back further.
@@ -44,11 +44,16 @@ namespace ImprovedAI.AI
             if (s.terminusStarted == null)
             {
                 float minContempt = GameStateManager.AllHumanFactions().Where(h => h != null).Select(h => Disposition.Contempt(h)).DefaultIfEmpty(1f).Min();
-                bool start = Escalation.Escalated || minContempt <= Plugin.Cfg.TerminusStartContempt.Value;
+                // By date as well (user, 2026-10-23): in a 15-year campaign the humans never threatened the aliens, so
+                // neither trigger fired and the aliens never moved toward their victory.
+                float startYear = Dials.ByDifficulty(Plugin.Cfg.TerminusStartYear.Value, 11f);
+                bool byDate = startYear > 0f && Wormhole.CampaignYears >= startYear;
+                bool start = Escalation.Escalated || minContempt <= Plugin.Cfg.TerminusStartContempt.Value || byDate;
                 if (!start) return;
                 s.terminusStarted = GameRead.Now();
-                s.history.Add($"{s.terminusStarted} terminus begun (escalated {Escalation.Escalated}, min contempt {minContempt:F2})");
-                Session.Journal?.Write(new { t = GameRead.Now(), kind = "terminus", ev = "started", escalated = Escalation.Escalated, minContempt, cost = Cost, site = GameRead.Body(Site()) });
+                string why = Escalation.Escalated ? "escalation" : minContempt <= Plugin.Cfg.TerminusStartContempt.Value ? "respect" : "date";
+                s.history.Add($"{s.terminusStarted} terminus begun ({why}; escalated {Escalation.Escalated}, min contempt {minContempt:F2}, campaign year {Wormhole.CampaignYears:F1})");
+                Session.Journal?.Write(new { t = GameRead.Now(), kind = "terminus", ev = "started", why, escalated = Escalation.Escalated, minContempt, campaignYears = Wormhole.CampaignYears, cost = Cost, site = GameRead.Body(Site()) });
             }
 
             float drip = Economy.Drip(alien);

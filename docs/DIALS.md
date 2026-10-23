@@ -49,6 +49,9 @@ Direction key:
 | Commitment / RendezvousGain | 0.85 | = | Re-anchor only for at least a 15% faster strike. |
 | Commitment / RendezvousMaxJoinDays | 240 (was 365) | `+` | The join horizon. Muster choice counts only fleets that arrive within it; with PoolTimeAware, a pooled strike recruits and counts only those too. Longer means bigger but later strikes. |
 | Commitment / PoolTimeAware | on | = | Donors nearest-first within the horizon; far joiners don't count toward the need (they still follow as reinforcements). Fixed the stuck 2039 Jupiter strike (0/3 → 3/3 launched). |
+| Commitment / LeaveDryShips | on | = | Alien fleets leave dry ships (under DryShipShare of max delta-v) behind when they are a minority, so the rest can move (a fleet moves only as far as its emptiest ship). |
+| Commitment / DryShipShare | 0.05 | = | |
+| Commitment / ReleaseSendFleet | on | `+` | Fleets on lesser repositioning orders join pooled strikes outside escalation too. |
 | Commitment / RendezvousDvShare | 0.8 | = | Delta-v share the travel estimate assumes is spent (calibrated on six joins: the planner spent 74–83%). |
 | Commitment / MusterDays | 14 | `+` (maybe) | Coordination time before a complete force sets out. Longer means a bigger window for the player to pre-empt. A command node could shorten it later. |
 | Commitment / AttackMaxRatioFloor | 1.5 | = | A bug fix in effect. |
@@ -87,7 +90,8 @@ Direction key:
 | Economy / HugeShipExoticsUpkeep | 2 / month | `−` | Motherships. |
 | Economy / ExoticsStockHorizonMonths | 240 (was 60) | `−` | The cap counts stock/this as monthly budget. Shorter means the hoard turns into bases faster. |
 | Economy / MaxAlienBasesCeiling | 40 | `+` | Hard ceiling. |
-| Economy / ExoticsWarChest | on | = | Outside escalation the aliens keep a war chest. Exotic-tier builds read only the stock above it, and the exotics slack counts (stock − chest) / ExoticsHoardMonths as extra monthly budget. Spent freely when escalated (the P4 surge). |
+| Strategy / TerminusStartYear | 14 / 11 / 9 / 7 | `−` | **Per difficulty.** The terminus begins by this campaign year even without escalation or respect. Lower means an earlier hard clock. |
+| Economy / ExoticsWarChest | on | = | Outside escalation the aliens keep a war chest; below it, in deficit, no new capital hulls at all (2026-10-23). Exotic-tier builds read only the stock above it, and the exotics slack counts (stock − chest) / ExoticsHoardMonths as extra monthly budget. Spent freely when escalated (the P4 surge). |
 | Economy / ExoticsWarChestMonths | 12 | `+` | Chest size in months of drip (~700 in 2034). Bigger means a larger surge when escalated, fewer exotic builds before. |
 | Economy / ExoticsHoardMonths | 60 | `−` | How fast the hoard above the chest may fund upkeep above the drip. Shorter means more capital hulls now, a tighter squeeze later. |
 

@@ -129,7 +129,12 @@ namespace ImprovedAI.AI
         {
             if (!UpkeepOn || Escalation.Escalated) return 1f;
             float s = ExoticsSlack(alien);
-            return s >= 0f ? 1f : Mathf.Clamp(1f + Plugin.Cfg.ExoticsPressureGain.Value * s, 0.25f, 1f);
+            if (s >= 0f) return 1f;
+            // In deficit with the stock at or below the war chest, no new capital hulls at all. With the old 0.25 floor
+            // the 15-year campaign (2026-10-23) kept adding them: ship upkeep 0 -> 77/month against a drip of 41-67,
+            // and the exotics stock sat at 0 from 2031 to 2038. (A tiny weight, not 0: the picker divides by it.)
+            if (WarChestOn && alien.GetCurrentResourceAmount(FactionResource.Exotics) <= WarChest(alien)) return 0.01f;
+            return Mathf.Clamp(1f + Plugin.Cfg.ExoticsPressureGain.Value * s, 0.25f, 1f);
         }
 
         /// <summary>Gross monthly exotics income (the wormhole drip, before upkeep).</summary>

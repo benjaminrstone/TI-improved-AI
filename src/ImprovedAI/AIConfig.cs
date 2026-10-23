@@ -29,7 +29,7 @@ namespace ImprovedAI
         public readonly ConfigEntry<float> EscalatedExoticsFitBonus;
         public readonly ConfigEntry<float> ExoticsPressureGain;
         public readonly ConfigEntry<bool> Terminus;
-        public readonly ConfigEntry<string> TerminusCost;
+        public readonly ConfigEntry<string> TerminusCost, TerminusStartYear;
         public readonly ConfigEntry<float> TerminusDripShare, TerminusStartContempt, TerminusSetbackBattle, TerminusSetbackHab;
         public readonly ConfigEntry<bool> Escalation;
         public readonly ConfigEntry<float> EscalationThreatHabs, EscalationRespectContempt, EscalationLossHabs, EscalationEscalateAt, EscalationCalmAt, EscalationBoldness, EscalationDripShareFactor;
@@ -82,6 +82,8 @@ namespace ImprovedAI
         public readonly ConfigEntry<float> RendezvousGain;
         public readonly ConfigEntry<float> RendezvousMaxJoinDays, RendezvousDvShare;
         public readonly ConfigEntry<bool> PoolTimeAware;
+        public readonly ConfigEntry<bool> LeaveDryShips, ReleaseSendFleet;
+        public readonly ConfigEntry<float> DryShipShare;
         public readonly ConfigEntry<float> MusterDays;
         public readonly ConfigEntry<float> ShortcutSuperiority;
         public readonly ConfigEntry<bool> StanceCourage;
@@ -147,6 +149,8 @@ namespace ImprovedAI
                 "Exotics to complete the terminus, per difficulty (Cinematic,Normal,Veteran,Brutal). Normal: ~8-10 years at 30% of the drip.");
             TerminusDripShare = cfg.Bind("Strategy", "TerminusDripShare", 0.3f, "Share of the monthly exotics drip invested in the terminus once begun.");
             TerminusStartContempt = cfg.Bind("Strategy", "TerminusStartContempt", 0.35f, "The terminus begins when contempt for any human faction falls to this, or on escalation.");
+            TerminusStartYear = cfg.Bind("Strategy", "TerminusStartYear", "14,11,9,7",
+                "Per difficulty (Cinematic,Normal,Veteran,Brutal): the terminus begins by this calendar campaign year even if humanity never threatened the aliens (user, 2026-10-23). 0 = never by date.");
             TerminusSetbackBattle = cfg.Bind("Strategy", "TerminusSetbackBattle", 0.05f, "Progress lost per alien defeat in the terminus (alien HQ) system.");
             TerminusSetbackHab = cfg.Bind("Strategy", "TerminusSetbackHab", 0.1f, "Progress lost per alien hab destroyed in the terminus system.");
             Escalation = cfg.Bind("Strategy", "Escalation", true,
@@ -236,6 +240,11 @@ namespace ImprovedAI
             RendezvousGain = cfg.Bind("Commitment", "RendezvousGain", 0.85f, "Re-anchor only if the new muster point's time to strike is below this fraction of the current one.");
             RendezvousMaxJoinDays = cfg.Bind("Commitment", "RendezvousMaxJoinDays", 240f,
                 "The join horizon: fleets that can't reach a muster point within this many days don't count toward it (muster choice), and with PoolTimeAware aren't recruited or counted toward a pooled strike.");
+            LeaveDryShips = cfg.Bind("Commitment", "LeaveDryShips", true,
+                "Alien fleets whose dry ships (no delta-v left) are a minority leave them behind as a fleet of their own, so the rest can operate (a fleet moves only as far as its emptiest ship).");
+            DryShipShare = cfg.Bind("Commitment", "DryShipShare", 0.05f, "A ship is dry below this share of its maximum delta-v.");
+            ReleaseSendFleet = cfg.Bind("Commitment", "ReleaseSendFleet", true,
+                "Fleets on a repositioning order (SendFleet) of lower importance may join a pooled strike outside escalation too.");
             PoolTimeAware = cfg.Bind("Commitment", "PoolTimeAware", true,
                 "A pooled strike recruits donors in order of arrival time, only within the join horizon, and counts joiners toward its need only if they arrive within it (far joiners still come, as reinforcements).");
             RendezvousDvShare = cfg.Bind("Commitment", "RendezvousDvShare", 0.8f,

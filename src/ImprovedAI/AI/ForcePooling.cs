@@ -43,6 +43,7 @@ namespace ImprovedAI.AI
 
             Pooling.RemoveWhere(g => g == null || g.skipGoal || g.importance <= 0 || !TIGameState.Valid(g.assignedFleet)
                                      || g.assignedFleet.transferAssigned || g.InProgress());
+            if (Plugin.Cfg.LeaveDryShips.Value) LeaveDryShipsBehind(faction);
 
             var goal = faction.GoalsOfType(GoalType.AttackWithFleet, orderByImportance: true)
                 .OfType<FactionGoal_AttackWithFleet>()
@@ -174,11 +175,34 @@ namespace ImprovedAI.AI
                 have += v;
                 sent.Add(new { fleet = d.displayName, scv = v, at = GameRead.System(d), was = from?.GetGoalType().ToString(), eta = (float)System.Math.Round(Eta(d)) });
             }
+            // The large fleets left out, and why (15-year campaign, 2026-10-23: 29k sat idle while a 3.5k strike starved).
+            string Why(TISpaceFleetState f)
+            {
+                if (f.transferAssigned) return "inTransfer";
+                if (!f.isCapableOfTransfering) return "cantTransfer";
+                if (!(f.CombatFleet() && !f.InvasionFleet())) return "notCombat";
+                if (f.AI_NeedsRepairBadly()) return "needsRepair";
+                if (AIEvaluators.ShouldSystemBeInDefenseMode(faction, f.ref_system)) return "defenseMode";
+                if (!Releasable(faction, f, goal)) return "goal";
+                if (timeAware && Eta(f) > horizon) return "tooFar";
+                return "budgetOrEnough";
+            }
+            var refusedBig = faction.fleets
+                .Where(f => f != anchor && TIGameState.Valid(f) && !goal.pendingFleets.Contains(f) && !donors.Take(sent.Count).Contains(f)
+                            && GameRead.Safe(() => f.SpaceCombatValue()) >= 1000f)
+                .OrderByDescending(f => GameRead.Safe(() => f.SpaceCombatValue())).Take(12)
+                .Select(f => new
+                {
+                    fleet = f.displayName, scv = (float)System.Math.Round(GameRead.Safe(() => f.SpaceCombatValue())), at = GameRead.Body(f), why = Why(f),
+                    goal = f.AssignedGoal()?.GetGoalType().ToString(), goalImp = f.AssignedGoal()?.importance,
+                    eta = (float)System.Math.Round(System.Math.Min(99999f, Eta(f))),
+                    dvKps = (float)System.Math.Round(GameRead.Safe(() => f.currentDeltaV_kps)), accel = (float)System.Math.Round(GameRead.Safe(() => f.cruiseAcceleration_mps2), 3),
+                }).ToList();
             Session.Journal?.Write(new
             {
                 t = GameRead.Now(), kind = "pool", goalId = GameRead.Id(goal), imp = goal.importance,
                 target = GameRead.Name(goal.target()), targetSystem = GameRead.System(goal.target()),
-                anchor = anchor.displayName, at = GameRead.System(anchor), need, have, present, late, donors = sent, rejected = rej,
+                anchor = anchor.displayName, at = GameRead.System(anchor), need, have, present, late, donors = sent, rejected = rej, refusedBig,
                 maxRatio = GameRead.Safe(() => goal.GetMaximumFleetCombatValueRatio()),
             });
         }
@@ -194,10 +218,44 @@ namespace ImprovedAI.AI
             GoalType.AttackWithFleet, GoalType.CaptureHab, GoalType.SurveilEarth, GoalType.SendFleet, GoalType.JoinFleet, GoalType.SecureEarthSpace,
         };
 
+        /// <summary>
+        /// A fleet moves only as far as its emptiest ship. In the 15-year campaign (2026-10-23) Victor-27 (3.7k, 45 ships)
+        /// sat for years at 409 Aspasia, an asteroid with no alien base, because a few of its ships had no delta-v left:
+        /// its resupply goal could never be carried out. A fleet not in transfer or combat whose dry ships (under
+        /// DryShipShare of their maximum delta-v) are a minority leaves them behind as a fleet of their own, so the rest
+        /// can operate again. The game's own split action, as vanilla uses for ships that fail a goal's requirements.
+        /// </summary>
+        private static void LeaveDryShipsBehind(TIFactionState faction)
+        {
+            float share = UnityEngine.Mathf.Clamp(Plugin.Cfg.DryShipShare.Value, 0.01f, 0.5f);
+            foreach (var f in faction.fleets.ToList())
+            {
+                try
+                {
+                    if (!TIGameState.Valid(f) || f.transferAssigned || f.inCombatOrWaitingForCombat || f.ships == null || f.ships.Count < 2) continue;
+                    if (f.currentOperations != null && f.currentOperations.Count > 0) continue;
+                    var dry = f.ships.Where(s => s != null && s.currentMaxDeltaV_kps > 0f && s.currentDeltaV_kps < share * s.currentMaxDeltaV_kps).ToList();
+                    if (dry.Count == 0 || dry.Count * 2 >= f.ships.Count) continue;
+                    float before = GameRead.Safe(() => f.currentDeltaV_kps);
+                    faction.playerControl.StartAction(new PavonisInteractive.TerraInvicta.Actions.SplitFleetOperationAction(f, dry));
+                    Session.Journal?.Write(new
+                    {
+                        t = GameRead.Now(), kind = "dry-split", fleet = f.displayName, at = GameRead.Body(f), ships = f.ships.Count, dry = dry.Count,
+                        dvBefore = (float)System.Math.Round(before), dvAfter = (float)System.Math.Round(GameRead.Safe(() => f.currentDeltaV_kps)),
+                        goal = f.AssignedGoal()?.GetGoalType().ToString(),
+                    });
+                }
+                catch (System.Exception e) { Plugin.Log.LogWarning($"[Pooling] dry split {f?.displayName}: {e.Message}"); }
+            }
+        }
+
         private static bool Releasable(TIFactionState faction, TISpaceFleetState f, FactionGoal_AttackWithFleet focus)
         {
             var g = f.AssignedGoal();
             if (g == null || g is FactionGoal_AssembleFleet) return true;
+            // A repositioning order (SendFleet) is lesser work than a pooled strike even outside escalation: 10 of the
+            // fleets refused at every check in 2040-41 (15-year campaign, 2026-10-23) were on one.
+            if (Plugin.Cfg.ReleaseSendFleet.Value && focus != null && g is FactionGoal_SendFleet && g.importance < focus.importance && !g.InProgress()) return true;
             if (Escalation.Escalated && focus != null && g != focus && StrippableWhenEscalated.Contains(g.GetGoalType())
                 && g.importance < focus.importance && !g.InProgress() && !(g is FactionGoal_JoinFleet j && j.target()?.ref_fleet == focus.assignedFleet))
                 return true;

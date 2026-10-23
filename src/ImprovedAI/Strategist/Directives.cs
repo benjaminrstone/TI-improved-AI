@@ -68,8 +68,10 @@ namespace ImprovedAI.Strategist
 
         // ---- aliens ----
         public static float AlienPosture => Mathf.Clamp(For(GameStateManager.AlienFaction())?.posture ?? 0f, -1f, 1f);
-        public static int StrikeRank(string system) => Rank(For(GameStateManager.AlienFaction())?.strikeTargets, system);
-        public static bool Spared(string system) => Has(For(GameStateManager.AlienFaction())?.spare, system);
+        // Caps (15-year campaign, 2026-10-23: the strike list grew to 30 systems, which is no priority at all).
+        internal const int MaxStrikeTargets = 5, MaxSpare = 12;
+        public static int StrikeRank(string system) => Rank(For(GameStateManager.AlienFaction())?.strikeTargets?.Take(MaxStrikeTargets).ToList(), system);
+        public static bool Spared(string system) => Has(For(GameStateManager.AlienFaction())?.spare?.Take(MaxSpare).ToList(), system);
         public static float RaidFactionWeight(TIFactionState target) => Has(For(GameStateManager.AlienFaction())?.raidFactions, target?.templateName) ? 2f : 1f;
         public static float? WarChestMonths
         {

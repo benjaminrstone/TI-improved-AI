@@ -12,7 +12,7 @@ A Terra Invicta mod that makes the alien opponent constrained but competent: it 
 | `docs/FINDINGS.md` | How vanilla AI works, with code refs; vanilla bugs found |
 | `docs/EXPLOITS.md` | Exploit catalogue and probe status |
 | `docs/HUMAN-AI.md` | The human AI factions track (2026-10-18): how vanilla works, verified bugs, likely weaknesses |
-| `docs/STRATEGIST.md` | Design: a stronger model directs a faction at checkpoints, the game AI plays in between (open decisions for the user) |
+| `docs/STRATEGIST.md` | The strategist: a stronger model directs every non-player faction every 3 months, the game AI plays in between (v0 built) |
 | `docs/DIALS.md` | Every tunable and its intended difficulty direction; scenario pacing levers |
 | `docs/TESTING.md`, `docs/HARNESS.md` | Test layers and how the harness works |
 
@@ -24,12 +24,15 @@ A Terra Invicta mod that makes the alien opponent constrained but competent: it 
     - `RaidPlanner` (+ captures, per-target failure memory)
     - `AlienStrategy` (doctrine + sidecar), `Dials` (doctrine-scaled dial accessors; **AI code reads dials only through `Dials`**), `Disposition` (contempt)
     - `FleetDoctrine` (weapon focus, hull size and engagement bias on alien design and build), `Economy` (need-weighted base sites, exotics upkeep instead of the fixed base cap)
+  - `Human/`: the AI human factions (vanilla bug fixes H1–H6, MC plan, queue fixes, market, drain guard, personalities and clients).
+  - `Strategist/`: directives, executor hooks, briefs, the 3-month checkpoint loop (pauses the game), player intel.
   - `Fixes/`: vanilla bug fixes (`AlienMarineValue`).
   - `Diagnostics/`: AI log revival, decision journal (`journal.jsonl`), monthly metrics, combat journal, observer clock.
-  - `Harness/`: unattended campaign runner (`run.json`), probe setup commands (`HarnessCommands.cs`: `ai.foundoutposts`, `ai.spawnfleet`, `ai.drainammo`, `ai.doctrine`, `@N` scheduling).
+  - `Harness/`: unattended campaign runner (`run.json`), probe setup commands (`HarnessCommands.cs`: `ai.foundoutposts`, `ai.spawnfleet`, `ai.drainammo`, `ai.doctrine`, `ai.setresource`, `ai.control`, `ai.move`, `ai.merge`, `ai.bot`, `ai.strategist`, `@N` scheduling), `PlayerBot`, `Orders`, `FactionControl`.
 - **`tools/`**:
   - `deploy.ps1`; `run.ps1` (one run: `-Probe`/`-Fixture`/`-SavePath`, `-Vanilla`, `-Days`, `-FinalSave`)
-  - `playtest.ps1` (the user plays a chapter with the mod: harness `interactive` mode, isolated save folder `C:\Games\TI-ImprovedAI-playtest\saves`)
+  - `playtest.ps1` (the user plays a chapter with the mod: harness `interactive` mode, isolated save folder `C:\Games\TI-ImprovedAI-playtest\saves`); `-Strategist` runs the strategist with it
+  - `strategist.ps1` (the local strategist watcher: one headless Claude call per faction; `-Harness` for harness runs)
   - `probes.ps1` (several probes); `soaks.ps1` (repeated vanilla/mod soaks)
   - `probe.py` (asserts + info), `summarize.py` (story of one run), `compare.py` (two runs side by side), `aggregate.py` (means over repeated soaks)
   - `saves/timeline.py` (offline save analysis)

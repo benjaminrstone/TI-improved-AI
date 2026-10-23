@@ -27,6 +27,20 @@ All pass: flow-2034, flow-2039, econ-war-chest.
 - **War chest:** in the gate (stock set to 900), the aliens spent down to the chest (~700) and then held it (681 at the end, with upkeep equal to the drip). In the soak the stock fell as before (spending above the chest is allowed), and capital-hull building began to tighten at the end of year 2 (large-hull weight 0.81–0.85 in two runs), with the stock still ~650 above the chest.
 - **flow-2039:** escalated in April, the terminus started on its own, and contempt for the Resistance fell 0.40 → 0.16. Again no Jupiter strike was launched: the pool covered its need by August, but only ~600 SCV was present (see e9 above).
 
+## 2026-10-23: four fixes from the 15-year campaign (`fixes-2041`, a year from its final save, one run)
+User decision: the terminus also begins by campaign year (14 / 11 / 9 / 7 by difficulty). Built: terminus by date; no new capital hulls in deficit at or below the war chest; alien fleets leave dry ships behind; fleets on send orders join strikes outside escalation; strategist strike lists capped at five (twelve spared). Diagnosis first (`hoard-diag`): the pool record now lists every large fleet it refused, with the reason. In that window the pool did fill its strike (5.1k of 4.4k at Earth). Of the "29k idle" the strategist saw, most was in transit at 0.21 m/s² (trips take months); the real faults were a stranded fleet (Victor-27, 3.7k, at 409 Aspasia with no alien base: a few ships had zero delta-v, and a fleet moves only as far as its emptiest ship) and send orders never released outside escalation.
+
+All asserts pass:
+- **Terminus:** begun by date on 1 Sep 2041; 10.8% by Aug 2042 (~22 exotics/month, so ~9 years to complete).
+- **Victor-27:** left 2 dry ships behind (fleet delta-v 0 → 80 km/s), then struck 3353 Jarvis in January 2042.
+- **Strike lists:** at most five at every checkpoint. The aliens' strategist now leads with the terminus: "The terminus is our only true end, and its shielding comes first."
+- Alien-started battles 5 of 5 won; 4 human habs lost.
+
+**Still open:**
+- **Exotics overhang.** The stock still fell 1,972 → 854: the upkeep of capital hulls already built (77.5/month, 115 with bases, against a drip of 72) is untouched; the fix only stops new ones. Below the chest the stock will run to 0 again. Needs either a way to shed upkeep (retire the oldest capital hulls) or a consequence for unpaid upkeep: a user decision.
+- **No alien ships built in the whole year** (542 → 541), with 1.5k exotics above the chest. Not yet explained.
+- **Send-order release untested:** every strike filled without recruiting.
+
 ## 2026-10-23: a 15-year campaign with the strategist (`campaign-2026-15y`, one run)
 From the 2026 fixture (28 Aug 2026) to 24 Aug 2041 in 4.4 h (21 days/min): 61 strategist checkpoints, all answered, no timeouts, no exceptions, no stalls. The final save is kept: `lab/results/20261022-232243-campaign-2026-15y/final.gz` (a 2041 mod campaign; load it with `-SavePath`). The player is passive.
 
