@@ -104,6 +104,13 @@ State at the end of the second working session. Read this first, then `docs/M2-P
 - Built: `ai.control` (hand a faction to the game's AI), `ai.move` / `ai.merge` (real scripted orders), `ai.bot` (rule-based player: reinforce, merge). See TESTING L1.
 - **The strategist v0 is built** (`docs/STRATEGIST.md`; user decisions 2026-10-22: all non-player factions, local, pause while thinking, intel to the player through pacts, intel-sharing, clients or turned councilors, every 3 months). Use it with `tools\playtest.ps1 -Fixture <name> -Strategist`; in the harness, probe `strategist-2039` with `tools\strategist.ps1 -Harness`. First run: in character and coherent; watch the gang-up on the player over longer runs.
 
+## The 15-year campaign (2026-10-23; PROGRESS, one run, passive player)
+Four problems it exposed, in proposed order:
+1. **Idle alien hoard:** 542 ships, but pooling may draw on fleets on lesser goals only when escalated, so 29k sat idle while a 3.5k strike starved. Let pooling draw on low-value postings outside escalation too (or let a strategist strike target authorize it).
+2. **No escalation, no terminus, against weak humans:** desperation needs a human threat that never came, so the aliens never moved toward victory. Needs a user decision: start the terminus on a schedule (campaign year) as well?
+3. **Exotics at 0 for seven years with no consequence:** upkeep (115/month) exceeded the drip; the war chest only limits builds. Needs a consequence for unpaid upkeep, or a hard cap on capital-hull upkeep.
+4. **Strategist strike list grew to 30 systems:** cap it (about five) in the prompt and the executor.
+
 ## Next steps (recommended order)
 
 State 2026-10-17 (details in PROGRESS):

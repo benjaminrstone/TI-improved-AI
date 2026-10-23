@@ -27,6 +27,26 @@ All pass: flow-2034, flow-2039, econ-war-chest.
 - **War chest:** in the gate (stock set to 900), the aliens spent down to the chest (~700) and then held it (681 at the end, with upkeep equal to the drip). In the soak the stock fell as before (spending above the chest is allowed), and capital-hull building began to tighten at the end of year 2 (large-hull weight 0.81–0.85 in two runs), with the stock still ~650 above the chest.
 - **flow-2039:** escalated in April, the terminus started on its own, and contempt for the Resistance fell 0.40 → 0.16. Again no Jupiter strike was launched: the pool covered its need by August, but only ~600 SCV was present (see e9 above).
 
+## 2026-10-23: a 15-year campaign with the strategist (`campaign-2026-15y`, one run)
+From the 2026 fixture (28 Aug 2026) to 24 Aug 2041 in 4.4 h (21 days/min): 61 strategist checkpoints, all answered, no timeouts, no exceptions, no stalls. The final save is kept: `lab/results/20261022-232243-campaign-2026-15y/final.gz` (a 2041 mod campaign; load it with `-SavePath`). The player is passive.
+
+| Year | Alien SCV | Alien bases | Alien ships | Resistance SCV / habs / CPs | AI humans SCV / habs |
+|---|---|---|---|---|---|
+| 2026 | 0.8k | 2 | 8 | 0 / 1 / 66 | 0 / 3 |
+| 2029 | 2.1k | 19 | 18 | 0 / 1 / 38 | 0 / 52 |
+| 2032 | 8.0k | 19 | 75 | 0 / 1 / 31 | 1.9k / 97 |
+| 2035 | 26.6k | 19 | 286 | 0 / 1 / 27 | 5.5k / 121 |
+| 2038 | 44.1k | 19 | 525 | 0 / 1 / 18 | 11.5k / 152 |
+| 2041 | 46.1k | 19 | 542 | 0 / 1 / 14 | 18.0k / 148 |
+
+**What the campaign shows:**
+1. **An idle alien hoard.** The aliens built 542 ships (46k SCV, 2.5× all AI humans combined) but launched only 1–10 attacks a year, mostly small; the largest were four 3–7k strikes at Earth (2034, 2037, 2040) against Exodus, the Initiative and the Academy. Their own strategist saw it in August 2041: "1666 of the 3507 it needs, while more than 29,000 of our strength sits idle at Sol and Aspasia. This is not acceptable." Cause: outside escalation, pooling may draw only on idle fleets, assembly fleets and surplus defenders; fleets on lesser goals (surveillance, Earth space, sends) are released only when escalated. A directive can't override that.
+2. **Escalation never fired, so the terminus never began.** Desperation stayed 0 all game: its inputs are humans in the gas giants, lost alien systems, respect (contempt below 0.35) and hab losses, and the humans never threatened the aliens (contempt stayed ~0.8). The terminus begins only on escalation or respect, so the aliens never moved toward their victory. A design gap against weak humans: the hard clock never starts.
+3. **Exotics ran dry for seven years.** Upkeep grew to 115/month (bases 38, ships 77) against a drip of 41–67; the stock was 0 from 2031 to September 2038, with no consequence (upkeep is charged only as far as the stock allows). The war chest holds builds back, not upkeep. In October 2038 the stock jumped by 4,861 in one month with no mod record behind it, apparently a one-off vanilla grant.
+4. **The strategist's strike list became a laundry list:** 30 systems by 2039, which dilutes "priority order". Posture also ratcheted from 0.2 to 0.9 over the campaign without the strikes it implies.
+5. **Human AI:** fleets from 2030 on, 18k by 2041, 175 ships in 2040; Humanity First, the Initiative, the Academy and Exodus at war with the aliens. Client pairs formed and broke (Initiative→Protectorate, Academy→Exodus). The doctrine shifted once (FortressIndustrial → EarthPresence, 2033).
+6. **The passive Resistance** held one hab and no fleet for 15 years (CPs 66 → 14), so no intel and no alien pressure on it. Long runs need a player that acts (`ai.control`, the bot) to be representative.
+
 ### Two years from 2026: mod + strategist vs vanilla (2026-10-22, `flow-2026 -Days 730`, one run each)
 
 | Aug 2026 → Aug 2028 | Vanilla | Mod + strategist |
