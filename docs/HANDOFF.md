@@ -31,12 +31,11 @@ A 15-year campaign with the strategist (2026 → 2041) exposed four problems; th
 4. **Chapter playtest:** postponed by the user (2026-10-20) while improvements land. `tools\playtest.ps1 -Fixture <name> -Strategist` is ready for it.
 
 ## Next steps (recommended order)
-1. **Retirement pace** once the user decides (open question 1).
-2. **Why the aliens built no ships in 2041–42** (542 → 541 with 1.5k exotics above the chest): read the build pick and the yard queues in `fixes-2041`.
-3. **Retirement pace** (question 1). Also: with bases (38) and the terminus (21) taking 83% of the 2041 drip, the stock hovers near 0 even after retirement; the base cost per base (2/month) may want tuning with the widening clock.
-4. **A long run with a player that acts.** Every harness run so far has a passive player (the Autopilot gives no orders): in 15 years the Resistance held one hab and no fleet. Use `ai.control ResistCouncil ai` or `ai.bot` in long runs, so the aliens and the strategist face a real opponent.
-5. **Strategist next:** a digest of what happened since the last checkpoint in each brief; event-triggered checkpoints; more levers (research focus, build mix). Watch the gang-up on the player (5 of 6 factions named the Resistance a rival in 2039, where it is the runaway leader; none did in 2026–28).
-6. **Later:** rendezvous v2 (empty staging points), proxy trade v2 (a player-run pro-alien faction), the AI human defence of remote holdings (the AI-run Resistance abandoned Jupiter; the strategist's `defend` lever addresses part of it), fury, the posture panel, the info-game (WS5), stations (WS6), the tech extension (WS7), fleet controls (WS8).
+1. **Why the aliens built no ships in 2041–42** (542 → 541 with 1.5k exotics above the chest): read the build pick and the yard queues in `fixes-2041`.
+2. **Retirement pace** once the user decides (open question 1). Also: with bases (38) and the terminus (21) taking 83% of the 2041 drip, the stock hovers near 0 even after retirement; the base cost per base (2/month) may want tuning with the widening clock.
+3. **A long run with a player that acts.** Every harness run so far has a passive player (the Autopilot gives no orders): in 15 years the Resistance held one hab and no fleet. Use `ai.control ResistCouncil ai` or `ai.bot` in long runs, so the aliens and the strategist face a real opponent.
+4. **Strategist next:** a digest of what happened since the last checkpoint in each brief; event-triggered checkpoints; more levers (research focus, build mix). Watch the gang-up on the player (5 of 6 factions named the Resistance a rival in 2039, where it is the runaway leader; none did in 2026–28).
+5. **Later:** rendezvous v2 (empty staging points), proxy trade v2 (a player-run pro-alien faction), the AI human defence of remote holdings (the AI-run Resistance abandoned Jupiter; the strategist's `defend` lever addresses part of it), fury, the posture panel, the info-game (WS5), stations (WS6), the tech extension (WS7), fleet controls (WS8).
 
 ## How to run things
 
