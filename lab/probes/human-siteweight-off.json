@@ -1,0 +1,44 @@
+{
+  "name": "human-siteweight-off",
+  "notes": "A/B (user, 2026-10-22): two years from the 2026 fixture with the human need-weighted site scoring (HumanAI MineWhatYouLack) off, strategist off. In the first 2-year comparison Exodus founded 15 habs on vanilla (a Mars cascade from March 2028) and 4 with the mod (Deimos, Jarvis, Cruithne; never Mars). Metric: habs founded per AI human faction, Exodus first.",
+  "fixture": "accel-2026-start",
+  "runDays": 730,
+  "config": {
+    "Strategist": {
+      "Enabled": "false"
+    },
+    "HumanAI": {
+      "MineWhatYouLack": "false"
+    }
+  },
+  "asserts": [
+    "results['endReason'] == 'days-elapsed'",
+    "status['stalls'] == 0"
+  ],
+  "info": [
+    "{f: count('hab+', faction=f) for f in ['EscapeCouncil','CooperateCouncil','DestroyCouncil','ExploitCouncil','SubmitCouncil','AppeaseCouncil']}",
+    "[(e['t'], e.get('habType'), e.get('body')) for e in events('hab+', faction='EscapeCouncil')]",
+    "events('doctrine')[0]['doctrine'] if count('doctrine') else None",
+    "(count('doctrine', ev='shifted'), count('shame'))",
+    "(faction(first, 'AlienCouncil').get('scv'), faction(last, 'AlienCouncil').get('scv'), faction(last, 'AlienCouncil').get('ships'))",
+    "(faction(first, 'AlienCouncil').get('bases'), faction(last, 'AlienCouncil').get('bases'))",
+    "[(e['t'][:7], e['bases'], e['cap'], round(e['drip'], 1), round(e['upkeep'], 1), e['stock']['Exotics'], e.get('warChest'), e.get('largeFactor')) for e in events('economy')][::3]",
+    "(count('transfer', goal='AttackWithFleet'), count('goal+', type='CaptureHab'), count('raid'))",
+    "median([r['scv'] / r['defThreat'] for r in events('transfer', goal='AttackWithFleet') if r.get('defThreat')] or [0])",
+    "(count('combat', attacker='AlienCouncil', occurred=True), count('combat', attacker='AlienCouncil', occurred=True, winner='AlienCouncil'))",
+    "{f: count('hab-', faction=f) for f in ['ResistCouncil'] + ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil']}",
+    "events('fleet')[-1]['bySize'] if count('fleet') else None",
+    "(count('ship-built'), {s: count('ship-built', size=s) for s in ['Small', 'Medium', 'Large', 'Huge']})",
+    "sum(e['earthBlocked'] for e in events('economy'))",
+    "(count('trade', to='AlienCouncil'), sum(e['resources'].get('Metals', 0) for e in events('trade', to='AlienCouncil')))",
+    "[(f['faction'], round(f['contempt'], 2)) for f in events('disposition')[-1]['factions']] if count('disposition') else None",
+    "{f: count('human-ship-built', f=f) for f in ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil']}",
+    "sum(count('human-ship-built', f=f) for f in ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil'])",
+    "{f: (faction(first, f).get('scv'), faction(last, f).get('scv'), faction(last, f).get('ships')) for f in ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil']}",
+    "{r: count('human-market', ok=True, resource=r) for r in ['Metals', 'NobleMetals', 'Water']}",
+    "(count('human-market', ok=True, buyer='ExploitCouncil'), count('human-market', ok=False, buyer='ExploitCouncil'))",
+    "(count('human-drain-guard'), count('human-yard-unblock'), count('human-mc-invest'), count('direct-invest'), count('losing-big-fix'))",
+    "{f: (faction(first, f).get('bases', 0) + faction(first, f).get('stations', 0), faction(last, f).get('bases', 0) + faction(last, f).get('stations', 0)) for f in ['ResistCouncil'] + ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil']}",
+    "{f: faction(last, f).get('self') for f in ['ResistCouncil'] + ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil']}"
+  ]
+}

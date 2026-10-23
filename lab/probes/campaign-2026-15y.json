@@ -1,0 +1,57 @@
+{
+  "name": "campaign-2026-15y",
+  "notes": "Overnight 15-year campaign (user, 2026-10-22): from the 2026 fixture (28 Aug 2026) to ~2041, full mod with the strategist directing every non-player faction every 3 months (~60 checkpoints). Passive player. Strategist TimeoutMinutes 5 so a failed watcher can't stall the night. Run with -FinalSave; tools/strategist.ps1 -Harness alongside. Read with tools/summarize.py and the early.py-style comparison; the escalation, terminus, Jupiter and human-fleet observations come from flow-2039.",
+  "fixture": "accel-2026-start",
+  "runDays": 5475,
+  "config": {
+    "Strategist": {
+      "Enabled": "true",
+      "TimeoutMinutes": "5"
+    }
+  },
+  "asserts": [
+    "results['endReason'] == 'days-elapsed'",
+    "status['stalls'] <= 3",
+    "count('strategist', ev='applied') >= 50",
+    "count('strategist', ev='timeout') <= 3"
+  ],
+  "info": [
+    "[(e['t'], e['ev'], e.get('applied'), e.get('ignored')) for e in events('strategist')]",
+    "[(e['t'], k, v.get('intent')) for e in events('strategist', ev='applied') for k, v in e['directives'].items()]",
+    "[(e['t'], {k: {f: v.get(f) for f in ('posture', 'strikeTargets', 'spare', 'raidFactions', 'warChestMonths', 'rivals', 'friends', 'defend') if v.get(f) is not None} for k, v in e['directives'].items()}) for e in events('strategist', ev='applied')]",
+    "[(e['t'], e['faction'], e['system'], e['target']) for e in events('strategist-defend')]",
+    "[(e['t'], e['faction'], e['source']) for e in events('strategist-intel')]",
+    "[(e['t'], e.get('faction'), e.get('what'), e.get('client'), e.get('patron')) for e in events('human-client')]",
+    "[(e['t'], e['f'], e.get('self'), {k: (v.get('hate'), v.get('war')) for k, v in e.get('toward', {}).items()}) for e in events('human-hate', f='ResistCouncil')][-1:]",
+    "{f: (faction(first, f).get('habs') if faction(first, f).get('habs') is not None else faction(first, f).get('bases', 0) + faction(first, f).get('stations', 0), faction(last, f).get('bases', 0) + faction(last, f).get('stations', 0), faction(first, f).get('cps'), faction(last, f).get('cps')) for f in ['AlienCouncil', 'ResistCouncil', 'DestroyCouncil', 'CooperateCouncil', 'ExploitCouncil', 'EscapeCouncil', 'SubmitCouncil', 'AppeaseCouncil']}",
+    "events('doctrine')[0]['doctrine'] if count('doctrine') else None",
+    "(count('doctrine', ev='shifted'), count('shame'))",
+    "(faction(first, 'AlienCouncil').get('scv'), faction(last, 'AlienCouncil').get('scv'), faction(last, 'AlienCouncil').get('ships'))",
+    "(faction(first, 'AlienCouncil').get('bases'), faction(last, 'AlienCouncil').get('bases'))",
+    "[(e['t'][:7], e['bases'], e['cap'], round(e['drip'], 1), round(e['upkeep'], 1), e['stock']['Exotics'], e.get('warChest'), e.get('largeFactor')) for e in events('economy')][::3]",
+    "(count('transfer', goal='AttackWithFleet'), count('goal+', type='CaptureHab'), count('raid'))",
+    "median([r['scv'] / r['defThreat'] for r in events('transfer', goal='AttackWithFleet') if r.get('defThreat')] or [0])",
+    "(count('combat', attacker='AlienCouncil', occurred=True), count('combat', attacker='AlienCouncil', occurred=True, winner='AlienCouncil'))",
+    "{f: count('hab-', faction=f) for f in ['ResistCouncil'] + ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil']}",
+    "events('fleet')[-1]['bySize'] if count('fleet') else None",
+    "(count('ship-built'), {s: count('ship-built', size=s) for s in ['Small', 'Medium', 'Large', 'Huge']})",
+    "sum(e['earthBlocked'] for e in events('economy'))",
+    "(count('trade', to='AlienCouncil'), sum(e['resources'].get('Metals', 0) for e in events('trade', to='AlienCouncil')))",
+    "[(f['faction'], round(f['contempt'], 2)) for f in events('disposition')[-1]['factions']] if count('disposition') else None",
+    "{f: count('human-ship-built', f=f) for f in ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil']}",
+    "sum(count('human-ship-built', f=f) for f in ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil'])",
+    "{f: (faction(first, f).get('scv'), faction(last, f).get('scv'), faction(last, f).get('ships')) for f in ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil']}",
+    "{r: count('human-market', ok=True, resource=r) for r in ['Metals', 'NobleMetals', 'Water']}",
+    "(count('human-market', ok=True, buyer='ExploitCouncil'), count('human-market', ok=False, buyer='ExploitCouncil'))",
+    "(count('human-drain-guard'), count('human-yard-unblock'), count('human-mc-invest'), count('direct-invest'), count('losing-big-fix'))",
+    "{f: (faction(first, f).get('bases', 0) + faction(first, f).get('stations', 0), faction(last, f).get('bases', 0) + faction(last, f).get('stations', 0)) for f in ['ResistCouncil'] + ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil']}",
+    "{f: faction(last, f).get('self') for f in ['ResistCouncil'] + ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil']}",
+    "[(e['t'], e.get('ev'), e.get('why')) for e in events('posture')]",
+    "[(e['t'], e['ev']) for e in events('terminus') if e['ev'] != 'month']",
+    "events('terminus', ev='month')[-1]['after'] if count('terminus', ev='month') else None",
+    "[(e['t'][:7], e['targetSystem'], round(e['need']), round(e['have']), round(e['present'])) for e in events('pool-muster')]",
+    "[(r['t'][:7], r['fleet'], round(r['scv']), r['toSystem']) for r in events('transfer', goal='AttackWithFleet') if r['scv'] > 3000]",
+    "[(r['t'][:4], faction(r, 'AlienCouncil').get('scv'), faction(r, 'AlienCouncil').get('bases'), faction(r, 'ResistCouncil').get('scv'), sum(faction(r, f).get('scv', 0) for f in ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil'])) for r in metrics][::12]",
+    "[(e['t'], e['faction'], e['source']) for e in events('strategist-intel')][:20]"
+  ]
+}

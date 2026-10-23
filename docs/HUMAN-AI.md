@@ -458,3 +458,4 @@ Changes (probe `human-batch5`, each with its own metric):
 ### Exodus's expansion in the early game (2026-10-22, two years from 2026, one run each)
 - Vanilla Exodus founded 15 habs (a first Mars base in March 2028, then a Mars site every two weeks); with the mod, 4 (Deimos, 3353 Jarvis, 3753 Cruithne; never Mars), despite spare MC, boost and money.
 - Suspect: `MineWhatYouLack` for humans (need-weighted site scores) steers the first off-Earth sites away from Mars, so vanilla's same-body cascade never starts. The drain guard never fired. To confirm with an A/B (the switch off) over more than one run.
+- **A/B result (2 runs each): not the site weighting.** Exodus habs with it on 14 / 5, off 9 / 9. The total depends on when Exodus first lands on Mars (Nov 2027 to Jul 2028 across runs), after which the planner adds Mars sites every couple of weeks. Variance, no fix.
