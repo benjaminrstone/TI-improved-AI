@@ -90,7 +90,8 @@ Direction key:
 | Economy / HugeShipExoticsUpkeep | 2 / month | `−` | Motherships. |
 | Economy / ExoticsStockHorizonMonths | 240 (was 60) | `−` | The cap counts stock/this as monthly budget. Shorter means the hoard turns into bases faster. |
 | Economy / MaxAlienBasesCeiling | 40 | `+` | Hard ceiling. |
-| Economy / RetireCapitalHulls | on | `+` | With the exotics stock at 0, the oldest capital hulls are retired until ship upkeep fits what the drip leaves after the terminus and base upkeep (user, 2026-10-23). In the 2041 test: 132 hulls at once, alien SCV −40%. |
+| Economy / RetireCapitalHulls | on | `+` | With the exotics stock at 0, the oldest capital hulls are retired until ship upkeep fits what the drip leaves after the terminus and base upkeep (user, 2026-10-23). Spread by RetireMaxShare. |
+| Economy / RetireMaxShare | 0.10 | `+` | At most this share of the capital hulls held is retired per month (user, 2026-10-23). From 2041: 130 hulls over 17 months, alien SCV −25% gradually instead of −40% at once. |
 | Economy / RetireMargin | 0.15 | `+` | Retirement aims this share below the exact fit; also the slack under which the aliens count as short of exotics. |
 | Economy / NoBasesWhenShort | on | = | While short of exotics (stock at or below the war chest, slack under the margin; not escalated), no new FoundBase goals, scripted ones included. |
 | Strategy / TerminusStartYear | 14 / 11 / 9 / 7 | `−` | **Per difficulty.** The terminus begins by this campaign year even without escalation or respect. Lower means an earlier hard clock. |

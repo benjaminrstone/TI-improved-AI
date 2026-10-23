@@ -65,7 +65,7 @@ namespace ImprovedAI
         public readonly ConfigEntry<float> ExoticsStockHorizonMonths;
         public readonly ConfigEntry<bool> ExoticsWarChest;
         public readonly ConfigEntry<bool> RetireCapitalHulls, NoBasesWhenShort;
-        public readonly ConfigEntry<float> RetireMargin;
+        public readonly ConfigEntry<float> RetireMargin, RetireMaxShare;
         public readonly ConfigEntry<bool> StrategistOn, StrategistIntel;
         public readonly ConfigEntry<int> StrategistMonths;
         public readonly ConfigEntry<float> StrategistTimeoutMinutes;
@@ -220,6 +220,7 @@ namespace ImprovedAI
             StrategistIntel = cfg.Bind("Strategist", "ShowIntel", true, "Show the player a faction's intent when it has a pact or intel-sharing treaty with them, is their client, or has a councilor they turned.");
             RetireCapitalHulls = cfg.Bind("Economy", "RetireCapitalHulls", true,
                 "With the exotics stock at 0, retire the oldest capital hulls until ship upkeep fits what the drip leaves after the terminus investment and base upkeep (user, 2026-10-23). Needs ExoticsUpkeep.");
+            RetireMaxShare = cfg.Bind("Economy", "RetireMaxShare", 0.10f, "At most this share of the capital hulls held is retired in one month (user, 2026-10-23: spread the cut out).");
             RetireMargin = cfg.Bind("Economy", "RetireMargin", 0.15f, "Retirement aims this share below the exact fit, so the exotics stock rebuilds.");
             NoBasesWhenShort = cfg.Bind("Economy", "NoBasesWhenShort", true,
                 "In exotics deficit with the stock at or below the war chest (not escalated), the aliens accept no new FoundBase goal, scripted or not, so bases can't take back what retirement frees.");

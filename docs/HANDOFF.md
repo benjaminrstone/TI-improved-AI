@@ -14,7 +14,7 @@ Read this first. Details live in `docs/PROGRESS.md` (newest first), decisions in
 | **Testing tools** | Flow probes (the regression check), `ai.control` (any faction to the game's AI), `ai.move` / `ai.merge` (scripted orders), `ai.bot` (rule-based player), the strategist watcher's `-Harness` mode. |
 
 ## Latest work (2026-10-23)
-**Since:** capital-hull retirement when exotics run out (user decision), a block on new alien bases while short of exotics, and the exotics slack now counts the terminus draw (`retire-2041`, PROGRESS).
+**Since:** capital-hull retirement when exotics run out, at most 10% of capital hulls a month (user decisions), a block on new alien bases while short of exotics, and the exotics slack now counts the terminus draw (`retire-2041`, PROGRESS).
 
 A 15-year campaign with the strategist (2026 → 2041) exposed four problems; the fixes are built and passed a one-year test from that campaign's final save (`fixes-2041`, PROGRESS):
 1. **Terminus by date** (user decision): it now also begins by campaign year 14 / 11 / 9 / 7 (Cinematic → Brutal). In the test it began on 1 Sep 2041 and reached 10.8% in a year.
@@ -25,14 +25,14 @@ A 15-year campaign with the strategist (2026 → 2041) exposed four problems; th
 **Regression check passed on the final build** (`flow-2034`, `flow-2039`, 2026-10-23): retirement and the base block did not fire there (healthy stocks); 2034 aliens 24k → 34k, 18 bases, AI-human ships 107; 2039 aliens 40k → 70k.
 
 ## Open questions for the user
-1. **Retirement pace.** Retirement (user decision 2026-10-23) works but cuts in one month: 132 capital hulls and 40% of alien SCV in the 2041 test. Keep it, or cap it per month (e.g. 10% of capital hulls) and spread it out?
+1. **Exotics after retirement:** bases (38/month) and the terminus (21) take ~83% of the 2041 drip, so the stock hovers near 0 even once upkeep fits. Tune the base upkeep (2/month) with the widening clock?
 2. **"Allied" for intel:** the game has no formal alliance, so a non-aggression pact or an intel-sharing treaty counts. Narrower?
 3. **Forgiveness rates** (2026-10-19 starting values): Exodus 15%/month, Initiative 6%, Academy 4%, Resistance 3%, pro-alien 2%, Humanity First never.
 4. **Chapter playtest:** postponed by the user (2026-10-20) while improvements land. `tools\playtest.ps1 -Fixture <name> -Strategist` is ready for it.
 
 ## Next steps (recommended order)
 1. **Why the aliens built no ships in 2041–42** (542 → 541 with 1.5k exotics above the chest): read the build pick and the yard queues in `fixes-2041`.
-2. **Retirement pace** once the user decides (open question 1). Also: with bases (38) and the terminus (21) taking 83% of the 2041 drip, the stock hovers near 0 even after retirement; the base cost per base (2/month) may want tuning with the widening clock.
+2. **Exotics balance after retirement** (open question 1).
 3. **A long run with a player that acts.** Every harness run so far has a passive player (the Autopilot gives no orders): in 15 years the Resistance held one hab and no fleet. Use `ai.control ResistCouncil ai` or `ai.bot` in long runs, so the aliens and the strategist face a real opponent.
 4. **Strategist next:** a digest of what happened since the last checkpoint in each brief; event-triggered checkpoints; more levers (research focus, build mix). Watch the gang-up on the player (5 of 6 factions named the Resistance a rival in 2039, where it is the runaway leader; none did in 2026–28).
 5. **Later:** rendezvous v2 (empty staging points), proxy trade v2 (a player-run pro-alien faction), the AI human defence of remote holdings (the AI-run Resistance abandoned Jupiter; the strategist's `defend` lever addresses part of it), fury, the posture panel, the info-game (WS5), stations (WS6), the tech extension (WS7), fleet controls (WS8).

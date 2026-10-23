@@ -212,10 +212,14 @@ namespace ImprovedAI.AI
                 .OrderBy(s => s.launchDate == null ? double.MinValue : s.launchDate.DifferenceInDays(TITimeState.Now()))   // launch - now: oldest (most negative) first
                 .ToList();
             float excess = shipUpkeep - allowed, saved = 0f;
+            // At most RetireMaxShare of the capital hulls held this month (user, 2026-10-23): a single cut took 132 hulls
+            // and 40% of alien SCV in one month. 10% of what remains each month spreads it over about a year and a half.
+            int capitalHulls = alien.fleets.Where(f => TIGameState.Valid(f) && f.ships != null).SelectMany(f => f.ships).Count(x => x != null && ShipUpkeep(x.template) > 0f);
+            int cap = Mathf.Max(1, Mathf.CeilToInt(Mathf.Clamp01(Plugin.Cfg.RetireMaxShare.Value) * capitalHulls));
             var retired = new List<object>();
             foreach (var s in candidates)
             {
-                if (saved >= excess) break;
+                if (saved >= excess || retired.Count >= cap) break;
                 float u = ShipUpkeep(s.template);
                 string name = s.displayName, design = s.template?.displayName, fleet = s.fleet?.displayName, at = GameRead.Body(s.fleet), launched = GameRead.Date(s.launchDate);
                 try { s.DestroyShip(killPersonnel: false, null); }
@@ -226,7 +230,7 @@ namespace ImprovedAI.AI
             Plugin.Log.LogInfo($"[Economy] exotics spent: retired {retired.Count} capital hulls ({saved:F1}/month of {excess:F1} over)");
             Session.Journal?.Write(new
             {
-                t = GameRead.Now(), kind = "retire", count = retired.Count, saved, excess, allowed, drip, terminus, baseUpkeep, shipUpkeepBefore = shipUpkeep,
+                t = GameRead.Now(), kind = "retire", count = retired.Count, cap, capitalHulls, saved, excess, allowed, drip, terminus, baseUpkeep, shipUpkeepBefore = shipUpkeep,
                 ships = retired.Take(40).ToList(),
             });
         }
