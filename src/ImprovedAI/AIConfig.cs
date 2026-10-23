@@ -64,6 +64,8 @@ namespace ImprovedAI
         public readonly ConfigEntry<float> HugeShipExoticsUpkeep;
         public readonly ConfigEntry<float> ExoticsStockHorizonMonths;
         public readonly ConfigEntry<bool> ExoticsWarChest;
+        public readonly ConfigEntry<bool> RetireCapitalHulls, NoBasesWhenShort;
+        public readonly ConfigEntry<float> RetireMargin;
         public readonly ConfigEntry<bool> StrategistOn, StrategistIntel;
         public readonly ConfigEntry<int> StrategistMonths;
         public readonly ConfigEntry<float> StrategistTimeoutMinutes;
@@ -216,6 +218,11 @@ namespace ImprovedAI
             StrategistFolder = cfg.Bind("Strategist", "Folder", "", "Exchange folder for briefs and directives (default: BepInEx/ImprovedAI-strategist).");
             StrategistTimeoutMinutes = cfg.Bind("Strategist", "TimeoutMinutes", 20f, "Real minutes to wait for directives before playing on under the previous ones (0 = wait indefinitely).");
             StrategistIntel = cfg.Bind("Strategist", "ShowIntel", true, "Show the player a faction's intent when it has a pact or intel-sharing treaty with them, is their client, or has a councilor they turned.");
+            RetireCapitalHulls = cfg.Bind("Economy", "RetireCapitalHulls", true,
+                "With the exotics stock at 0, retire the oldest capital hulls until ship upkeep fits what the drip leaves after the terminus investment and base upkeep (user, 2026-10-23). Needs ExoticsUpkeep.");
+            RetireMargin = cfg.Bind("Economy", "RetireMargin", 0.15f, "Retirement aims this share below the exact fit, so the exotics stock rebuilds.");
+            NoBasesWhenShort = cfg.Bind("Economy", "NoBasesWhenShort", true,
+                "In exotics deficit with the stock at or below the war chest (not escalated), the aliens accept no new FoundBase goal, scripted or not, so bases can't take back what retirement frees.");
             ExoticsWarChest = cfg.Bind("Economy", "ExoticsWarChest", true,
                 "Outside escalation the aliens keep a war chest of exotics: exotic-tier builds use only the stock above it, and capital-hull building tightens as the hoard above it runs down. Needs ExoticsUpkeep.");
             ExoticsWarChestMonths = cfg.Bind("Economy", "ExoticsWarChestMonths", 12f, "War chest size, in months of the exotics drip.");

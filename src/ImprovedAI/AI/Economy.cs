@@ -119,7 +119,9 @@ namespace ImprovedAI.AI
             string today = GameRead.Now();
             if (_slackDate == today) return _slack;
             float drip = Drip(alien);
-            _slack = drip <= 0f ? -1f : (drip + HoardIncome(alien) - MonthlyUpkeep(alien, out _, out _)) / drip;
+            // The terminus investment is a commitment like upkeep (taken first each month): left out, the slack read +0.32
+            // while the real margin was ~+2/month (retire-2041 v3, 2026-10-23).
+            _slack = drip <= 0f ? -1f : (drip - TerminusDraw(drip) + HoardIncome(alien) - MonthlyUpkeep(alien, out _, out _)) / drip;
             _slackDate = today;
             return _slack;
         }
@@ -179,6 +181,57 @@ namespace ImprovedAI.AI
         }
 
         /// <summary>
+        /// With the exotics stock spent, the hulls that can't be paid for are retired, oldest first (user, 2026-10-23).
+        /// In the 15-year campaign capital-hull upkeep reached 77.5/month against a drip of 41-67 and the stock sat at 0
+        /// for seven years, where unpaid upkeep cost nothing. Retires capital hulls (large and huge) until ship upkeep
+        /// fits what the drip leaves after the terminus investment (taken first each month) and base upkeep. Fleets in
+        /// combat and attacks under way keep their ships. Removal is vanilla's non-combat DestroyShip (as for crash-downs).
+        /// </summary>
+        /// <summary>What the terminus takes from the drip each month while it is being built (0 otherwise).</summary>
+        public static float TerminusDraw(float drip) =>
+            Terminus.On && AlienStrategy.Current.terminusStarted != null && !AlienStrategy.Current.terminusComplete
+                ? Mathf.Clamp01(Plugin.Cfg.TerminusDripShare.Value) * drip : 0f;
+
+        /// <summary>
+        /// Short of exotics: the stock is at or below the war chest and the monthly margin (slack, terminus and upkeep
+        /// counted) is under RetireMargin. New bases are refused then (NoBasesWhenExoticsShort).
+        /// </summary>
+        public static bool ExoticsShort(TIFactionState alien) =>
+            WarChestOn && !Escalation.Escalated && alien.GetCurrentResourceAmount(FactionResource.Exotics) <= WarChest(alien)
+            && ExoticsSlack(alien) < Mathf.Clamp01(Plugin.Cfg.RetireMargin.Value);
+
+        private static void RetireOldestCapitalHulls(TIFactionState alien, float drip, float baseUpkeep, float shipUpkeep)
+        {
+            float terminus = TerminusDraw(drip);
+            // A margin below the exact fit, so the stock rebuilds instead of sitting at 0 (retire-2041 v2, 2026-10-23).
+            float allowed = Mathf.Max(0f, (drip - terminus - baseUpkeep) * (1f - Mathf.Clamp01(Plugin.Cfg.RetireMargin.Value)));
+            if (shipUpkeep <= allowed) return;
+            var candidates = alien.fleets.Where(f => TIGameState.Valid(f) && f.ships != null && !f.inCombatOrWaitingForCombat
+                                                     && !(f.AssignedGoal() is FactionGoal_AttackWithFleet a && a.InProgress()))
+                .SelectMany(f => f.ships).Where(s => s != null && ShipUpkeep(s.template) > 0f)
+                .OrderBy(s => s.launchDate == null ? double.MinValue : s.launchDate.DifferenceInDays(TITimeState.Now()))   // launch - now: oldest (most negative) first
+                .ToList();
+            float excess = shipUpkeep - allowed, saved = 0f;
+            var retired = new List<object>();
+            foreach (var s in candidates)
+            {
+                if (saved >= excess) break;
+                float u = ShipUpkeep(s.template);
+                string name = s.displayName, design = s.template?.displayName, fleet = s.fleet?.displayName, at = GameRead.Body(s.fleet), launched = GameRead.Date(s.launchDate);
+                try { s.DestroyShip(killPersonnel: false, null); }
+                catch (Exception e) { Plugin.Log.LogWarning($"[Economy] retire {name}: {e.Message}"); continue; }
+                saved += u;
+                retired.Add(new { ship = name, design, fleet, at, launched, upkeep = u });
+            }
+            Plugin.Log.LogInfo($"[Economy] exotics spent: retired {retired.Count} capital hulls ({saved:F1}/month of {excess:F1} over)");
+            Session.Journal?.Write(new
+            {
+                t = GameRead.Now(), kind = "retire", count = retired.Count, saved, excess, allowed, drip, terminus, baseUpkeep, shipUpkeepBefore = shipUpkeep,
+                ships = retired.Take(40).ToList(),
+            });
+        }
+
+        /// <summary>
         /// Monthly: charge the upkeep (when on) and record the economy (need weights, cap, upkeep, stocks). The record is
         /// also written on vanilla, with what the mod WOULD weigh and cap, so baselines compare directly.
         /// </summary>
@@ -195,6 +248,11 @@ namespace ImprovedAI.AI
             {
                 charged = Mathf.Min(upkeep, Mathf.Max(0f, alien.GetCurrentResourceAmount(FactionResource.Exotics)));
                 if (charged > 0f) alien.SubtractFromCurrentResource(charged, FactionResource.Exotics, true, "ImprovedAI exotics upkeep");
+                if (Plugin.Cfg.RetireCapitalHulls.Value && alien.GetCurrentResourceAmount(FactionResource.Exotics) <= 0.5f)
+                {
+                    RetireOldestCapitalHulls(alien, drip, baseUp, shipUp);
+                    upkeep = MonthlyUpkeep(alien, out baseUp, out shipUp);
+                }
             }
             Session.Journal?.Write(new
             {
@@ -220,6 +278,30 @@ namespace ImprovedAI.AI
             });
             NoEarthPurchases.Shortfalls = NoEarthPurchases.Blocked = 0;
             ExoticsWarChestScope.Held = 0;
+        }
+    }
+
+    /// <summary>
+    /// Bases and warships compete for the drip (user, 2026-10-13), but the scripted base goals (Io, the belt, the outer
+    /// planets) bypass the exotics base cap, so bases always won: after the 2041 retirement freed 66/month of ship
+    /// upkeep, five new bases (four at Io, imp 19) took it back within four months and retirements went on every month
+    /// (retire-2041 v2, 2026-10-23). While the aliens are in exotics deficit with the stock at or below the war chest
+    /// (and not escalated), no new FoundBase goal is accepted, scripted or not. Goals already under way go on.
+    /// </summary>
+    [HarmonyPatch(typeof(TIFactionState), nameof(TIFactionState.AddGoal))]
+    internal static class NoBasesWhenExoticsShort
+    {
+        internal static int Refused;
+
+        private static bool Prefix(TIFactionState __instance, TIFactionGoalState prospectiveGoal, ref TIFactionGoalState __result)
+        {
+            if (!(prospectiveGoal is FactionGoal_FoundBase) || __instance == null || !__instance.IsAlienFaction) return true;
+            if (!Plugin.Cfg.NoBasesWhenShort.Value || !Economy.ExoticsShort(__instance)) return true;
+            Refused++;
+            if (Refused <= 20 || Refused % 50 == 0)
+                Session.Journal?.Write(new { t = GameRead.Now(), kind = "base-refused", n = Refused, target = GameRead.Body(prospectiveGoal.target()), imp = prospectiveGoal.importance });
+            __result = null;
+            return false;
         }
     }
 

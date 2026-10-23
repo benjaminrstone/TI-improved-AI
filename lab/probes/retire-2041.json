@@ -1,0 +1,42 @@
+{
+  "name": "retire-2041",
+  "notes": "Retirement of capital hulls (user, 2026-10-23): with the alien exotics stock at 0, the oldest capital hulls are retired until ship upkeep fits the drip left after the terminus and base upkeep. A year from the 15-year campaign's final save (stock 1,972 falling ~100/month, so it reaches 0 within the year), strategist off for speed. Run: tools/run.ps1 -Probe retire-2041 -SavePath lab/results/20261022-232243-campaign-2026-15y/final.gz -Days 540. v2: the stock is set to 0 at the start (the 540-day run ended with it at 518, still ~5 months from 0), so retirement must fire at the first monthly economy tick; 150 days. v3: retire to 85% of the fit (RetireMargin) and refuse new FoundBase goals while short (NoBasesWhenShort): in v2 five new bases (four at Io, scripted, imp 19) took back the freed upkeep and retirements went on monthly. v4: the slack counts the terminus draw; bases refused while short. Result: one retirement (132 hulls), none after, bases held at 19, upkeep 48 fits drip 71 minus terminus 21; the stock hovers near 0 (the ~2/month surplus goes to ship builds and repairs).",
+  "fixture": "accel-2026-start",
+  "runDays": 150,
+  "config": {
+    "Strategist": {
+      "Enabled": "false"
+    }
+  },
+  "asserts": [
+    "results['endReason'] == 'days-elapsed'",
+    "status['stalls'] <= 1",
+    "count('retire') >= 1",
+    "events('retire')[0]['saved'] >= events('retire')[0]['excess']",
+    "sum(e['count'] for e in events('retire')[1:]) <= 5",
+    "count('base-refused') >= 1",
+    "events('economy')[-1]['bases'] <= events('economy')[0]['bases'] + 1",
+    "events('economy')[-1]['upkeep'] <= events('economy')[-1]['drip'] * 0.7 + 1"
+  ],
+  "info": [
+    "[(e['t'], e['n'], e['target'], e['imp']) for e in events('base-refused')][:10]",
+    "[(r['t'][:7], round(faction(r, 'AlienCouncil').get('scv', 0)), faction(r, 'AlienCouncil').get('ships'), faction(r, 'AlienCouncil').get('bases')) for r in metrics]",
+    "[(e['t'], e['count'], round(e['saved'], 1), round(e['excess'], 1), round(e['allowed'], 1), round(e['terminus'], 1), e['baseUpkeep'], e['shipUpkeepBefore']) for e in events('retire')]",
+    "[(e['t'], [(s['design'], s['launched'], s['at']) for s in e['ships'][:6]]) for e in events('retire')][:3]",
+    "[(e['t'], e['ev'], e.get('why'), round(e.get('after', 0), 3), round(e.get('invest', 0), 1)) for e in events('terminus')][::3]",
+    "[(e['t'][:7], e['stock']['Exotics'], e.get('warChest'), round(e['drip'], 1), e['upkeep'], e['shipUpkeep'], e.get('slack'), e.get('largeFactor')) for e in events('economy')]",
+    "(count('ship-built'), {s: count('ship-built', size=s) for s in ['Small', 'Medium', 'Large', 'Huge']})",
+    "[(e['t'], e['fleet'], e['at'], e['ships'], e['dry'], e['dvBefore'], e['dvAfter'], e.get('goal')) for e in events('dry-split')]",
+    "[(e['t'][:7], e['targetSystem'], round(e['need']), round(e['have']), [(d['fleet'], round(d['scv']), d.get('was')) for d in e['donors']]) for e in events('pool') if e['donors']]",
+    "sum(1 for e in events('pool') for d in e['donors'] if d.get('was') == 'SendFleet')",
+    "[(e['t'][:7], e['targetSystem'], round(e['have']), round(e['need'])) for e in events('pool-muster')]",
+    "[(r['t'][:7], r['fleet'], round(r['scv']), r['toSystem'], r.get('targetFaction')) for r in events('transfer', goal='AttackWithFleet') if r['scv'] > 1000]",
+    "(count('combat', attacker='AlienCouncil', occurred=True), count('combat', attacker='AlienCouncil', occurred=True, winner='AlienCouncil'))",
+    "{f: count('hab-', faction=f) for f in ['ResistCouncil', 'DestroyCouncil', 'CooperateCouncil', 'ExploitCouncil', 'EscapeCouncil', 'SubmitCouncil', 'AppeaseCouncil']}",
+    "(faction(first, 'AlienCouncil').get('scv'), faction(last, 'AlienCouncil').get('scv'), faction(first, 'AlienCouncil').get('ships'), faction(last, 'AlienCouncil').get('ships'))",
+    "{f: (round(faction(first, f).get('scv', 0)), round(faction(last, f).get('scv', 0))) for f in ['DestroyCouncil', 'CooperateCouncil', 'ExploitCouncil', 'EscapeCouncil', 'SubmitCouncil', 'AppeaseCouncil']}"
+  ],
+  "commands": [
+    "ai.setresource AlienCouncil Exotics 0"
+  ]
+}

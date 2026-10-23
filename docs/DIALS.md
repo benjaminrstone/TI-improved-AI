@@ -90,6 +90,9 @@ Direction key:
 | Economy / HugeShipExoticsUpkeep | 2 / month | `−` | Motherships. |
 | Economy / ExoticsStockHorizonMonths | 240 (was 60) | `−` | The cap counts stock/this as monthly budget. Shorter means the hoard turns into bases faster. |
 | Economy / MaxAlienBasesCeiling | 40 | `+` | Hard ceiling. |
+| Economy / RetireCapitalHulls | on | `+` | With the exotics stock at 0, the oldest capital hulls are retired until ship upkeep fits what the drip leaves after the terminus and base upkeep (user, 2026-10-23). In the 2041 test: 132 hulls at once, alien SCV −40%. |
+| Economy / RetireMargin | 0.15 | `+` | Retirement aims this share below the exact fit; also the slack under which the aliens count as short of exotics. |
+| Economy / NoBasesWhenShort | on | = | While short of exotics (stock at or below the war chest, slack under the margin; not escalated), no new FoundBase goals, scripted ones included. |
 | Strategy / TerminusStartYear | 14 / 11 / 9 / 7 | `−` | **Per difficulty.** The terminus begins by this campaign year even without escalation or respect. Lower means an earlier hard clock. |
 | Economy / ExoticsWarChest | on | = | Outside escalation the aliens keep a war chest; below it, in deficit, no new capital hulls at all (2026-10-23). Exotic-tier builds read only the stock above it, and the exotics slack counts (stock − chest) / ExoticsHoardMonths as extra monthly budget. Spent freely when escalated (the P4 surge). |
 | Economy / ExoticsWarChestMonths | 12 | `+` | Chest size in months of drip (~700 in 2034). Bigger means a larger surge when escalated, fewer exotic builds before. |
