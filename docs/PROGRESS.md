@@ -27,6 +27,21 @@ All pass: flow-2034, flow-2039, econ-war-chest.
 - **War chest:** in the gate (stock set to 900), the aliens spent down to the chest (~700) and then held it (681 at the end, with upkeep equal to the drip). In the soak the stock fell as before (spending above the chest is allowed), and capital-hull building began to tighten at the end of year 2 (large-hull weight 0.81–0.85 in two runs), with the stock still ~650 above the chest.
 - **flow-2039:** escalated in April, the terminus started on its own, and contempt for the Resistance fell 0.40 → 0.16. Again no Jupiter strike was launched: the pool covered its need by August, but only ~600 SCV was present (see e9 above).
 
+### Two years from 2026: mod + strategist vs vanilla (2026-10-22, `flow-2026 -Days 730`, one run each)
+
+| Aug 2026 → Aug 2028 | Vanilla | Mod + strategist |
+|---|---|---|
+| Alien bases | 2 → 9 | 2 → 13 (flat since Sep 2027; cap 17 never reached) |
+| Alien SCV / ships built | 800 → 1.0k / 5 | 800 → 2.1k / 13 |
+| Alien exotics | 267 → 1,074 (hoarded) | 263 → 553 (spent on ships down to the war chest) |
+| Exodus habs | 1 → 16 | 1 → 5 |
+| Protectorate CPs | 25 → 66 | 25 → 40 |
+| Human fleets | none | none |
+
+- **Aliens:** base growth levels off at 13, not a runaway. The extra ships are the war chest at work: vanilla hoards exotics, the mod spends the hoard above 12 months of drip.
+- **Exodus, the space-expansion faction, founded 15 habs in vanilla and 4 with the mod.** Vanilla: a first Mars base in March 2028, then the planner kept adding Mars sites, one every two weeks (11 in five months). Mod: Deimos, 3353 Jarvis and 3753 Cruithne (volatile- and metal-rich small bodies), never Mars, so no cascade, despite spare MC (37), boost and $14k. Not the drain guard (0 blocks). Likely cause: the human need-weighted site scoring (`MineWhatYouLack`), which steers sites by what the faction lacks. To confirm with an A/B (that switch off), and more than one run.
+- **Strategist:** nine checkpoints, all on time. The Resistance's friends and rivals held steady for two years (friends: Humanity First, Initiative, Academy, Exodus; rivals: Protectorate, and the Servants until mid-2028). The alien posture crept from −0.3 to −0.05 with no strike targets set: no human holdings worth striking yet.
+
 ### Early game with the strategist (2026-10-22, `flow-2026`: a year from the 2026 fixture, one run + one vanilla run)
 The harness can't start a new campaign, so "fresh 2026" = the user's accelerated Resistance campaign at 28 Aug 2026, just past the start. All asserts pass: five checkpoints, seven factions each, all applied on the checkpoint date, no stalls.
 - **No gang-up on the player here.** Humanity First, the Academy, Exodus and the Initiative all name the Resistance a friend; only the Protectorate and the Servants treat it as a rival. In 2039 five of six did, so that looks like the runaway-leader situation, not a strategist bias.

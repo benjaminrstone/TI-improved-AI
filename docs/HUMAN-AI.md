@@ -454,3 +454,7 @@ Changes (probe `human-batch5`, each with its own metric):
 - With the Resistance handed to the game's AI (`ai.control`), it **pulled its Jupiter fleet out by September 2039**, and 5–9k of its fleet spent most of the year in interplanetary transit. The alien strike took Jupiter completely (5 habs → 0), while the passive player kept 2.
 - It kept its fleet (15.5k at the end vs 10.9k passive), so this is a choice of where to fight, not a loss of strength. But a human player would rarely give up a gas-giant foothold without a fight.
 - Candidate weakness (one run, to confirm): AI human factions don't weigh holding remote habs against an incoming alien strike, and their fleets wander between goals. A natural lever for the strategist (docs/STRATEGIST.md: defence priorities).
+
+### Exodus's expansion in the early game (2026-10-22, two years from 2026, one run each)
+- Vanilla Exodus founded 15 habs (a first Mars base in March 2028, then a Mars site every two weeks); with the mod, 4 (Deimos, 3353 Jarvis, 3753 Cruithne; never Mars), despite spare MC, boost and money.
+- Suspect: `MineWhatYouLack` for humans (need-weighted site scores) steers the first off-Earth sites away from Mars, so vanilla's same-body cascade never starts. The drain guard never fired. To confirm with an A/B (the switch off) over more than one run.
