@@ -315,7 +315,7 @@ All by the user.
 
 - **Lore.** Expanding the lore is allowed. Keep it consistent with the game's text. A conflict with existing lore can be acceptable, but call it out explicitly to the user.
 - **Scope.** The aliens first. The AI human factions are a second track with the same aim, competence over handouts: no bonus resources, they play better instead (`docs/HUMAN-AI.md`). A stronger model may direct every non-player faction (`docs/STRATEGIST.md`).
-- **Difficulty.** Reuse the vanilla levels (Cinematic, Normal, Veteran, Brutal). Each level sets how tight the constraints are (P2), not how competent the AI is (P1).
+- **Difficulty.** Reuse the vanilla levels (Cinematic, Normal, Veteran, Brutal). Each level sets how tight the constraints are (P2), not how competent the AI is (P1). **Veteran is the reference level:** a challenging game for a somewhat experienced player, neither easy nor a puzzle box for experts. The user will play it, as an anti-alien faction, with the strategist on.
 - **Test install.** An isolated game copy at `C:\Games\TI-ImprovedAI`.
 - **Passive players.** Punishing a passive player is fine. Every dial we create or turn has a direction across difficulty in `docs/DIALS.md`, so a smooth difficulty curve can be built.
 - **Willingness to fight.** "Never lose a ship" is too cautious.

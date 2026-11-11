@@ -20,25 +20,29 @@ Where the project stands and what to do next. Design and user decisions are in `
 - **The bar is one good campaign.** What can ruin a 60-hour game matters most: a crash or soft-lock, an unfair game-over, behaviour that breaks on save and reload, a feature that cannot be switched off mid-campaign. Balance to the last percent does not.
 - **Don't spoil it.** Reports to the user give verdicts and health, not what the aliens did in a run or which doctrine a campaign drew.
 
+**The campaign to tune for:** Veteran, an anti-alien faction (probably the Academy; never the Protectorate or Servants), with the strategist running. The feel wanted is a challenging game for a somewhat experienced player: not easy, and not a puzzle box for experts. Veteran is therefore the reference level for tuning; the other levels are set relative to it.
+
 ## What is not known
 
 - **How it plays against opposition.** Every result so far comes from unattended runs with a passive player: the Autopilot gives no orders, and in the 15-year run the Resistance held one hab and no fleet throughout. The numbers show the mod is stable and that the aliens out-build and out-fight vanilla against opponents who do nothing.
-- **A real campaign's conditions.** No run has started from a new game (the harness cannot; "fresh" has meant the 2026 fixture), and every fixture is one accelerated Normal Resistance campaign. Day one of a new game, other difficulties and other factions are untested.
+- **A real campaign's conditions.** No run has started from a new game (the harness cannot; "fresh" has meant the 2026 fixture), and every fixture is one accelerated Normal Resistance campaign. Day one of a new game, Veteran (which the user will play), and any player faction but the Resistance are untested. On Veteran the mod differs from Normal in five dials (lower starting contempt, faster learning, faster widening, a cheaper terminus that begins by year 9) and two extra doctrines (Blitz, Hunter-killer), on top of vanilla's own Veteran changes. None of that has run.
+- **The strategist in a played game.** It will run in the user's campaign, but it has only run in unattended harness runs with a passive player. The watcher stops on any exception and waits without a timeout.
 - **Save and reload.** Harness runs load once and never reload. A player reloads constantly, and several defects below only show then.
 - **Single runs.** Many recent fixes (terminus by date, hull retirement, the base block, dry-ship splits) rest on one run each.
 
-So: no new features, dials or switches until steps 1 to 3 are done. They will change what matters.
+So: no new features, dials or switches until steps 1 to 4 are done. They will change what matters.
 
 ## Next steps
 
 1. **A stand-in player, in repeated long runs.** `flow-2039-long-ai` (the game's AI plays the Resistance) and `-bot` exist: run each three times and aggregate, and the same from 2034 for two years. Then a stronger stand-in: let the strategist direct the player's faction too in harness runs, with `Harness/Orders.cs` for fleet orders. This is the first balance evidence against opposition and it doubles as the regression check for the last fixes.
-2. **Campaign safety.** Go through what could ruin the one real play and close each: the terminus ending the campaign (is it fair, is it visible in time, does switching it off mid-campaign work); the load-time defects below; a reload in the middle of a pooled strike, a checkpoint, an escalation; turning `VanillaAI` on mid-campaign as the escape hatch. Add a probe that saves and reloads mid-run.
-3. **A campaign from a new game.** Teach the harness to start one (or script it once and keep the day-one save as a fixture), on the settings the user will play (open question 4), and run it for years with a stand-in player.
-4. **The open exploits.** They are the original definition of "no idiot ball" and were passed over for new systems. E4, E12 and E13 have their mechanism located in vanilla code; each needs a probe that fails on vanilla, then a fix. Most need an active defender, which step 1 provides.
-5. **Why the aliens built no ships in 2041–42** (542 → 541 with 1.5k exotics above the war chest): read the build pick and the yard queues in the `fixes-2041` run.
-6. **Exotics balance after retirement** (open question 1).
-7. **Strategist:** a digest of what happened since the last checkpoint in each brief; event-triggered checkpoints; more levers (research focus, build mix). Watch the gang-up on the player: 5 of 6 factions named the Resistance a rival in 2039.
-8. **Later:** rendezvous at empty staging points, proxy trade with a player-run pro-alien faction, AI humans defending remote holdings, fury, the posture panel, the information game (WS5), stations (WS6), the tech extension (WS7), fleet controls (WS8).
+2. **Campaign safety.** Go through what could ruin the one real play and close each: the terminus ending the campaign (is it fair, is it visible in time, does switching it off mid-campaign work); the load-time defects below; a reload in the middle of a pooled strike, a checkpoint, an escalation; the strategist watcher dying or hanging mid-campaign; turning `VanillaAI` on mid-campaign as the escape hatch. Add a probe that saves and reloads mid-run.
+3. **Veteran.** Add a harness command that sets the difficulty of a loaded save, then repeat the flow and stand-in runs at Veteran with the strategist on. Judge the result against the feel the user wants, and retune the per-difficulty dials with Veteran as the reference.
+4. **A campaign from a new game.** Teach the harness to start one (or script it once and keep the day-one save as a fixture): Veteran, the Academy as the player with a stand-in at the controls, the strategist on. Run it for years.
+5. **The open exploits.** They are the original definition of "no idiot ball" and were passed over for new systems. E4, E12 and E13 have their mechanism located in vanilla code; each needs a probe that fails on vanilla, then a fix. Most need an active defender, which step 1 provides.
+6. **Why the aliens built no ships in 2041–42** (542 → 541 with 1.5k exotics above the war chest): read the build pick and the yard queues in the `fixes-2041` run.
+7. **Exotics balance after retirement** (open question 1).
+8. **Strategist:** a digest of what happened since the last checkpoint in each brief; event-triggered checkpoints; more levers (research focus, build mix). Watch the gang-up on the player: 5 of 6 factions named the Resistance a rival in 2039.
+9. **Later:** rendezvous at empty staging points, proxy trade with a player-run pro-alien faction, AI humans defending remote holdings, fury, the posture panel, the information game (WS5), stations (WS6), the tech extension (WS7), fleet controls (WS8).
 
 ## Known defects
 
@@ -57,7 +61,7 @@ Found by reading the code; each changes behaviour, so each needs its probe befor
 1. **Exotics after retirement.** Bases (38/month) and the terminus (21) take ~83% of the 2041 drip, so the stock hovers near 0 even once upkeep fits. Tune the base upkeep (2/month) with the widening clock?
 2. **"Allied" for intel.** The game has no formal alliance, so a non-aggression pact or an intel-sharing treaty counts. Narrower?
 3. **Forgiveness rates** are starting values: Exodus 15%/month, Initiative 6%, Academy 4%, Resistance 3%, pro-alien 2%, Humanity First never.
-4. **The next campaign's settings:** faction, difficulty, accelerated or standard, and whether the strategist runs in it (it pauses the game for a few minutes every three months and uses the local Claude subscription). Testing goes where the play will be.
+4. **Accelerated or standard campaign speed** for the next play? The last one was accelerated (200% research), and so is every fixture.
 
 ## Gotchas
 
