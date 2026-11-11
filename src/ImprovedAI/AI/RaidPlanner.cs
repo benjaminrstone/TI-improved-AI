@@ -18,11 +18,13 @@ namespace ImprovedAI.AI
     /// </summary>
     internal static class RaidPlanner
     {
-        private static readonly HashSet<int> _ours = new HashSet<int>();
-        internal static bool IsRaid(TIFactionGoalState g) => g != null && _ours.Contains(GameRead.Id(g));
+        // Goal IDs of the raids this planner opened. Kept in the sidecar so a load does not forget them and open a second set.
+        private static readonly HashSet<int> None = new HashSet<int>();
+        private static HashSet<int> Ours => AlienStrategy.Current?.raidGoals ?? None;
+        internal static bool IsRaid(TIFactionGoalState g) => g != null && Ours.Contains(GameRead.Id(g));
         private static int _day;
 
-        public static void Reset() { _ours.Clear(); _day = 0; }
+        public static void Reset() { _day = 0; }
 
         public static void Daily(TIDateTime now)
         {
@@ -34,10 +36,10 @@ namespace ImprovedAI.AI
             var captureGoals = alien.GoalsOfType(GoalType.CaptureHab).OfType<FactionGoal_CaptureHab>().ToList();
             var live = new HashSet<int>(attackGoals.Where(g => g.importance > 0).Select(g => GameRead.Id(g))
                 .Concat(captureGoals.Where(g => g.importance > 0).Select(g => GameRead.Id(g))));
-            _ours.RemoveWhere(id => !live.Contains(id));
+            Ours.RemoveWhere(id => !live.Contains(id));
             // Separate slot pools: attack raids vs marine captures of undefended bases (one cheap troop carrier each).
-            int openAttacks = attackGoals.Count(g => _ours.Contains(GameRead.Id(g)));
-            int openCaptures = captureGoals.Count(g => _ours.Contains(GameRead.Id(g)));
+            int openAttacks = attackGoals.Count(g => Ours.Contains(GameRead.Id(g)));
+            int openCaptures = captureGoals.Count(g => Ours.Contains(GameRead.Id(g)));
             int attackSlots = Dials.MaxRaidGoals - openAttacks;
             int captureSlots = Plugin.Cfg.UseRaidCaptures ? Dials.MaxCaptureGoals - openCaptures : 0;
             int slots = System.Math.Max(0, attackSlots) + System.Math.Max(0, captureSlots);
@@ -84,13 +86,13 @@ namespace ImprovedAI.AI
                 TIFactionGoalState goal = capture
                     ? alien.AddGoal(new FactionGoal_CaptureHab(alien, Dials.RaidImportance + 1, c.hab, GoalType.None), HandleDuplicateGoalRule.ResetImportanceIfHigher)
                     : alien.AddGoal(new FactionGoal_AttackWithFleet(alien, Dials.RaidImportance, c.hab, requiresWar: true), HandleDuplicateGoalRule.ResetImportanceIfHigher);
-                if (goal != null) _ours.Add(GameRead.Id(goal));
+                if (goal != null) Ours.Add(GameRead.Id(goal));
                 kinds.Add(goal == null ? "none" : goal.GetGoalType().ToString());
             }
             if (picks.Count > 0)
                 Session.Journal?.Write(new
                 {
-                    t = GameRead.Now(), kind = "raid", open = _ours.Count,
+                    t = GameRead.Now(), kind = "raid", open = Ours.Count,
                     kinds,
                     picks = picks.Select(c => new { hab = c.hab.displayName, faction = GameRead.Faction(c.hab.faction), body = GameRead.Body(c.hab), system = GameRead.System(c.hab), c.value, c.threat, c.score }),
                 });

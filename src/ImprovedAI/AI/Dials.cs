@@ -4,9 +4,9 @@ using UnityEngine;
 namespace ImprovedAI.AI
 {
     /// <summary>
-    /// The effective value of every behaviour dial: the config value scaled by the current alien doctrine. AI code
-    /// reads dials only through here, so one table defines what each doctrine means.
-    /// With [Strategy] off (or no doctrine yet) every multiplier is 1 and the raw config values apply.
+    /// The effective value of the dials that a doctrine, escalation or the strategist scales. AI code reads those
+    /// dials only through here, so one table defines what each doctrine means.
+    /// Without a doctrine (VanillaAI, or no campaign yet) every multiplier is 1 and the raw config values apply.
     /// </summary>
     internal static class Dials
     {

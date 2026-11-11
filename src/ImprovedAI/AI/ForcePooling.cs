@@ -29,6 +29,12 @@ namespace ImprovedAI.AI
         /// <summary>When each goal's force became complete at the rendezvous (muster start).</summary>
         private static readonly Dictionary<FactionGoal_AttackWithFleet, TIDateTime> MusterStart = new Dictionary<FactionGoal_AttackWithFleet, TIDateTime>();
 
+        public static void Reset()
+        {
+            Pooling.Clear(); Announced.Clear(); Staged.Clear(); MusterStart.Clear();
+            _wasEscalated = false;
+        }
+
         internal static bool On(TIFactionState f) => Plugin.Cfg.UseForcePooling && f != null && f.IsAlienFaction;
 
         private static void Postfix(TIFactionState faction)
@@ -153,6 +159,7 @@ namespace ImprovedAI.AI
             }
 
             var sent = new List<object>();
+            var sentFleets = new HashSet<TISpaceFleetState>();
             foreach (var d in donors)
             {
                 if (have >= need) break;
@@ -166,6 +173,7 @@ namespace ImprovedAI.AI
                 faction.AddGoal(new FactionGoal_JoinFleet(faction, anchor), HandleDuplicateGoalRule.ResetImportance, d);
                 float v = d.SpaceCombatValue();
                 have += v;
+                sentFleets.Add(d);
                 sent.Add(new { fleet = d.displayName, scv = v, at = GameRead.System(d), was = from?.GetGoalType().ToString(), eta = (float)System.Math.Round(Eta(d)) });
             }
             // The large fleets left out, and why (diagnostic).
@@ -181,7 +189,7 @@ namespace ImprovedAI.AI
                 return "budgetOrEnough";
             }
             var refusedBig = faction.fleets
-                .Where(f => f != anchor && TIGameState.Valid(f) && !goal.pendingFleets.Contains(f) && !donors.Take(sent.Count).Contains(f)
+                .Where(f => f != anchor && TIGameState.Valid(f) && !goal.pendingFleets.Contains(f) && !sentFleets.Contains(f)
                             && GameRead.Safe(() => f.SpaceCombatValue()) >= 1000f)
                 .OrderByDescending(f => GameRead.Safe(() => f.SpaceCombatValue())).Take(12)
                 .Select(f => new

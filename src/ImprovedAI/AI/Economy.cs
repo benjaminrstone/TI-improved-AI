@@ -26,7 +26,7 @@ namespace ImprovedAI.AI
 
         private static readonly Dictionary<TIFactionState, (string date, Dictionary<FactionResource, float> need)> _need = new Dictionary<TIFactionState, (string, Dictionary<FactionResource, float>)>();
 
-        public static void Reset() { _need.Clear(); }
+        public static void Reset() { _need.Clear(); _slackDate = null; }
 
         /// <summary>Need-weighted site scoring applies to this faction (the aliens, or an AI human faction when enabled).</summary>
         public static bool NeedScoringFor(TIFactionState f) =>
@@ -116,7 +116,7 @@ namespace ImprovedAI.AI
             return _slack;
         }
 
-        /// <summary>Weight multiplier on large hulls in the build pick: 1 with slack >= 0 or when escalated, down to 0.25 in deficit.</summary>
+        /// <summary>Weight multiplier on large hulls in the build pick: 1 with slack >= 0 or when escalated, down to 0.25 in deficit, near 0 at or below the war chest.</summary>
         public static float LargeHullBuildFactor(TIFactionState alien)
         {
             if (!UpkeepOn || Escalation.Escalated) return 1f;
@@ -236,6 +236,7 @@ namespace ImprovedAI.AI
                 if (Plugin.Cfg.RetireCapitalHulls.Value && alien.GetCurrentResourceAmount(FactionResource.Exotics) <= 0.5f)
                 {
                     RetireOldestCapitalHulls(alien, drip, baseUp, shipUp);
+                    Reset();
                     upkeep = MonthlyUpkeep(alien, out baseUp, out shipUp);
                 }
             }

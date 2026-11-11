@@ -36,6 +36,8 @@ namespace ImprovedAI.Diagnostics
                 AI.ThreatMemory.Reset();
                 AI.RaidPlanner.Reset();
                 AI.Economy.Reset();
+                AI.ForcePooling.Reset();
+                Human.Personality.Reset();
                 HateLedger.Reset();
                 Safe(() => AI.ThreatMemory.Sample(now), "threat memory");
                 Safe(DecisionJournal.Init, "journal init");

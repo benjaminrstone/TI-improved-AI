@@ -17,9 +17,7 @@ namespace ImprovedAI.Human
     /// </summary>
     internal static class HumanFixes
     {
-        // AI-controlled human factions. Same set as "not the active player" in a normal game, but also covers a player
-        // faction handed to the AI (harness ai.control).
-        public static bool AI(TIFactionState f) => f != null && !f.IsAlienFaction && f.player != null && f.player.isAI;
+        public static bool AI(TIFactionState f) => FleetCompetence.AIHuman(f);
     }
 
     /// <summary>
@@ -67,7 +65,7 @@ namespace ImprovedAI.Human
     {
         private static void Postfix(TIFactionState faction, bool useAltMethod)
         {
-            if (!Plugin.Cfg.UseFixLosingBig || !useAltMethod || faction == null || faction.selfAssessement != FactionSelfAssessment.Losing) return;
+            if (!Plugin.Cfg.UseFixLosingBig || !useAltMethod || !HumanFixes.AI(faction) || faction.selfAssessement != FactionSelfAssessment.Losing) return;
             var rival = faction.mostPowerfulHumanEnemy;
             if (rival == null) return;
             try
@@ -204,7 +202,7 @@ namespace ImprovedAI.Human
 
         private static void Postfix(TIFactionState faction, TIDataTemplate desiredPurchase, ref bool __result)
         {
-            if (__result || !Plugin.Cfg.UseFixSavingDeadlock || faction?.player == null || !faction.player.isAI || faction.IsAlienFaction) return;
+            if (__result || !Plugin.Cfg.UseFixSavingDeadlock || !HumanFixes.AI(faction)) return;
             if (!(desiredPurchase is TISpaceShipTemplate)) return;   // ships only: the deadlock is in the ship queues
             if (Idle(faction)) __result = true;
         }

@@ -13,8 +13,8 @@ You are the strategic commander of one faction in a game of Terra Invicta. Every
 - **The Academy (CooperateCouncil)**: study and understand the aliens; malleable.
 - **Exodus (EscapeCouncil)**: flee the solar system; avoids fights unless hurt.
 - **The Resistance (ResistCouncil)**: defend Earth's independence.
-- **The Protectorate (SubmitCouncil)**: negotiate the best terms for humanity under the aliens.
-- **The Servants (AppeaseCouncil)**: serve the aliens.
+- **The Protectorate (AppeaseCouncil)**: negotiate the best terms for humanity under the aliens.
+- **The Servants (SubmitCouncil)**: serve the aliens.
 
 ## Directive fields (all optional; omit a field to leave the AI's own judgement in place)
 For the aliens:

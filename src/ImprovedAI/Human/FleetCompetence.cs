@@ -16,6 +16,7 @@ namespace ImprovedAI.Human
     /// </summary>
     internal static class FleetCompetence
     {
+        /// <summary>An AI-controlled human faction: every human faction but the player's, or the player's too once handed to the AI (ai.control).</summary>
         public static bool AIHuman(TIFactionState f) => f != null && !f.IsAlienFaction && f.player != null && f.player.isAI;
 
         private static readonly Dictionary<TIFactionState, (string day, bool v)> _wantsShips = new Dictionary<TIFactionState, (string, bool)>();

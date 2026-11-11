@@ -12,6 +12,8 @@ namespace ImprovedAI
         public const string Guid = "com.improvedai.terrainvicta";
         public const string Name = "ImprovedAI";
         public const string Version = "0.0.1";
+        /// <summary>The game build the patches were written against (method names and, in places, call order).</summary>
+        public const string TestedGameBuild = "1.0.53b";
 
         internal static ManualLogSource Log;
         internal static AIConfig Cfg;
@@ -31,6 +33,8 @@ namespace ImprovedAI
             // bootstraps, and detouring methods on game types can run their static constructors too early.
             gameObject.AddComponent<Bootstrap>();
             Log.LogInfo($"{Name} {Version} loaded (harness: {Harness.CampaignHarness.Active}).");
+            if (Application.version != TestedGameBuild)
+                Log.LogWarning($"Game build {Application.version}, patches written for {TestedGameBuild}: check for failed patch classes below and run the regression probes.");
         }
 
         /// <summary>Patch every [HarmonyPatch] class in this assembly, one class at a time so a broken patch doesn't take down the rest.</summary>

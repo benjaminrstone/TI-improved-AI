@@ -83,7 +83,7 @@ namespace ImprovedAI.AI
             var from = s.doctrine.focus;
             var pool = AlienStrategy.Pool(Dials.Difficulty).Where(f => f != from).ToList();
             if (pool.Count == 0) return;
-            var rng = new System.Random(StableHash(s.campaignKey + "|shift|" + s.shifts));
+            var rng = new System.Random(AlienStrategy.StableHash(s.campaignKey + "|shift|" + s.shifts));
             float W(StrategicFocus f) => IsAggressive(f) != IsAggressive(from) ? Plugin.Cfg.ShiftOppositeWeight.Value : 1f;
             double r = rng.NextDouble() * pool.Sum(W);
             var to = pool.Last();
@@ -97,16 +97,6 @@ namespace ImprovedAI.AI
             Plugin.Log.LogInfo($"[Strategy] Doctrine shifted {from} -> {to}: {why}");
             Session.Journal?.Write(new { t = GameRead.Now(), kind = "doctrine", ev = "shifted", from = from.ToString(), to = to.ToString(), why, doctrine = s.doctrine, dials = Dials.Snapshot() });
             FleetDoctrine.RequestRedesign("doctrine shifted");
-        }
-
-        private static int StableHash(string s)
-        {
-            unchecked
-            {
-                int h = (int)2166136261;
-                foreach (char c in s ?? "") h = (h ^ c) * 16777619;
-                return h;
-            }
         }
     }
 

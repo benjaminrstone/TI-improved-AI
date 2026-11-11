@@ -82,6 +82,9 @@ namespace ImprovedAI.Strategist
                 string path = Path.Combine(dir, "briefs", date + ".json");
                 string tmp = path + ".tmp";
                 File.WriteAllText(tmp, JsonConvert.SerializeObject(Brief.Build(player), Formatting.Indented));
+                // An answer left from an earlier visit to this date (a reload, another campaign in the same folder)
+                // would be applied at once. The watcher answers any brief that has no directives file.
+                File.Delete(Path.Combine(dir, "directives", date + ".json"));
                 if (File.Exists(path)) File.Delete(path);
                 File.Move(tmp, path);
                 var gtm = GameTimeManager.Singleton;
@@ -117,6 +120,7 @@ namespace ImprovedAI.Strategist
             {
                 Plugin.Log.LogWarning($"[Strategist] no directives for {_pending} after {timeout} min; playing on under the previous ones");
                 Session.Journal?.Write(new { t = GameRead.Now(), kind = "strategist", ev = "timeout", checkpoint = _pending });
+                if (AlienStrategy.Current != null) AlienStrategy.Current.lastCheckpoint = _pending;   // wait for the next checkpoint, don't re-ask tomorrow
                 Finish();
             }
         }

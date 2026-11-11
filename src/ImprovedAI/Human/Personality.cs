@@ -74,6 +74,8 @@ namespace ImprovedAI.Human
         private static Dictionary<TIFactionState, float> _strength = new Dictionary<TIFactionState, float>();
         private static float _pressure;
 
+        public static void Reset() { _day = null; _strength.Clear(); }
+
         private static void Refresh()
         {
             string day = GameRead.Now();
@@ -356,7 +358,7 @@ namespace ImprovedAI.Human
         private static bool Prefix(TIFactionState faction, TIFactionState enemyFaction, bool generalDeescalation, bool processPeriodicChange, ref float __result)
         {
             if (!Plugin.Cfg.UseHumanPersonalities || faction == null || enemyFaction == null || faction.IsAlienFaction || enemyFaction.IsAlienFaction
-                || faction.player == null || !faction.player.isAI) return true;
+                || !FleetCompetence.AIHuman(faction)) return true;
             try { __result = Personality.Jealousy(faction, enemyFaction, generalDeescalation, processPeriodicChange); return false; }
             catch (Exception e) { Plugin.Log.LogWarning($"[Personality] jealousy {faction.templateName}: {e.Message}"); return true; }
         }

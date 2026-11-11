@@ -2,14 +2,11 @@
 .SYNOPSIS
   Run several probes back to back (each a separate game launch) and print a summary table.
 .EXAMPLE
-  tools\probes.ps1 e3-attack-sizing, e5-undefended-mines, e9-jupiter-plateau
-.EXAMPLE
-  tools\probes.ps1 -All
+  tools\probes.ps1 flow-2034, flow-2039
 #>
-param([string[]]$Probes, [switch]$All)
+param([Parameter(Mandatory)] [string[]]$Probes)
 $ErrorActionPreference = 'Stop'
 . "$PSScriptRoot\paths.ps1"
-if ($All) { $Probes = Get-ChildItem (Join-Path $ProjectRoot 'lab\probes') -Filter *.json | Where-Object Name -ne 'smoke.json' | ForEach-Object BaseName }
 $summary = @()
 $first = $true
 foreach ($p in $Probes) {

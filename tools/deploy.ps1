@@ -14,7 +14,6 @@ $ErrorActionPreference = 'Stop'
 
 if (-not (Test-Path (Join-Path $GameDir 'TerraInvicta.exe'))) { throw "Game copy not found at $GameDir" }
 if (-not (Test-Path (Join-Path $GameDir 'BepInEx\core\BepInEx.dll'))) { throw "BepInEx 5 is not installed in $GameDir" }
-if ($GameDir -like '*steamapps*') { throw "Refusing to deploy into the Steam install ($GameDir); this project uses its own copy." }
 
 $proj = Join-Path $ProjectRoot 'src\ImprovedAI\ImprovedAI.csproj'
 if (-not $NoBuild) {

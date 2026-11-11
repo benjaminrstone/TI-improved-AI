@@ -6,3 +6,4 @@ $HarnessDir  = if ($env:TI_AI_HARNESS) { $env:TI_AI_HARNESS } else { 'C:\Games\T
 $UserSaves   = Join-Path ([Environment]::GetFolderPath('MyDocuments')) 'My Games\TerraInvicta\Saves'
 $PluginDir   = Join-Path $GameDir 'BepInEx\plugins\ImprovedAI'
 $ResultsDir  = Join-Path $ProjectRoot 'lab\results'
+if ($GameDir -like '*steamapps*') { throw "Refusing to use the Steam install ($GameDir); this project runs on its own game copy." }

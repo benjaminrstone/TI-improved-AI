@@ -67,6 +67,8 @@ namespace ImprovedAI.AI
         /// <summary>The strategist's directives in force, per faction template, and the last checkpoint date.</summary>
         public Dictionary<string, Strategist.Directive> directives = new Dictionary<string, Strategist.Directive>();
         public string lastCheckpoint;
+        /// <summary>Goal IDs of the open raids the RaidPlanner created.</summary>
+        public HashSet<int> raidGoals = new HashSet<int>();
     }
 
     public class LedgerMonth
@@ -105,12 +107,12 @@ namespace ImprovedAI.AI
             return $"{GameStateManager.Time().template?.dataName}|{created}";
         }
 
-        private static int StableHash(string s)
+        internal static int StableHash(string s)
         {
             unchecked
             {
                 int h = (int)2166136261;
-                foreach (char c in s) h = (h ^ c) * 16777619;
+                foreach (char c in s ?? "") h = (h ^ c) * 16777619;
                 return h;
             }
         }
@@ -162,7 +164,7 @@ namespace ImprovedAI.AI
         /// <summary>Probe/debug override: "focus=Raider weapons=Missiles puppetry=0.2 ...".</summary>
         public static string Force(string spec)
         {
-            if (Current == null) return "! no strategy state (is [Strategy] Enabled on and a campaign loaded?)";
+            if (Current == null) return "! no strategy state (is VanillaAI on, or no campaign loaded?)";
             var d = Current.doctrine;
             foreach (var kv in spec.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries))
             {
