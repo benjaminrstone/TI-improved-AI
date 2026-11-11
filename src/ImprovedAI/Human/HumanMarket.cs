@@ -9,16 +9,14 @@ using UnityEngine;
 namespace ImprovedAI.Human
 {
     /// <summary>
-    /// Metals are the next fleet bottleneck (docs/HUMAN-AI.md, 2034 2-year soak): the Initiative sat at 0 metals all run
-    /// and the Academy near 1k while money idled at $30-100k and Exodus held 24-38k metals. Vanilla AI humans never trade
-    /// with each other (0 human-to-human trades in four 2-year runs): nothing starts a deal. Monthly, an AI human that
-    /// wants warships and is short of a ship metal (stock below MarketShortStock) buys it with money from another AI
-    /// human with a surplus (stock above MarketSurplusStock) that it isn't at war with and doesn't hate much.
+    /// Vanilla AI humans never trade with each other: nothing starts a deal. Monthly, an AI human that wants warships
+    /// and is short of a ship metal (stock below MarketShortStock) buys it with money from another AI human with a
+    /// surplus (stock above MarketSurplusStock) that it isn't at war with and doesn't hate much.
+    /// The player is never a party.
     ///  - Quantity: at most MarketShareOfSurplus of the seller's stock above its own surplus line, and vanilla's per-trade
     ///    cap (TradeAI.GetMaximumTradeQuantity).
     ///  - Price: money, priced by vanilla's TradeAI.GetTradeValue, until the seller gains MarketMargin x what it gives
     ///    up; the buyer must value the metal more than the money, and pays at most half its money.
-    /// The player is never a party (AI-to-AI only).
     /// </summary>
     internal static class HumanMarket
     {

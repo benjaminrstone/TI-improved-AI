@@ -7,17 +7,15 @@ using PavonisInteractive.TerraInvicta;
 namespace ImprovedAI.Harness
 {
     /// <summary>
-    /// A small rule-based player for probes (user, 2026-10-22, item 3): it reacts like a player would to a few
-    /// situations, repeatably, so we can test how the aliens handle specific player behaviour. Enabled per faction with
-    /// ai.bot &lt;faction&gt; &lt;rules|off&gt;; it issues real orders through Orders (journaled as "order", decisions as "bot").
-    /// It sees true fleet strengths (perfect information): a v1 simplification, noted in docs/TESTING.md.
+    /// A small rule-based player for probes: it reacts like a player would to a few situations, repeatably. Enabled per
+    /// faction with ai.bot &lt;faction&gt; &lt;rules|off&gt;; it issues real orders through Orders (journaled as "order",
+    /// decisions as "bot"). It sees true fleet strengths (perfect information).
     ///
     /// Rules:
     ///  - reinforce: every 2 days. When a hostile fleet (the aliens, or a faction at war with us) is flying into a system
     ///    where we hold habs and outguns our fleets there, send idle combat fleets from unthreatened systems that can
-    ///    arrive before it (travel estimate as for the alien rendezvous), nearest first, until the defence reaches
-    ///    ReinforceRatio x the threat. If even everything reachable stays below OutmatchedRatio x the threat, send
-    ///    nothing: a player doesn't feed fleets in piecemeal ("outmatched" is journaled instead).
+    ///    arrive before it, nearest first, until the defence reaches ReinforceRatio x the threat. If everything
+    ///    reachable stays below OutmatchedRatio x the threat, send nothing ("outmatched" is journaled instead).
     ///  - merge: weekly. Idle combat fleets at the same place merge into the strongest there.
     /// </summary>
     internal static class PlayerBot

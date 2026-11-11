@@ -9,16 +9,12 @@ using UnityEngine;
 namespace ImprovedAI.AI
 {
     /// <summary>
-    /// Doctrinal inertia (DESIGN P6 "Shame drives doctrinal inertia"; M2 step 2 leftover). Failure is shameful to a Hydra,
-    /// so the command persists with a failing strategic focus longer than is optimal, then abandons it outright.
-    ///  - A ledger counts each month's exchange under the current doctrine: alien ships lost vs human ships destroyed,
-    ///    alien habs lost vs human habs destroyed (a hab counts HabWeight ships).
-    ///  - Monthly, over the last ShameWindowMonths: loss share = lost / (lost + destroyed). When there was enough
-    ///    fighting and the share is above ShameTolerance, shame grows by (share - tolerance) x ShameRate; otherwise it
-    ///    decays by ShameDecay. A command losing 80% of its exchanges shifts in about 4 months; one losing 60%, in years.
-    ///  - At ShameThreshold the focus is abandoned for another from the difficulty's pool, preferring the opposite
-    ///    temperament (aggressive <-> defensive). Shame and the ledger reset. Fleet axes and posture are kept.
-    /// One will, no factions: a shift is one command revising its course (user, 2026-10-11).
+    /// Doctrinal inertia: failure is shameful to a Hydra, so the command persists with a failing strategic focus longer
+    /// than is optimal, then abandons it outright. A ledger counts each month's exchange under the current doctrine
+    /// (ships and habs lost vs destroyed; a hab counts ShameHabWeight ships). Monthly, over the last ShameWindowMonths,
+    /// loss share = lost / (lost + destroyed): with enough fighting and a share above ShameTolerance, shame grows by
+    /// (share - tolerance) x ShameRate; otherwise it decays by ShameDecay. At ShameThreshold the focus is abandoned for
+    /// another from the difficulty's pool, preferring the opposite temperament. Fleet axes and posture are kept.
     /// </summary>
     internal static class DoctrineShift
     {

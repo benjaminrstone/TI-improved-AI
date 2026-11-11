@@ -8,8 +8,7 @@ namespace ImprovedAI.Diagnostics
 {
     /// <summary>
     /// One journal line per strategic-layer battle (autoresolved or fought): where, who, each side's starting SCV,
-    /// ships lost / fled, winner. Outcomes are the honest measure of "bite-sized fleets get eaten"; launch ratios alone
-    /// can't show it.
+    /// ships lost / fled, winner.
     /// </summary>
     [HarmonyPatch(typeof(TISpaceCombatState), nameof(TISpaceCombatState.EndCombatForStrategyGame))]
     internal static class CombatJournal

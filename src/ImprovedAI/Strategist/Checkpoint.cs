@@ -20,11 +20,11 @@ namespace ImprovedAI.Strategist
     }
 
     /// <summary>
-    /// The checkpoint loop (docs/STRATEGIST.md; user decisions 2026-10-22). Every MonthsBetween months (and once right
-    /// after a game loads without directives): pause the game, write briefs/&lt;date&gt;.json to the exchange folder, wait
-    /// for directives/&lt;date&gt;.json from the local watcher (tools/strategist.ps1), validate and store it in the sidecar,
-    /// show the player the intent of factions they have intel on, and resume at the previous speed. If nothing arrives
-    /// within TimeoutMinutes, play on under the previous directives.
+    /// The checkpoint loop. Every MonthsBetween months (and once right after a game loads without directives): pause the
+    /// game, write briefs/&lt;date&gt;.json to the exchange folder, wait for directives/&lt;date&gt;.json from the local
+    /// watcher (tools/strategist.ps1), validate and store it in the sidecar, show the player the intent of factions they
+    /// have intel on, and resume at the previous speed. If nothing arrives within TimeoutMinutes, play on under the
+    /// previous directives.
     /// </summary>
     internal class Checkpoint : MonoBehaviour
     {
@@ -70,7 +70,6 @@ namespace ImprovedAI.Strategist
             if (due) Begin();
         }
 
-        /// <summary>Pause, write the brief, start waiting.</summary>
         public static string Begin()
         {
             try

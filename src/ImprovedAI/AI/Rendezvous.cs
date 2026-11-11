@@ -8,20 +8,13 @@ using Vector3d = UnityEngine.Vector3d;
 namespace ImprovedAI.AI
 {
     /// <summary>
-    /// Where a pooled strike musters (user, 2026-10-16: "rendezvous somewhere and then set out, like a normal navy;
-    /// be smarter about the point, e.g. when Saturn is on the other side of the Sun").
-    ///
-    /// Vanilla anchors an attack goal on whatever fleet it assigned, and every joiner flies to that fleet. In the 2039
-    /// Jupiter soak the anchor sat at Titan, so assembly took 6-9 months and the transit to Jupiter 5+ more.
-    /// Here, once per focus goal and before joiners commit, each candidate muster point (the location of a sizable,
-    /// releasable alien fleet, or the current anchor) is scored by TIME TO STRIKE:
-    ///     arrival of the last fleet needed to reach the goal's strength (fleets taken in order of arrival, those beyond
-    ///     RendezvousMaxJoinDays left out) + the transfer from the point to the target,
-    /// using each fleet's own flip-and-burn time between current positions (see Time), so a point whose planet is on the
-    /// far side of the Sun scores badly. If the best point beats the current anchor by RendezvousGain, the goal is
-    /// re-anchored on the fleet there and the old anchor joins it.
-    /// v1 musters only where an alien fleet already is; empty staging points (Sun-planet L4/L5, moons) need a move order
-    /// that keeps the attack goal, which vanilla does not offer (FactionGoal_SendFleet would take the fleet off it).
+    /// Where a pooled strike musters. Vanilla anchors an attack goal on whatever fleet it assigned, and every joiner
+    /// flies to that fleet. Here, once per focus goal and before joiners commit, each candidate muster point (the
+    /// location of a sizable, releasable alien fleet, or the current anchor) is scored by time to strike, as the
+    /// planets stand now. If the best point beats the current anchor by RendezvousGain, the goal is re-anchored on the
+    /// fleet there and the old anchor joins it.
+    /// Musters only where an alien fleet already is: an empty staging point needs a move order that keeps the attack
+    /// goal, which vanilla does not offer (FactionGoal_SendFleet would take the fleet off it).
     /// </summary>
     internal static class Rendezvous
     {
@@ -69,10 +62,7 @@ namespace ImprovedAI.AI
         /// Days for fleet <paramref name="mover"/> to fly from one point to another as the planets stand now: a constant-
         /// thrust flip-and-burn at its cruise acceleration, or burn-coast-burn when the delta-v it spends
         /// (RendezvousDvShare) can't cover the full brachistochrone. The game's GenericTransferTime_d is a minimum-
-        /// energy Hohmann estimate meant for slow logistics: it put Titan -> Jupiter at ~4,500 days, which the alien
-        /// strike fleet actually flies in ~5 months (2039 probe, 2026-10-17). Calibration (2026-10-21, six joins to
-        /// Titan, 13-51 AU): the planner spent 74-83% of each fleet's delta-v; at 0.8 the estimate is within ~10% of the
-        /// flown time (at the old 0.6 it was 20-40% long).
+        /// energy Hohmann estimate meant for slow logistics, many times longer than alien strike fleets actually fly.
         /// </summary>
         internal static float Time(TISpaceFleetState mover, Vector3d? from, Vector3d? to)
         {
@@ -93,9 +83,8 @@ namespace ImprovedAI.AI
         }
 
         /// <summary>
-        /// A better-placed anchor for the goal, or null to keep the current one. <paramref name="decided"/> is false while
-        /// no muster point can gather the need within RendezvousMaxJoinDays (e.g. before escalation frees more fleets);
-        /// the caller then asks again on a later tick instead of locking in a choice made on too little.
+        /// A better-placed anchor for the goal, or null to keep the current one. <paramref name="decided"/> is false when
+        /// no candidate has a usable position; the caller then asks again on a later tick.
         /// </summary>
         public static TISpaceFleetState Choose(TIFactionState faction, FactionGoal_AttackWithFleet goal, TISpaceFleetState anchor, float need, Func<TISpaceFleetState, bool> releasable, out bool decided)
         {
@@ -109,10 +98,9 @@ namespace ImprovedAI.AI
             float minSize = 0.1f * need;
             var candidates = pool.Where(f => f == anchor || GameRead.Safe(() => f.SpaceCombatValue()) >= minSize).Take(12).ToList();
 
-            // When can ENOUGH force be at this point? Fleets in order of arrival there, accumulated until the need is met;
+            // When can enough force be at this point? Fleets in order of arrival there, accumulated until the need is met;
             // the score is the arrival of the last one needed, plus the transfer on to the target. Fleets that can't
-            // arrive within MaxJoinDays don't count (v1 sorted by strength, so one distant fleet decades away dominated
-            // every candidate: 2039 probe, 2026-10-17). If the need can't be met in time, the score is infinite.
+            // arrive within MaxJoinDays don't count.
             float maxJoin = Plugin.Cfg.RendezvousMaxJoinDays.Value;
             var targetPos = Pos(target);
             float Score(TISpaceFleetState c, out int used)
@@ -130,8 +118,8 @@ namespace ImprovedAI.AI
                 }
                 float strike = last + Time(c, point, targetPos);
                 // Need not reachable within MaxJoinDays from here: rank by how much force it can gather, then by time.
-                // (The 2039 aliens could free only ~12k of a ~17k need anywhere; joiners recruited meanwhile are in
-                // flight and no longer candidates, so the choice must be made on the first recruiting tick.)
+                // Joiners recruited meanwhile are in flight and no longer candidates, so the choice must be made on the
+                // first recruiting tick.
                 if (have < need) return 100000f * (1f - have / need) + strike;
                 return strike;
             }

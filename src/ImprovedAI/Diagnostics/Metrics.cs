@@ -5,7 +5,7 @@ using PavonisInteractive.TerraInvicta;
 
 namespace ImprovedAI.Diagnostics
 {
-    /// <summary>One row per game month (and one at load): the curves that soaks compare across runs and against vanilla.</summary>
+    /// <summary>One row per game month (and one at load), for comparing runs with each other and against vanilla.</summary>
     internal static class Metrics
     {
         public static Dictionary<string, object> Snapshot()

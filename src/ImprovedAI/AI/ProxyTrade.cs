@@ -9,23 +9,17 @@ using UnityEngine;
 namespace ImprovedAI.AI
 {
     /// <summary>
-    /// The aliens use their human proxies as a supply line (user, 2026-10-17). Earth goods reach them through the
-    /// pro-alien factions (Servants, Protectorate; maybe the Academy later), never through Earth's open market
-    /// (Economy.NoEarthPurchases). Vanilla allows such trades but no AI trade with the aliens happened in 6 x 2-year
-    /// soaks: nothing starts them. Here the alien command makes the offer itself.
-    ///  - Partners: pro-alien human factions (ideology x &lt; 0) that are not the active player and that the aliens are
-    ///    not at war with.
-    ///  - Wanted: what the aliens lack (Economy need weight >= ProxyTradeNeed: in practice metals and noble metals), up to
-    ///    what the partner's own mines produced since the last deal (monthly income x months, at most 6), and never more
-    ///    than vanilla's per-trade cap (TradeAI.GetMaximumTradeQuantity). Stockpiles, including those that difficulty
-    ///    bonuses inflate, never flow (user, 2026-10-17: no counterplay against bonuses); hitting the proxies' mines does.
-    ///  - Paid: what the aliens are swimming in (need &lt;= 0.5: water, volatiles, fissiles), up to their own cap, until
-    ///    the partner gains ProxyTradeMargin x what it gives up, priced by vanilla's TradeAI.GetTradeValue. Resources
-    ///    only: vanilla's agreement builder can also move habs, control points and orgs, and a hab handed to the aliens
-    ///    is destroyed.
-    ///  - Cadence: every ProxyTradeIntervalMonths per partner; monthly for Puppet master and Divide and rule.
-    /// Honest dealing [lore]: the Hydras never trick a partner; a deal the partner would not gain from is not offered.
-    /// The player can see and cut the line: weaken or flip the proxies, or strip what they can give.
+    /// The aliens use their human proxies as a supply line: Earth goods reach them through the pro-alien factions, never
+    /// through Earth's open market (Economy.NoEarthPurchases). Vanilla allows such trades but nothing starts them; here
+    /// the alien command makes the offer itself, every ProxyTradeIntervalMonths per partner (monthly for PuppetMaster
+    /// and DivideAndRule).
+    ///  - Wanted: what the aliens lack (Economy need weight >= ProxyTradeNeed), up to what the partner's own mines
+    ///    produced since the last deal (monthly income x months, at most 6) and vanilla's per-trade cap
+    ///    (TradeAI.GetMaximumTradeQuantity).
+    ///  - Paid: what the aliens are swimming in (need &lt;= 0.5), until the partner gains ProxyTradeMargin x what it
+    ///    gives up, priced by vanilla's TradeAI.GetTradeValue. Resources only: vanilla's agreement builder can also
+    ///    move habs, control points and orgs, and a hab handed to the aliens is destroyed.
+    /// [lore] The Hydras never trick a partner: a deal the partner would not gain from is not offered.
     /// </summary>
     internal static class ProxyTrade
     {
@@ -80,9 +74,9 @@ namespace ImprovedAI.AI
             var payRes = Economy.Basic.Where(r => need[r] <= 0.5f && partner.UnlockedResource(r) && alien.UnlockedResource(r)).ToList();
             if (wantRes.Count == 0 || payRes.Count == 0) return false;
 
-            // The partner can send only what its own mines produced since the last deal, never its stockpile (user,
-            // 2026-10-17): difficulty bonuses (Veteran/Brutal AI ship-cost discounts leave stockpiles unspent) and hoards
-            // must not flow to the aliens, and the player's counterplay is to hit the proxies' mines.
+            // The partner can send only what its own mines produced since the last deal, never its stockpile: difficulty
+            // bonuses (Veteran/Brutal AI ship-cost discounts leave stockpiles unspent) and hoards must not flow to the
+            // aliens, and the player's counterplay is to hit the proxies' mines.
             float months = Math.Max(1, monthsOfProduction);
             float Produced(FactionResource r) => Mathf.Max(0f, GameRead.Safe(() => partner.GetMonthlyIncome(r))) * months;
             for (float scale = 1f; scale >= 0.25f; scale *= 0.5f)

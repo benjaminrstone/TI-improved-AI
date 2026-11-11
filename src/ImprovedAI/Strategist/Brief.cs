@@ -9,7 +9,7 @@ using UnityEngine;
 namespace ImprovedAI.Strategist
 {
     /// <summary>
-    /// What each non-player faction knows at a checkpoint (docs/STRATEGIST.md, brief v0), compact enough to read whole.
+    /// What each non-player faction knows at a checkpoint, compact enough to read whole.
     /// Fog of war through each AI's own perception: the aliens see human fleets through their threat memory; a human
     /// faction sees other fleets through vanilla's system fleet strengths scaled by its perceived-strength factor (what its
     /// own AI uses). Hab counts and locations are treated as known (they are visible on the game map).

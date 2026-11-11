@@ -3,7 +3,7 @@
   Run the campaign harness once: load a fixture save in the game copy, run N game days unattended at max speed,
   collect the output into lab\results\<stamp>-<name>\ and (for probes) evaluate asserts.
 .EXAMPLE
-  tools\run.ps1 -Probe smoke-2034
+  tools\run.ps1 -Probe smoke
 .EXAMPLE
   tools\run.ps1 -Fixture accel-2034-fusion-drives -Days 60 -Name throughput
 #>

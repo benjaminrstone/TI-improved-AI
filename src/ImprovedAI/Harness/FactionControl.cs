@@ -9,15 +9,15 @@ using PavonisInteractive.TerraInvicta.Tasks;
 namespace ImprovedAI.Harness
 {
     /// <summary>
-    /// Hand a faction to the game's AI mid-game, or take it back (user, 2026-10-22: probes need a defender that reacts;
-    /// the Autopilot only clears prompts and resolves combat, so the harness player was passive).
+    /// Hand a faction to the game's AI mid-game, or take it back. The Autopilot only clears prompts and resolves combat,
+    /// so the harness player is otherwise passive.
     ///
     /// Vanilla decides who is AI-run once, when a game loads: AIDailyFactionPlanner.Initialize builds its AIFactions
     /// array and the per-faction scheduling data (factionAIData) from player.isAI. Flipping the flag alone would leave
     /// the faction out of the daily planner. So this flips the flag (TIPlayerState.AssignAIStatus), then adds the faction
-    /// to the planner's array and creates its scheduling data, exactly as Initialize would have.
-    /// Our human AI changes apply to it too (they gate on player.isAI). Not saved: a save stores the flag, but this
-    /// harness never writes the user's saves, and the next load rebuilds the planner from the flag.
+    /// to the planner's array and creates its scheduling data, as Initialize would have.
+    /// The mod's human AI changes apply to it too (they gate on player.isAI). A save stores the flag, and the next
+    /// load rebuilds the planner from it.
     /// </summary>
     internal static class FactionControl
     {

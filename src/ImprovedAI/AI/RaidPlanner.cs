@@ -7,20 +7,14 @@ using PavonisInteractive.TerraInvicta;
 namespace ImprovedAI.AI
 {
     /// <summary>
-    /// The aliens raid the human economy wherever it is weakly held (EXPLOITS E5, and pressure on turtles, E10).
-    ///
-    /// Vanilla only targets "impudent" assets inside alien turf (Jupiter and beyond, or systems with alien bases) and adds
-    /// at most one base and one station target per month (AIDailyFactionPlanner.AliensCheckGoals). In the vanilla probe, 15
-    /// undefended mining outposts in the main belt drew zero attack goals in six months.
-    ///
-    /// Every 7 game days, for each human faction the aliens are at war with, score that faction's bases and stations:
-    ///   value  = (1 + tier) x 2 if it has an active mine x 1.5 if it has a shipyard
-    ///   threat = the hab's own SCV + remembered SCV of that faction's fleets in the same system
-    ///   score  = value / (1 + threat / 200) x (1 + RaidHateWeight x hate / war-threshold hate)
-    /// so at low hate the aliens go for the most valuable targets, and a faction they hate intensely has its assets
-    /// prioritised anywhere (user, 2026-10-12).
-    /// and add AttackWithFleet goals (requiresWar, so vanilla drops them if the war ends) for the best targets not already
-    /// under attack, keeping at most MaxRaidGoals of our raids open. Vanilla then sizes, builds for and launches them.
+    /// The aliens raid the human economy wherever it is weakly held (exploits E5, E10). Vanilla only targets "impudent"
+    /// assets inside alien turf (Jupiter and beyond, or systems with alien bases) and adds at most one base and one
+    /// station target per month (AIDailyFactionPlanner.AliensCheckGoals).
+    /// Every 7 game days, for each human faction the aliens are at war with, that faction's bases and stations are
+    /// scored by value over local threat, weighted by hate: at low hate the aliens go for the most valuable targets, and
+    /// a faction they hate intensely has its assets prioritised anywhere. The best targets not already under attack get
+    /// AttackWithFleet goals (requiresWar, so vanilla drops them if the war ends), with at most MaxRaidGoals of these
+    /// raids open. Vanilla then sizes, builds for and launches them.
     /// </summary>
     internal static class RaidPlanner
     {

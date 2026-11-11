@@ -6,13 +6,10 @@ using PavonisInteractive.TerraInvicta;
 namespace ImprovedAI.Diagnostics
 {
     /// <summary>
-    /// Why AI human factions build so few warships (docs/HUMAN-AI.md §6b; vanilla 2034 soaks: 0.3-2.4k SCV each vs the
-    /// aliens' ~35k). One "human-fleet" record per AI human faction per month, to tell the candidate causes apart:
-    ///  1. demand: fleet goals' desired strength (sized from the faction's own fleet; aliens count only at war);
-    ///  2. the mission-control gate on queuing ships (AI_GenericMissionControlAvailable);
-    ///  3. no war on the alien faction;
-    ///  4. hab-first scheduling: the saving target, shipyard queues.
-    /// Runs on vanilla too.
+    /// One "human-fleet" record per human faction per month, covering what can hold back warship building: fleet goals'
+    /// desired strength (sized from the faction's own fleet; aliens count only at war), the mission-control gate on
+    /// queuing ships (AI_GenericMissionControlAvailable), war on the alien faction, the saving target and shipyard
+    /// queues. Runs on vanilla too.
     /// </summary>
     internal static class HumanFleetDiag
     {

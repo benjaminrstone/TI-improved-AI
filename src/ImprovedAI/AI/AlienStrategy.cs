@@ -10,7 +10,6 @@ using PavonisInteractive.TerraInvicta;
 
 namespace ImprovedAI.AI
 {
-    // ---- Doctrine axes (DESIGN P3; doctrines are combinations of axes, agreed 2026-10-12) ----
     public enum StrategicFocus { FortressIndustrial, Bastion, PuppetMaster, QualityOverQuantity, Xenoformer, LandGrab, Raider, EarthPresence, Hoarder, Strangler, DivideAndRule, Blitz, HunterKiller }
     public enum WeaponFocus { Balanced, Missiles, Beams, Particles, Kinetics }
     public enum HullPhilosophy { Balanced, Swarm, Capital, Motherships }
@@ -38,34 +37,34 @@ namespace ImprovedAI.AI
         /// <summary>derived | sidecar | forced</summary>
         public string source;
         public Doctrine doctrine;
-        /// <summary>Per human faction template name, 0..1 (DESIGN "Disposition"); filled in by M2 step 5.</summary>
+        /// <summary>Per human faction template name, 0..1.</summary>
         public Dictionary<string, float> contempt = new Dictionary<string, float>();
         public List<string> history = new List<string>();
-        /// <summary>Doctrinal shame (P6), 0..threshold; past the threshold the command abandons its strategic focus.</summary>
+        /// <summary>Doctrinal shame, 0..threshold; past the threshold the command abandons its strategic focus.</summary>
         public float shame;
         /// <summary>How many times the focus has been abandoned this campaign (seeds the next choice).</summary>
         public int shifts;
         /// <summary>Results under the current doctrine, one row per game month (rolling window, DoctrineShift).</summary>
         public List<LedgerMonth> ledger = new List<LedgerMonth>();
-        /// <summary>P4: how close the Hydra command thinks it is to losing (0..1), and whether it has escalated to total war.</summary>
+        /// <summary>How close the Hydra command thinks it is to losing, 0..1 (Escalation).</summary>
         public float desperation;
         public bool escalated;
         public string escalatedSince;
         public int calmMonths;
         /// <summary>Dates (yyyy-MM-dd) of alien habs lost to humans, kept for 12 months.</summary>
         public List<string> habLosses = new List<string>();
-        /// <summary>The terminus (hard clock): started date, progress 0..1, milestones announced, completed.</summary>
+        /// <summary>The terminus: start date, progress 0..1, milestones announced so far.</summary>
         public string terminusStarted;
         public float terminusProgress;
         public int terminusMilestones;
         public bool terminusComplete;
         /// <summary>Proxy faction template -> month (yyyy-MM) of the last alien-initiated trade (ProxyTrade).</summary>
         public Dictionary<string, string> lastProxyTrade = new Dictionary<string, string>();
-        /// <summary>Human track (Human/Personality): client faction template -> patron faction template.</summary>
+        /// <summary>Human factions (Human/Personality): client faction template -> patron faction template.</summary>
         public Dictionary<string, string> clients = new Dictionary<string, string>();
-        /// <summary>Human track: grudge memory "victim>actor" (decayed sum of injury hate), per personality half-life.</summary>
+        /// <summary>Human factions: grudge memory "victim>actor" (decayed sum of injury hate), per personality half-life.</summary>
         public Dictionary<string, float> grudges = new Dictionary<string, float>();
-        /// <summary>The strategist (docs/STRATEGIST.md): directives in force, per faction template, and the last checkpoint date.</summary>
+        /// <summary>The strategist's directives in force, per faction template, and the last checkpoint date.</summary>
         public Dictionary<string, Strategist.Directive> directives = new Dictionary<string, Strategist.Directive>();
         public string lastCheckpoint;
     }
@@ -77,11 +76,9 @@ namespace ImprovedAI.AI
     }
 
     /// <summary>
-    /// M2 step 1 (docs/M2-PLAN.md). Chooses the alien doctrine for a campaign and persists it.
-    /// - With a sidecar (&lt;save&gt;.improvedai.json, written whenever the game saves) the state is loaded as saved.
-    /// - Without one (old save, new game, save made without the mod) the doctrine is DERIVED deterministically from the
-    ///   campaign (start template + start date + alien faction ID), so the same save always yields the same doctrine.
-    /// The save file itself is never touched: vanilla can always load it.
+    /// Chooses the alien doctrine for a campaign and persists it in a sidecar (&lt;save&gt;.improvedai.json, written
+    /// whenever the game saves). Without a sidecar (old save, new game, save made without the mod) the doctrine is
+    /// derived deterministically from CampaignKey. The save file itself is never touched.
     /// </summary>
     internal static class AlienStrategy
     {
@@ -90,7 +87,7 @@ namespace ImprovedAI.AI
 
         private static readonly JsonSerializerSettings Json = new JsonSerializerSettings { Formatting = Formatting.Indented };
 
-        /// <summary>Doctrine pool per vanilla difficulty (1 Cinematic .. 4 Brutal); harsher doctrines only on higher levels (user, 2026-10-12).</summary>
+        /// <summary>Doctrine pool per vanilla difficulty (1 Cinematic .. 4 Brutal); harsher doctrines only on higher levels.</summary>
         internal static List<StrategicFocus> Pool(int difficulty)
         {
             var pool = new List<StrategicFocus> { StrategicFocus.FortressIndustrial, StrategicFocus.Bastion, StrategicFocus.PuppetMaster, StrategicFocus.QualityOverQuantity, StrategicFocus.Xenoformer };
@@ -102,7 +99,7 @@ namespace ImprovedAI.AI
         internal static string CampaignKey()
         {
             // TIGlobalValuesState.realWorldCampaignStart is the real-world time the campaign was created: identical in
-            // every save of one campaign, different between campaigns (checked on the user's saves, 2026-10-12).
+            // every save of one campaign, different between campaigns.
             var t = TIGlobalValuesState.GlobalValues.realWorldCampaignStart;
             string created = t == null ? "?" : $"{t.year:D4}{t.month:D2}{t.day:D2}T{t.hour:D2}{t.minute:D2}{t.second:D2}.{t.millisecond:D3}";
             return $"{GameStateManager.Time().template?.dataName}|{created}";

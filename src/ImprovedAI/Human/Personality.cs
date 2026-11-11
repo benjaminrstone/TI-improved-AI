@@ -12,10 +12,8 @@ using UnityEngine;
 namespace ImprovedAI.Human
 {
     /// <summary>
-    /// Faction personalities and the gang-up web (docs/HUMAN-AI.md §9; user, 2026-10-19: keep gang-up-on-the-leader but
-    /// smarter; anti-alien factions should feel very different; clients/minor allies of the leader among compatible
-    /// factions). Replaces vanilla's human-to-human jealousy (ADFP.JealousyAndDeescalation: flat +1..+2.25 a month toward
-    /// the strongest faction) with three per-personality terms:
+    /// Faction personalities and the gang-up web. Replaces vanilla's human-to-human jealousy
+    /// (ADFP.JealousyAndDeescalation: flat +1..+2.25 a month toward the strongest faction) with three per-personality terms:
     ///  - lead: the vanilla base scaled by the leader's strength over the runner-up's (0 in a close race, above vanilla
     ///    for a runaway); Initiative balances a close race and bandwagons a runaway instead;
     ///  - grudges: monthly hate from remembered injuries (missions, space, war), decayed at the personality's half-life;
@@ -23,7 +21,7 @@ namespace ImprovedAI.Human
     ///    (pro-alien), graded by the pressure.
     /// Clients: a compatible weaker AI faction attaches to a strong patron (the player included): no jealousy either way,
     /// a non-aggression pact allowed (vanilla never allows one with the strongest faction). Injuries, war, the client
-    /// becoming a contender or the patron falling behind break it. Everything else of the vanilla function is kept.
+    /// becoming a contender or the patron falling behind break it.
     /// </summary>
     internal static class Personality
     {
@@ -72,8 +70,6 @@ namespace ImprovedAI.Human
 
         public static Profile ProfileOf(TIFactionState f) => Profiles[Of(f)];
 
-        // ---- per-day cache: strengths and alien pressure -------------------------------------------------------------
-
         private static string _day;
         private static Dictionary<TIFactionState, float> _strength = new Dictionary<TIFactionState, float>();
         private static float _pressure;
@@ -117,8 +113,6 @@ namespace ImprovedAI.Human
             Refresh();
             return _strength.Count == 0 ? null : _strength.OrderByDescending(kv => kv.Value).First().Key;
         }
-
-        // ---- the three terms ---------------------------------------------------------------------------------------
 
         /// <summary>Lead factor: 0 below a 1.15 lead, 1 at 2x, 1.5 at 2.43x. Bandwagon: rises to 1 at 1.5x, then falls to 0.15 by 2.5x.</summary>
         public static float LeadFactor(float r, bool bandwagon)
@@ -168,8 +162,6 @@ namespace ImprovedAI.Human
             s.grudges[k] = (s.grudges.TryGetValue(k, out var g) ? g : 0f) + delta;
         }
 
-        // ---- clients ----------------------------------------------------------------------------------------------
-
         public static TIFactionState PatronOf(TIFactionState client)
         {
             var s = AlienStrategy.Current;
@@ -180,7 +172,7 @@ namespace ImprovedAI.Human
         public static bool ClientPair(TIFactionState a, TIFactionState b) =>
             a != null && b != null && (PatronOf(a) == b || PatronOf(b) == a);
 
-        /// <summary>Who may be whose client (docs/HUMAN-AI.md §9, user answers 2026-10-19).</summary>
+        /// <summary>Who may be whose client.</summary>
         public static bool Compatible(TIFactionState client, TIFactionState patron, out string why)
         {
             why = null;
@@ -256,8 +248,7 @@ namespace ImprovedAI.Human
             }
         }
 
-        /// <summary>Monthly: AI humans forgive a share of standing hate toward other human factions (Exodus 15%,
-        /// Initiative 6%, Academy 4%, Resistance 3%, pro-alien 2%, Humanity First never).</summary>
+        /// <summary>Monthly: AI humans forgive a share (Profile.Forgive) of standing hate toward other human factions.</summary>
         private static void Forgiveness(List<TIFactionState> humans)
         {
             foreach (var f in humans.Where(FleetCompetence.AIHuman))
@@ -303,8 +294,6 @@ namespace ImprovedAI.Human
                     lead = (float)Math.Round(LeadRatio(patron), 2), pressure = AlienPressure,
                 });
         }
-
-        // ---- the jealousy function ---------------------------------------------------------------------------------
 
         /// <summary>
         /// ADFP.JealousyAndDeescalation for an AI human toward a human faction, with vanilla's jealousy block replaced by
@@ -353,7 +342,7 @@ namespace ImprovedAI.Human
             // Grudges: an injured faction keeps hating the actor for a while (per personality). Not between a client and
             // its patron: the injury itself breaks the relation (and the pact, through vanilla's rising-hate check).
             if (!client) num += 0.1f * ProfileOf(faction).GrudgeWeight * Grudge(faction, enemy);
-            // The strategist's rivals and friends (docs/STRATEGIST.md): +/-1.5 hate a month, on top of the personality.
+            // The strategist's rivals and friends: +/-1.5 hate a month, on top of the personality.
             int stance = Strategist.Directives.Stance(faction, enemy);
             if (stance != 0) num = Mathf.Max(stance < 0 ? -1.5f : 0f, num + 1.5f * stance);
             if (periodic) faction.GainFactionHate(enemy, -1f, cantConflagrate: true, "Periodic hate");

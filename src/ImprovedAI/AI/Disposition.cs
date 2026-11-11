@@ -8,10 +8,9 @@ using UnityEngine;
 namespace ImprovedAI.AI
 {
     /// <summary>
-    /// The alien attitude toward each human faction: hate (vanilla factionHate, unchanged) x CONTEMPT (new; DESIGN
-    /// "Disposition"). Contempt is how little the Hydras think that faction can hurt them. It starts high and falls when
-    /// the faction beats alien expectations; it drives how carelessly they size attacks against that faction.
-    /// Stored in AlienStrategy.Current.contempt (persisted in the save sidecar).
+    /// The alien attitude toward each human faction: hate (vanilla factionHate, unchanged) x contempt, how little the
+    /// Hydras think that faction can hurt them. Contempt starts high, falls when the faction beats alien expectations,
+    /// and drives how carelessly attacks against that faction are sized. Persisted in the save sidecar.
     /// </summary>
     internal static class Disposition
     {
@@ -27,10 +26,9 @@ namespace ImprovedAI.AI
         }
 
         /// <summary>
-        /// Starting contempt for a faction with no recorded history (new game, or a save made without the mod): seeded from
-        /// what vanilla has already learned. perceivedEnemyFleetStrengthFactor (0.67..1.5, nudged after every battle) is
-        /// the aliens' learned respect: 1.0 -> StartingContempt, 1.5 (they have learned to fear you) -> StartingContempt - 0.4.
-        /// StartingContempt is per difficulty (Dials), and the learned part scales with how fast this difficulty learns.
+        /// Starting contempt for a faction with no recorded history (new game, or a save made without the mod), seeded from
+        /// vanilla's perceivedEnemyFleetStrengthFactor (0.67..1.5, nudged after every battle), the aliens' learned respect:
+        /// 1.0 -> StartingContempt, 1.5 -> StartingContempt - 0.4. The learned part scales with ContemptLearning.
         /// </summary>
         public static float Initial(TIFactionState human)
         {

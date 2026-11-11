@@ -20,7 +20,7 @@ namespace ImprovedAI.Harness
     ///       Force (part of) the alien doctrine for this run.
     ///   ai.drainammo &lt;faction&gt; &lt;system&gt;
     ///       Empty every magazine on that faction's fleets in a system (e.g. Earth). Weapons without ammo count as
-    ///       inoperable, so missile fleets drop to ~0 SCV: the "unresupplied bait" trick (EXPLOITS E1).
+    ///       inoperable, so missile fleets drop to ~0 SCV.
     /// </summary>
     internal static class HarnessCommands
     {

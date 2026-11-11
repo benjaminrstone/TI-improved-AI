@@ -7,11 +7,10 @@ using PavonisInteractive.TerraInvicta;
 namespace ImprovedAI.Diagnostics
 {
     /// <summary>
-    /// The gang-up web (docs/HUMAN-AI.md §9): every human-to-human hate change, by cause, summed per month. The
-    /// victim's hate toward the actor is how the game records injuries (missions " targets faction", combat, habs), so
-    /// this is both the probe for the vanilla gang-up rule and, later, the grudge source. One "human-hate" record per
-    /// human faction per month: hate toward each other human faction, this month's change by cause bucket, war, the
-    /// strongest faction and strength estimates. Runs on vanilla too.
+    /// Every human-to-human hate change, by cause, summed per month. The victim's hate toward the actor is how the game
+    /// records injuries (missions " targets faction", combat, habs), so this is also the grudge source. One
+    /// "human-hate" record per human faction per month: hate toward each other human faction, this month's change by
+    /// cause bucket, war, the strongest faction and strength estimates. Runs on vanilla too.
     /// </summary>
     internal static class HateLedger
     {

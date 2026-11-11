@@ -7,7 +7,7 @@ using PavonisInteractive.TerraInvicta.Tasks;
 namespace ImprovedAI.AI
 {
     /// <summary>
-    /// Alien willingness to fight, once a battle is joined (user, 2026-10-12: "never lose a ship" is too cautious).
+    /// Alien willingness to fight, once a battle is joined.
     ///  - Defending their own base or station (there are Hydras aboard): never evade unless hopelessly outmatched.
     ///  - An attack fleet that arrives to find ~even odds fights rather than turning around and burning fuel home.
     /// Applied after vanilla's StratCombatInitStrategy.SelectStance, only to replace an Evade.

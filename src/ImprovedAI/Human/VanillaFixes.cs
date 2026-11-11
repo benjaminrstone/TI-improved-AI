@@ -12,13 +12,13 @@ using UnityEngine;
 namespace ImprovedAI.Human
 {
     /// <summary>
-    /// The human AI track, step 1 (user, 2026-10-18): four vanilla bugs, verified by reading the code (docs/HUMAN-AI.md §6).
-    /// Each is behind its own [HumanAI] switch, and VanillaAI turns them all off.
+    /// Vanilla bug fixes for AI human factions (H1 to H6). Each is behind its own [HumanAI] switch, and VanillaAI turns
+    /// them all off.
     /// </summary>
     internal static class HumanFixes
     {
         // AI-controlled human factions. Same set as "not the active player" in a normal game, but also covers a player
-        // faction handed to the AI (harness ai.control, 2026-10-22).
+        // faction handed to the AI (harness ai.control).
         public static bool AI(TIFactionState f) => f != null && !f.IsAlienFaction && f.player != null && f.player.isAI;
     }
 
@@ -156,13 +156,12 @@ namespace ImprovedAI.Human
     }
 
     /// <summary>
-    /// Vanilla bug H5 (found 2026-10-19 with the queue diagnostic): idle savings. The AI banks resources for its saving
-    /// target (AISavingData) and every other purchase sees them as reserved (TIResourcesCost.GetShortfall, unless
-    /// ShouldTapSavings). When the target is a ship queued BEHIND a ship already under construction, it can't start for
-    /// months, yet its savings keep starving every ship that could start now: in 2034, Humanity First's target sat at yard
-    /// 23 behind a paid build while yard 2's head was "short" 263 water, and the blocker then stops the AI's daily queue
-    /// walk for all later yards (lastUnaffordableShipShipyard). Fix: while the saving-target ship is queued but not at the
-    /// head of any unpaid queue, other purchases may tap the savings. Once it reaches a head, the reservation applies again.
+    /// H5: idle savings. The AI banks resources for its saving target (AISavingData) and every other purchase sees them
+    /// as reserved (TIResourcesCost.GetShortfall, unless ShouldTapSavings). When the target is a ship queued behind a
+    /// ship already under construction, it can't start for months, yet its savings keep starving every ship that could
+    /// start now, and the starved head then stops the AI's daily queue walk for all later yards
+    /// (lastUnaffordableShipShipyard). Fix: while the saving-target ship is queued but not at the head of any unpaid
+    /// queue, other purchases may tap the savings. Once it reaches a head, the reservation applies again.
     /// </summary>
     [HarmonyPatch(typeof(TIResourcesCost), nameof(TIResourcesCost.ShouldTapSavings))]
     internal static class FixIdleSavings
@@ -215,11 +214,10 @@ namespace ImprovedAI.Human
     /// H6: a faction with (almost) none of a resource values receiving it at (almost) nothing. TradeAI's
     /// GetResourceStorageModifier scales a resource's storage days by (stock + extra) / stock to price each further slice
     /// of a trade. At zero stock that divides by zero: the first slice gets modifier 1 (0/0 is NaN, which fails the
-    /// "days > 0" test) and every later slice +infinity days, so modifier 0. In the 2034 market the Initiative, holding 0
-    /// metals, valued 7.7k metals from Exodus at 153 and refused every deal while its ship queues starved; with 359 noble
-    /// metals it valued 467 more at 10k. Storage days are (stock + floor) / (daily cost + c) in GetResourceTradeData, with a
-    /// per-resource floor (300 for metals); the intended rescale is (stock + floor + extra) / (stock + floor), which is
-    /// what this computes. It differs from vanilla only when stock is small against the floor.
+    /// "days > 0" test) and every later slice +infinity days, so modifier 0. Storage days are
+    /// (stock + floor) / (daily cost + c) in GetResourceTradeData, with a per-resource floor (300 for metals); the
+    /// intended rescale is (stock + floor + extra) / (stock + floor), which is what this computes. It differs from
+    /// vanilla only when stock is small against the floor.
     /// AI human valuers only: this also changes how an AI human prices the player's offers (it now pays for what it lacks).
     /// </summary>
     [HarmonyPatch(typeof(TradeAI), nameof(TradeAI.GetResourceStorageModifier))]

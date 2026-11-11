@@ -8,9 +8,9 @@ using UnityEngine;
 namespace ImprovedAI.Strategist
 {
     /// <summary>
-    /// What the strategist may set for one faction (docs/STRATEGIST.md, schema v0). Every field is optional; missing means
-    /// "no change from the AI's own judgement". Values re-weight choices the AI could make anyway: no resources, intel or
-    /// units are ever granted. Stored in the sidecar (StrategyState.directives), so they survive save and load.
+    /// What the strategist may set for one faction. Every field is optional; missing means "no change from the AI's own
+    /// judgement". Values re-weight choices the AI could make anyway: no resources, intel or units are ever granted.
+    /// Stored in the sidecar (StrategyState.directives), so they survive save and load.
     /// </summary>
     public class Directive
     {
@@ -66,9 +66,8 @@ namespace ImprovedAI.Strategist
             return i < 0 ? int.MaxValue : i;
         }
 
-        // ---- aliens ----
         public static float AlienPosture => Mathf.Clamp(For(GameStateManager.AlienFaction())?.posture ?? 0f, -1f, 1f);
-        // Caps (15-year campaign, 2026-10-23: the strike list grew to 30 systems, which is no priority at all).
+        // Caps: an unbounded strike list is no priority at all.
         internal const int MaxStrikeTargets = 5, MaxSpare = 12;
         public static int StrikeRank(string system) => Rank(For(GameStateManager.AlienFaction())?.strikeTargets?.Take(MaxStrikeTargets).ToList(), system);
         public static bool Spared(string system) => Has(For(GameStateManager.AlienFaction())?.spare?.Take(MaxSpare).ToList(), system);
@@ -78,7 +77,6 @@ namespace ImprovedAI.Strategist
             get { var m = For(GameStateManager.AlienFaction())?.warChestMonths; return m.HasValue ? Mathf.Clamp(m.Value, 0f, 36f) : (float?)null; }
         }
 
-        // ---- humans ----
         /// <summary>+1 rival, -1 friend, 0 neither.</summary>
         public static int Stance(TIFactionState f, TIFactionState other)
         {

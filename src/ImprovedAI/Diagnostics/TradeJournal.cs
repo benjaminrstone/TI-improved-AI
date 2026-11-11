@@ -6,10 +6,9 @@ using PavonisInteractive.TerraInvicta;
 namespace ImprovedAI.Diagnostics
 {
     /// <summary>
-    /// Trades involving the aliens (user, 2026-10-13: the Servants and Protectorate, maybe the Academy later, can trade
-    /// with them). Once a pro-alien faction completes AlienDiplomacy (a Contact mission on an alien councilor),
-    /// AI-to-AI offers run through TIPromptQueueState.HandleFactionContactMakeOffer -> DiplomacyTradeAction ->
-    /// TIFactionState.ProcessTrade, called on the receiving side with the giver's offer. One "trade" record per side
+    /// Trades involving the aliens. Once a pro-alien faction completes AlienDiplomacy (a Contact mission on an alien
+    /// councilor), AI-to-AI offers run through TIPromptQueueState.HandleFactionContactMakeOffer -> DiplomacyTradeAction
+    /// -> TIFactionState.ProcessTrade, called on the receiving side with the giver's offer. One "trade" record per side
     /// received: who gave what (resources, projects, control points, habs, orgs, treaty).
     /// </summary>
     [HarmonyPatch(typeof(TIFactionState), nameof(TIFactionState.ProcessTrade))]

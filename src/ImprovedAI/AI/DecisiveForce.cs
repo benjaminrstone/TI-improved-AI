@@ -6,15 +6,10 @@ using PavonisInteractive.TerraInvicta;
 namespace ImprovedAI.AI
 {
     /// <summary>
-    /// Alien attacks are sized to win decisively instead of to just beat the defenders' current SCV (EXPLOITS E3).
-    ///
-    /// Vanilla (FactionGoal_AttackWithFleet.ComputeDesiredFleetCombatValueForAttack) wants defenders x ~1.4 + a small
-    /// bonus, counts only fleets within 1000 km of the target, and launches the moment a fleet reaches that number:
-    /// median launch ratio 1.05-1.21 in the vanilla probes. Here, for the alien faction attacking a human target:
-    ///   need = (remembered SCV of the defenders + 0.5 x other same-faction fleets in the target's system)
-    ///          x perceived-strength factor x AlienAttackSuperiority + 1
-    /// and the desired value is raised to at least that. Vanilla's own number still applies when it is higher.
-    /// The in-system "spontaneous attack" threshold is raised to the same superiority.
+    /// Alien attacks on human targets are sized to win decisively (exploit E3). Vanilla
+    /// (FactionGoal_AttackWithFleet.ComputeDesiredFleetCombatValueForAttack) wants defenders x ~1.4 + a small bonus,
+    /// counts only fleets within 1000 km of the target, and launches the moment a fleet reaches that number. Here the
+    /// desired value is raised to at least DefenderThreat x AttackSuperiority x Disposition.SuperiorityFactor + 1.
     /// </summary>
     [HarmonyPatch(typeof(FactionGoal_AttackWithFleet), nameof(FactionGoal_AttackWithFleet.ComputeDesiredFleetCombatValueForAttack))]
     internal static class DecisiveForce
@@ -67,9 +62,8 @@ namespace ImprovedAI.AI
 
     /// <summary>
     /// Vanilla lets an alien fleet already in the target's system launch below the goal's desired strength if it beats
-    /// GetPerceivedEnemySpaceAssetStrength_AndItsDefenders (only defenders right at the target) by 1.25x. That is how a
-    /// fleet fresh from a win at Earth attacked a station with a docked swarm nearby at 1/3 of the needed strength and
-    /// was wiped out (EXPLOITS E14). Hold that shortcut to the full expected threat at the target.
+    /// GetPerceivedEnemySpaceAssetStrength_AndItsDefenders (only defenders right at the target) by 1.25x (exploit E14).
+    /// Hold that shortcut to the full expected threat at the target.
     /// </summary>
     [HarmonyPatch(typeof(FactionGoal_AttackWithFleet), nameof(FactionGoal_AttackWithFleet.ReadyForTransferToTarget))]
     internal static class NoUnderstrengthShortcut

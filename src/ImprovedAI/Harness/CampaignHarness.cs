@@ -18,10 +18,10 @@ using UnityEngine;
 namespace ImprovedAI.Harness
 {
     /// <summary>
-    /// Unattended strategic-layer runner (L1 probes / L2 soaks). Enabled by a run.json that tools/run.ps1 drops into
-    /// the plugin folder. It loads a save, runs the clock at max speed with the game's own Autopilot clearing prompts
-    /// and auto-resolving combat, executes setup commands, records diagnostics, and quits after N game days.
-    /// Asserts are evaluated afterwards by tools/probe.py over the run's output, so the plugin stays dumb.
+    /// Unattended strategic-layer runner, enabled by a run.json that tools/run.ps1 drops into the plugin folder. It
+    /// loads a save, runs the clock at max speed with the game's own Autopilot clearing prompts and auto-resolving
+    /// combat, executes setup commands, records diagnostics, and quits after N game days.
+    /// Asserts are evaluated afterwards by tools/probe.py over the run's output.
     /// </summary>
     internal class CampaignHarness : MonoBehaviour
     {
@@ -221,7 +221,7 @@ namespace ImprovedAI.Harness
             var gameCommands = new List<string>();
             foreach (var raw in Run.commands)
             {
-                // "@N command" runs N game days after the start (see OnNewDay).
+                // "@N command" runs N game days after the start (see RunScheduled).
                 string cmd = raw.Trim();
                 if (cmd.StartsWith("@")) { _scheduled.Add(cmd); continue; }
                 Plugin.Log.LogInfo($"[Harness] command: {cmd}");
@@ -286,7 +286,7 @@ namespace ImprovedAI.Harness
             if (Strategist.Checkpoint.Waiting)
             {
                 // Paused on purpose while the strategist thinks: not a stall, not to be resumed here, and the Autopilot
-                // (which presses play) is held off: in strategist-2039 the clock still crept on 2 days per checkpoint.
+                // (which presses play) is held off.
                 if (_autopilot != null && _autopilot.Activated) { _autopilot.Activated = false; _autopilotHeld = true; }
                 if (gtm != null && gtm.currentSpeedIndex != 0) gtm.SetSpeed(0, false);
                 _lastDateChangeAt = now;
@@ -299,7 +299,7 @@ namespace ImprovedAI.Harness
             if (date != _lastDate) { _lastDate = date; _lastDateChangeAt = now; _consecutiveStalls = 0; }
             else if (now - _lastDateChangeAt > 20f && now - _lastUnstick > 20f && BlockingPrompts().Contains("faction:PromptSelectCouncilorMissions"))
             {
-                // The Autopilot sometimes fails to confirm the mission phase (seen at 2039-08-01); do what the button does.
+                // The Autopilot sometimes fails to confirm the mission phase; do what the button does.
                 _lastUnstick = now;
                 _unsticks++;
                 Plugin.Log.LogInfo($"[Harness] Finalizing councilor missions for the stuck mission phase at {date}");
@@ -310,8 +310,7 @@ namespace ImprovedAI.Harness
                      && !TIPromptQueueState.anyActivePlayerBlockingPrompt)
             {
                 // Paused with nothing blocking: an event notification (e.g. "fleet returns to operations") paused the
-                // clock. An AI-run player faction raises many of these (ai.control, 2026-10-22: 11 stalls of 90 s in one
-                // run). Resume rather than wait for the stall handler.
+                // clock. An AI-run player faction raises many of these. Resume rather than wait for the stall handler.
                 _lastResume = now;
                 _resumes++;
                 gtm.SetSpeed(Run.speedIndex, pushBeyondCap: true);

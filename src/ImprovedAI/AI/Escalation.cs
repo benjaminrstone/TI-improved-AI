@@ -9,20 +9,14 @@ using UnityEngine;
 namespace ImprovedAI.AI
 {
     /// <summary>
-    /// P4, a late-game arc (DESIGN "A late-game arc"): real losses move the aliens from managing a nuisance to fighting a
-    /// war they could lose. Monthly, the command judges its DESPERATION (0..1) from:
-    ///  - threat: human habs in the gas-giant systems (Jupiter, Saturn, Uranus, Neptune), the alien heartland;
-    ///  - lost systems: gas-giant systems humans hold where the aliens hold nothing;
-    ///  - respect: how far the lowest contempt for any human faction has fallen below RespectContempt;
-    ///  - losses: alien habs lost to humans in the last 12 months.
-    /// At EscalateAt it ESCALATES (latched; calms only after CalmMonths below CalmAt):
-    ///  - total war becomes possible at once (vanilla waits for yearsBeforeAlienTotalWarAllowed, 20 progression-years on
-    ///    Normal), against factions the aliens already hate enough (vanilla's own hate threshold still applies);
-    ///  - loss aversion relaxes: lower attack superiority and arrival fight ratio, reserves committed (Dials);
-    ///  - more raids and captures, raids aimed harder at hated factions;
-    ///  - the drip goes to war: the sustainable base cap commits a smaller share of it to expansion.
-    /// Justified, not rubber-banding: every effect spends what the aliens really have. A player who has raided their
-    /// economy meets a weaker surge.
+    /// Real losses move the aliens from managing a nuisance to fighting a war they could lose. Monthly, the command
+    /// judges its desperation (0..1) from human habs in the gas-giant systems (the alien heartland), gas-giant systems
+    /// humans hold where the aliens hold nothing, how far the lowest contempt for any human faction has fallen below
+    /// RespectContempt, and alien habs lost to humans in the last 12 months.
+    /// At EscalateAt it escalates (latched; calms only after CalmMonths below CalmAt). Total war becomes possible at
+    /// once (vanilla waits for yearsBeforeAlienTotalWarAllowed, 20 progression-years on Normal; its own hate threshold
+    /// still applies), and Dials relaxes loss aversion, commits reserves, multiplies raids and captures, and moves drip
+    /// share from expansion to war.
     /// </summary>
     internal static class Escalation
     {

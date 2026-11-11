@@ -8,9 +8,9 @@ using PavonisInteractive.TerraInvicta;
 namespace ImprovedAI.Strategist
 {
     /// <summary>
-    /// The player learns a faction's intent only through a relationship (user, 2026-10-22): the faction has a
-    /// non-aggression pact or an intel-sharing treaty with the player ("allied": the game has no formal alliance), is the
-    /// player's client (Human/Personality), or has a councilor the player has turned (councilor.agentForFaction).
+    /// The player learns a faction's intent only through a relationship: the faction has a non-aggression pact or an
+    /// intel-sharing treaty with the player ("allied": the game has no formal alliance), is the player's client
+    /// (Human/Personality), or has a councilor the player has turned (councilor.agentForFaction).
     /// Shown as a notification after each checkpoint; in unattended harness runs, journaled only.
     /// </summary>
     internal static class Intel

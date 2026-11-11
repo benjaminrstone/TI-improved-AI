@@ -6,16 +6,14 @@ using PavonisInteractive.TerraInvicta;
 namespace ImprovedAI.AI
 {
     /// <summary>
-    /// The aliens remember what human ships have shown them. Vanilla judges a fleet only by the SCV of its currently
-    /// fitted design (TISpaceShipState.SpaceCombatValue), so refitting to weak missiles, leaving magazines empty or
-    /// burning fuel makes a fleet look harmless until moments before the fight (EXPLOITS E1, E2).
-    ///
-    /// Memory is per SHIP: each ship's best SCV over the last N days. A fleet's remembered threat is the sum, over the
-    /// ships it has now, of max(current SCV, remembered best). Destroyed ships drop out exactly (no "average x count"
-    /// overestimate when a fleet loses its battleship), and a destroyed fleet stops counting at once.
+    /// The aliens remember what human ships have shown them (exploits E1, E2). Vanilla judges a fleet only by the SCV of
+    /// its currently fitted design (TISpaceShipState.SpaceCombatValue), so refitting to weak missiles, leaving magazines
+    /// empty or burning fuel makes a fleet look harmless until moments before the fight.
+    /// Memory is per ship: each ship's best SCV over the last ThreatMemoryDays. A fleet's remembered threat is the sum,
+    /// over the ships it has now, of max(current SCV, remembered best), so destroyed ships drop out exactly.
     /// Ships are keyed by faction + name, not game-state ID, because a refit creates a new ship state that keeps the
     /// original's name (TISpaceShipState.CopyDataForRefit): a bait refit must not wipe the memory.
-    /// Sampled once per game day for every human ship. Not persisted: after a load, memory starts from current values.
+    /// Not persisted: after a load, memory starts from current values.
     /// </summary>
     internal static class ThreatMemory
     {

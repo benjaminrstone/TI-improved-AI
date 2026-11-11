@@ -17,7 +17,7 @@ foreach ($p in $Probes) {
     if ($first) { & (Join-Path $PSScriptRoot 'run.ps1') -Probe $p; $first = $false }
     else { & (Join-Path $PSScriptRoot 'run.ps1') -Probe $p -NoDeploy }
     $code = $LASTEXITCODE
-    $result = if ($code -eq 0) { 'PASS' } elseif ($code -eq 2) { 'FAIL' } else { "ERROR($code)" }  # PS 5.1: no ??
+    $result = if ($code -eq 0) { 'PASS' } elseif ($code -eq 2) { 'FAIL' } else { "ERROR($code)" }
     $summary += [pscustomobject]@{ probe = $p; result = $result; minutes = [Math]::Round(((Get-Date) - $t0).TotalMinutes, 1) }
 }
 Write-Host "`n=== probe summary ==="

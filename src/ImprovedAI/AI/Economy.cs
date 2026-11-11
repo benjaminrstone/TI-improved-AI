@@ -9,18 +9,13 @@ using UnityEngine;
 namespace ImprovedAI.AI
 {
     /// <summary>
-    /// M2 step 6: the alien economy (DESIGN P2 "Mine what you lack", "Exotics are the imported edge").
-    ///
-    /// Mine what you lack. Vanilla picks alien base sites by percent change in income, mostly gross revenue: stockpiles
-    /// and ship-construction spend never enter it, so metals and nobles are spent to nothing while water and volatiles
-    /// pile up past 400k (FINDINGS). Here each basic resource gets a NEED weight: what the aliens actually spend it on
-    /// (the material mix of their live fleet) against what they hold. A site's score is multiplied by the
-    /// production-weighted mean need of what it yields, so a metal-rich site outranks another ice moon.
-    ///
-    /// Exotics upkeep instead of a fixed base cap. Every alien base costs exotics each month, and so does every capital
-    /// hull; the wormhole drip pays for it. The base cap becomes what the drip plus a slice of the stockpile can carry.
-    /// Bases and warships now compete for the same drip, and the 7.8k-exotics hoard of the 2039 save becomes expansion.
-    /// The scripted base goals (Jupiter, belt, Neptune -> Uranus -> Saturn) still bypass the cap, as in vanilla.
+    /// The alien economy.
+    /// Mine what you lack: vanilla picks alien base sites by percent change in income, mostly gross revenue; stockpiles
+    /// and ship-construction spend never enter it. Here a site's score is multiplied by the need for what it yields
+    /// (the material mix of the live fleet against what is held).
+    /// Exotics upkeep: every alien base and capital hull costs exotics each month, and vanilla's fixed base cap becomes
+    /// what the wormhole drip plus a slice of the stockpile can carry. The scripted base goals (Jupiter, belt,
+    /// Neptune -> Uranus -> Saturn) still bypass the cap, as in vanilla.
     /// </summary>
     internal static class Economy
     {
@@ -29,7 +24,6 @@ namespace ImprovedAI.AI
 
         internal static readonly FactionResource[] Basic = { FactionResource.Water, FactionResource.Volatiles, FactionResource.Metals, FactionResource.NobleMetals, FactionResource.Fissiles };
 
-        // Per faction: the aliens, and AI human factions since human AI step 2 (2026-10-19).
         private static readonly Dictionary<TIFactionState, (string date, Dictionary<FactionResource, float> need)> _need = new Dictionary<TIFactionState, (string, Dictionary<FactionResource, float>)>();
 
         public static void Reset() { _need.Clear(); }
@@ -58,7 +52,6 @@ namespace ImprovedAI.AI
 
         /// <summary>
         /// Need weight per basic resource, in [1/max, max]: (share of spend x total basic stock) / own stock.
-        /// A resource the fleet is made of but the stockpile lacks scores high; one that only piles up scores low.
         /// Recomputed once per game day at most.
         /// </summary>
         public static Dictionary<FactionResource, float> Need(TIFactionState alien)
@@ -89,8 +82,6 @@ namespace ImprovedAI.AI
             return prod <= 0f ? 1f : weighted / prod;
         }
 
-        // ---- Exotics upkeep ----
-
         public static float ShipUpkeep(TISpaceShipTemplate t)
         {
             if (t?.hullTemplate == null) return 0f;
@@ -110,31 +101,29 @@ namespace ImprovedAI.AI
         private static float _slack; private static string _slackDate;
 
         /// <summary>
-        /// (drip - upkeep) / drip, cached per game day: below 0 the aliens are paying more upkeep than the wormhole brings.
-        /// The build picker reads it (exotics-aware shipbuilding): capital hulls carry upkeep, so a deficit shifts the mix
-        /// to smaller hulls. The 2-year soak (2026-10-17) drained ~20 exotics/month as capital upkeep grew after expansion.
+        /// (drip - terminus draw + hoard income - upkeep) / drip, cached per game day: below 0 the aliens are paying more
+        /// than the wormhole brings. The build picker reads it: capital hulls carry upkeep, so a deficit shifts the mix
+        /// to smaller hulls.
         /// </summary>
         public static float ExoticsSlack(TIFactionState alien)
         {
             string today = GameRead.Now();
             if (_slackDate == today) return _slack;
             float drip = Drip(alien);
-            // The terminus investment is a commitment like upkeep (taken first each month): left out, the slack read +0.32
-            // while the real margin was ~+2/month (retire-2041 v3, 2026-10-23).
+            // The terminus investment is a commitment like upkeep (taken first each month), so it counts against the slack.
             _slack = drip <= 0f ? -1f : (drip - TerminusDraw(drip) + HoardIncome(alien) - MonthlyUpkeep(alien, out _, out _)) / drip;
             _slackDate = today;
             return _slack;
         }
 
-        /// <summary>Weight multiplier on large hulls in the build pick: 1 with slack >= 0, down to 0.25 in deficit; 1 when escalated (surge).</summary>
+        /// <summary>Weight multiplier on large hulls in the build pick: 1 with slack >= 0 or when escalated, down to 0.25 in deficit.</summary>
         public static float LargeHullBuildFactor(TIFactionState alien)
         {
             if (!UpkeepOn || Escalation.Escalated) return 1f;
             float s = ExoticsSlack(alien);
             if (s >= 0f) return 1f;
-            // In deficit with the stock at or below the war chest, no new capital hulls at all. With the old 0.25 floor
-            // the 15-year campaign (2026-10-23) kept adding them: ship upkeep 0 -> 77/month against a drip of 41-67,
-            // and the exotics stock sat at 0 from 2031 to 2038. (A tiny weight, not 0: the picker divides by it.)
+            // In deficit with the stock at or below the war chest, no new capital hulls at all.
+            // A tiny weight, not 0: the picker divides by it.
             if (WarChestOn && alien.GetCurrentResourceAmount(FactionResource.Exotics) <= WarChest(alien)) return 0.01f;
             return Mathf.Clamp(1f + Plugin.Cfg.ExoticsPressureGain.Value * s, 0.25f, 1f);
         }
@@ -142,14 +131,10 @@ namespace ImprovedAI.AI
         /// <summary>Gross monthly exotics income (the wormhole drip, before upkeep).</summary>
         public static float Drip(TIFactionState alien) => Mathf.Max(0f, GameRead.Safe(() => alien.GetMonthlyIncome(FactionResource.Exotics)));
 
-        // ---- The war chest (exotics v2, 2026-10-20) ----
-        // The 2-year soak (2026-10-18) took the stock 2.0k -> 1.3-1.7k. Most of that is exotics spent on warships (their
-        // purpose); upkeep was only ~5/month over the drip on average, but capital-hull upkeep climbs steadily (14 -> 31-44)
-        // and nothing stops it eating the hoard. A competent command spends its hoard down to a war chest and lives within
-        // the drip below that; the chest is for the P4 surge (escalated, it is spent freely).
+        // The war chest (ExoticsWarChestMonths of drip): the command spends its hoard down to it and lives within the
+        // drip below that. Escalated, the chest is spent freely.
         public static bool WarChestOn => UpkeepOn && Plugin.Cfg.ExoticsWarChest.Value;
 
-        /// <summary>Exotics the command keeps back outside escalation: ExoticsWarChestMonths of drip.</summary>
         public static float WarChest(TIFactionState alien) =>
             WarChestOn ? Mathf.Max(0f, Strategist.Directives.WarChestMonths ?? Plugin.Cfg.ExoticsWarChestMonths.Value) * Drip(alien) : 0f;
 
@@ -165,10 +150,8 @@ namespace ImprovedAI.AI
         }
 
         /// <summary>
-        /// How many bases the aliens can SUSTAIN (user, 2026-10-16: intelligent aliens, sustainable cap). The budget is a
-        /// share of the drip (the rest is kept for exotic warships and the growth of capital-ship upkeep) plus a slow
-        /// slice of the stockpile, minus current capital-ship upkeep. v1 counted the whole drip plus stock/60 and
-        /// overshot: 23 bases, upkeep ~100 against a drip of 60, stockpile dry within a year (2-year soak, 2026-10-13).
+        /// How many bases the aliens can sustain. The budget is a share of the drip (the rest is kept for exotic warships
+        /// and the growth of capital-ship upkeep) plus a slow slice of the stockpile, minus current capital-ship upkeep.
         /// </summary>
         public static int ExoticsBaseCap(TIFactionState alien)
         {
@@ -180,30 +163,29 @@ namespace ImprovedAI.AI
             return Mathf.Clamp(Mathf.FloorToInt(budget / perBase), 0, Plugin.Cfg.MaxAlienBasesCeiling.Value);
         }
 
-        /// <summary>
-        /// With the exotics stock spent, the hulls that can't be paid for are retired, oldest first (user, 2026-10-23).
-        /// In the 15-year campaign capital-hull upkeep reached 77.5/month against a drip of 41-67 and the stock sat at 0
-        /// for seven years, where unpaid upkeep cost nothing. Retires capital hulls (large and huge) until ship upkeep
-        /// fits what the drip leaves after the terminus investment (taken first each month) and base upkeep. Fleets in
-        /// combat and attacks under way keep their ships. Removal is vanilla's non-combat DestroyShip (as for crash-downs).
-        /// </summary>
         /// <summary>What the terminus takes from the drip each month while it is being built (0 otherwise).</summary>
         public static float TerminusDraw(float drip) =>
             Terminus.On && AlienStrategy.Current.terminusStarted != null && !AlienStrategy.Current.terminusComplete
                 ? Mathf.Clamp01(Plugin.Cfg.TerminusDripShare.Value) * drip : 0f;
 
         /// <summary>
-        /// Short of exotics: the stock is at or below the war chest and the monthly margin (slack, terminus and upkeep
-        /// counted) is under RetireMargin. New bases are refused then (NoBasesWhenExoticsShort).
+        /// Short of exotics: the stock is at or below the war chest and the slack is under RetireMargin. New bases are
+        /// refused then (NoBasesWhenExoticsShort).
         /// </summary>
         public static bool ExoticsShort(TIFactionState alien) =>
             WarChestOn && !Escalation.Escalated && alien.GetCurrentResourceAmount(FactionResource.Exotics) <= WarChest(alien)
             && ExoticsSlack(alien) < Mathf.Clamp01(Plugin.Cfg.RetireMargin.Value);
 
+        /// <summary>
+        /// With the exotics stock spent, unpaid upkeep would cost nothing, so capital hulls (large and huge) are retired,
+        /// oldest first, until ship upkeep fits what the drip leaves after the terminus investment and base upkeep.
+        /// Fleets in combat and attacks under way keep their ships. Removal is vanilla's non-combat DestroyShip (as for
+        /// crash-downs).
+        /// </summary>
         private static void RetireOldestCapitalHulls(TIFactionState alien, float drip, float baseUpkeep, float shipUpkeep)
         {
             float terminus = TerminusDraw(drip);
-            // A margin below the exact fit, so the stock rebuilds instead of sitting at 0 (retire-2041 v2, 2026-10-23).
+            // A margin below the exact fit, so the stock rebuilds instead of sitting at 0.
             float allowed = Mathf.Max(0f, (drip - terminus - baseUpkeep) * (1f - Mathf.Clamp01(Plugin.Cfg.RetireMargin.Value)));
             if (shipUpkeep <= allowed) return;
             var candidates = alien.fleets.Where(f => TIGameState.Valid(f) && f.ships != null && !f.inCombatOrWaitingForCombat
@@ -212,8 +194,7 @@ namespace ImprovedAI.AI
                 .OrderBy(s => s.launchDate == null ? double.MinValue : s.launchDate.DifferenceInDays(TITimeState.Now()))   // launch - now: oldest (most negative) first
                 .ToList();
             float excess = shipUpkeep - allowed, saved = 0f;
-            // At most RetireMaxShare of the capital hulls held this month (user, 2026-10-23): a single cut took 132 hulls
-            // and 40% of alien SCV in one month. 10% of what remains each month spreads it over about a year and a half.
+            // At most RetireMaxShare of the capital hulls held, per month, so a large cut is spread over many months.
             int capitalHulls = alien.fleets.Where(f => TIGameState.Valid(f) && f.ships != null).SelectMany(f => f.ships).Count(x => x != null && ShipUpkeep(x.template) > 0f);
             int cap = Mathf.Max(1, Mathf.CeilToInt(Mathf.Clamp01(Plugin.Cfg.RetireMaxShare.Value) * capitalHulls));
             var retired = new List<object>();
@@ -236,8 +217,8 @@ namespace ImprovedAI.AI
         }
 
         /// <summary>
-        /// Monthly: charge the upkeep (when on) and record the economy (need weights, cap, upkeep, stocks). The record is
-        /// also written on vanilla, with what the mod WOULD weigh and cap, so baselines compare directly.
+        /// Monthly: charge the upkeep (when on) and journal the economy. The record is also written on vanilla, with what
+        /// the mod would weigh and cap, so baselines compare directly.
         /// </summary>
         public static void Monthly()
         {
@@ -286,11 +267,9 @@ namespace ImprovedAI.AI
     }
 
     /// <summary>
-    /// Bases and warships compete for the drip (user, 2026-10-13), but the scripted base goals (Io, the belt, the outer
-    /// planets) bypass the exotics base cap, so bases always won: after the 2041 retirement freed 66/month of ship
-    /// upkeep, five new bases (four at Io, imp 19) took it back within four months and retirements went on every month
-    /// (retire-2041 v2, 2026-10-23). While the aliens are in exotics deficit with the stock at or below the war chest
-    /// (and not escalated), no new FoundBase goal is accepted, scripted or not. Goals already under way go on.
+    /// The scripted base goals (Io, the belt, the outer planets) bypass the exotics base cap, so new bases would take
+    /// back whatever upkeep a hull retirement frees. While the aliens are short of exotics (Economy.ExoticsShort), no
+    /// new FoundBase goal is accepted, scripted or not. Goals already under way go on.
     /// </summary>
     [HarmonyPatch(typeof(TIFactionState), nameof(TIFactionState.AddGoal))]
     internal static class NoBasesWhenExoticsShort
@@ -343,11 +322,10 @@ namespace ImprovedAI.AI
     }
 
     /// <summary>
-    /// No buying from Earth (user, 2026-10-13). Vanilla prices a missing space resource as boost + money from Earth's
-    /// surface for any faction (TIResourcesCost.GetBoostSubstitutedCost: ship builds, refits, repairs, hab modules).
-    /// For the aliens that contradicts the narrow wormhole: they build only from what they mine, plus the exotics drip.
-    /// With the switch on, the alien cost stays the plain space-resource cost, so a shortfall means waiting (or mining).
-    /// Counts are kept either way (monthly "economy" record) to show how often vanilla would have bought from Earth.
+    /// No buying from Earth. Vanilla prices a missing space resource as boost + money from Earth's surface for any
+    /// faction (TIResourcesCost.GetBoostSubstitutedCost: ship builds, refits, repairs, hab modules). With the switch on,
+    /// the alien cost stays the plain space-resource cost, so a shortfall means waiting (or mining). Shortfalls are
+    /// counted either way, for the monthly "economy" record.
     /// </summary>
     [HarmonyPatch(typeof(TIResourcesCost), nameof(TIResourcesCost.GetBoostSubstitutedCost))]
     internal static class NoEarthPurchases
@@ -377,7 +355,7 @@ namespace ImprovedAI.AI
         }
     }
 
-    /// <summary>Alien base-site and mine scoring: multiply by the site's need factor.</summary>
+    /// <summary>Base-site and mine scoring: multiply by the site's need factor.</summary>
     [HarmonyPatch(typeof(AIEvaluators), nameof(AIEvaluators.EvaluateHabModule_PercentChange))]
     internal static class MineWhatYouLackPercent
     {
@@ -390,7 +368,7 @@ namespace ImprovedAI.AI
         }
     }
 
-    /// <summary>The other alien site scorer (choosing a site on a body; the scripted Neptune/Uranus/Saturn goals).</summary>
+    /// <summary>The other site scorer (choosing a site on a body; the scripted Neptune/Uranus/Saturn goals).</summary>
     [HarmonyPatch(typeof(AIEvaluators), nameof(AIEvaluators.EvaluateHabSite))]
     internal static class MineWhatYouLackSite
     {
@@ -403,11 +381,10 @@ namespace ImprovedAI.AI
     }
 
     /// <summary>
-    /// The planner's "resource base when upkeep is insecure" rule (AlienHabPlanner.ManageHabGoals :136-174) founds a base
-    /// on the site producing most of the insecure resources, defaulting to WATER when none is insecure, and its
-    /// insecurity counts only ship maintenance (propellant = water). In the 2034 probe it founded a water moon every
-    /// month (Callisto, Umbriel, Tethys) while metals ran dry. Inside that planner, the list the rule uses becomes:
-    /// the vanilla-insecure resources the aliens are not swimming in, plus the resources they truly lack (need >= threshold).
+    /// The planner's "resource base when upkeep is insecure" rule (AlienHabPlanner.ManageHabGoals) founds a base on the
+    /// site producing most of the insecure resources, defaulting to water when none is insecure, and its insecurity
+    /// counts only ship maintenance (propellant = water). Inside that planner, the list the rule uses becomes: the
+    /// vanilla-insecure resources the aliens are not swimming in, plus the resources they truly lack (need >= threshold).
     /// The planner asks twice: first through HasUpkeepInsecurityInTheFuture (gates a 1.5x cap overshoot; left alone),
     /// then for the rule's list (rewritten). Call order is fixed in build 1.0.53b.
     /// </summary>

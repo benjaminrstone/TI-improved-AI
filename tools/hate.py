@@ -1,4 +1,4 @@
-"""The gang-up web of one run: who hated whom, and why (human-hate records; docs/HUMAN-AI.md §9).
+"""The gang-up web of one run: who hated whom, and why (from the journal's human-hate records).
 
 usage: python tools/hate.py <run dir>
 Prints, per cause bucket, the matrix of hate gained (row = the faction that hates, column = its target) summed over

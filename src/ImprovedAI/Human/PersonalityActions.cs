@@ -9,15 +9,11 @@ using PavonisInteractive.TerraInvicta.Tasks;
 namespace ImprovedAI.Human
 {
     /// <summary>
-    /// Personalities in action, not only in hate (docs/HUMAN-AI.md §9; user, 2026-10-19: anti-alien factions should feel
-    /// very different). Two levers:
+    /// Personalities in action, not only in hate. Two levers:
     ///  - Mission bias: the payoff of hostile councilor missions (AICouncilorMissionPlanner.GetPayoffForMissionTarget)
-    ///    is scaled by who acts against whom. Humanity First is zealous against pro-alien factions; the Resistance
-    ///    punishes collaborators (very pro-alien); Exodus holds back unless it was hurt by that faction (then it
-    ///    retaliates); clients and patrons spare each other.
+    ///    is scaled by who acts against whom (MissionFactor).
     ///  - Exodus works toward its escape: vanilla throttles focus on an active objective project to 20% of research
     ///    time since the last objective (ShouldFocusOnObjectiveProject); Exodus keeps the focus.
-    /// Metrics: mission hate by victim and actor (human-hate), Exodus objective progress (human-persona).
     /// </summary>
     internal static class PersonalityActions
     {

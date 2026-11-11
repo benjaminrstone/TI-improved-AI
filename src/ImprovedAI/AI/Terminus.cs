@@ -9,17 +9,14 @@ using UnityEngine;
 namespace ImprovedAI.AI
 {
     /// <summary>
-    /// The full terminus: P2's hard clock (DESIGN "Two clocks"; user, 2026-10-12: completion is a hard alien victory,
-    /// LW2 Avatar-style). The Hydras build a full wormhole terminus on this side; if it completes, they win.
+    /// The hard clock: the Hydras build a full wormhole terminus on this side; when it completes, the campaign ends in
+    /// alien victory. The player is told at each milestone.
     ///  - Site: the alien HQ (Kuiper dwarf planet, hosts the AlienWormholeFacility; vanilla makes its core and wormhole
     ///    modules indestructible and aims the human victory missions at it).
-    ///  - Start: when the aliens take humanity seriously: escalation (P4), or contempt for any faction at or below
-    ///    TerminusStartContempt; and in any case by TerminusStartYear (calendar campaign years, per difficulty).
-    ///  - Funding: TerminusDripShare of the monthly exotics drip, really spent; a wider wormhole builds it faster, and
-    ///    progress = exotics invested / TerminusCost (per difficulty).
+    ///  - Start: on escalation, or contempt for any faction at or below TerminusStartContempt, and in any case by
+    ///    TerminusStartYear (calendar campaign years, per difficulty).
+    ///  - Funding: TerminusDripShare of the monthly exotics drip, really spent; progress = invested / TerminusCost.
     ///  - Setbacks: alien defeats in the HQ's system knock it back; alien habs lost there knock it back further.
-    ///  - Legibility: the player is told at 25/50/75/90%, and when it completes the campaign ends in alien victory.
-    ///    [ext] Later the posture panel shows the meter once intel is high enough; before that, captives go silent on it.
     /// </summary>
     internal static class Terminus
     {
@@ -44,8 +41,7 @@ namespace ImprovedAI.AI
             if (s.terminusStarted == null)
             {
                 float minContempt = GameStateManager.AllHumanFactions().Where(h => h != null).Select(h => Disposition.Contempt(h)).DefaultIfEmpty(1f).Min();
-                // By date as well (user, 2026-10-23): in a 15-year campaign the humans never threatened the aliens, so
-                // neither trigger fired and the aliens never moved toward their victory.
+                // By date as well: against humans who never threaten the aliens, neither other trigger fires.
                 float startYear = Dials.ByDifficulty(Plugin.Cfg.TerminusStartYear.Value, 11f);
                 bool byDate = startYear > 0f && Wormhole.CampaignYears >= startYear;
                 bool start = Escalation.Escalated || minContempt <= Plugin.Cfg.TerminusStartContempt.Value || byDate;
@@ -96,7 +92,7 @@ namespace ImprovedAI.AI
             s.history.Add($"{GameRead.Now()} terminus complete: alien victory");
             Plugin.Log.LogInfo("[Strategy] Terminus complete: alien victory.");
             Session.Journal?.Write(new { t = GameRead.Now(), kind = "terminus", ev = "complete" });
-            // Notify journals only in unattended harness runs (soaks run on); playtests and normal play end the campaign.
+            // In unattended harness runs Notify only journals and the run goes on; otherwise this ends the campaign.
             Notify("The alien terminus is complete",
                 "The full wormhole terminus is open. The Hydras can now bring through fleets, colonists and armies without limit, and nothing humanity has can stop the flood. The war is lost.", true);
         }

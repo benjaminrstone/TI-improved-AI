@@ -4,9 +4,8 @@ using UnityEngine;
 namespace ImprovedAI.AI
 {
     /// <summary>
-    /// The effective value of every behaviour dial: the config value (DIALS.md) scaled by the current alien doctrine
-    /// (M2 step 2). AI code reads dials only through here, so one table defines what each doctrine means and a
-    /// per-difficulty curve can later be layered in the same place.
+    /// The effective value of every behaviour dial: the config value scaled by the current alien doctrine. AI code
+    /// reads dials only through here, so one table defines what each doctrine means.
     /// With [Strategy] off (or no doctrine yet) every multiplier is 1 and the raw config values apply.
     /// </summary>
     internal static class Dials
@@ -17,10 +16,7 @@ namespace ImprovedAI.AI
             public static Mod One => new Mod { superiority = 1, poolMargin = 1, reserve = 1, raidSlots = 1, captureSlots = 1, raidImportance = 0, hateWeight = 1, arrivalFight = 1 };
         }
 
-        /// <summary>
-        /// First-pass doctrine table (docs/M2-PLAN.md step 2). Multipliers on the config dials; raidImportance is additive.
-        /// Behaviour that needs new code (expansion, councilor ops, ship design, rally points) arrives in later steps.
-        /// </summary>
+        /// <summary>The doctrine table: multipliers on the config dials; raidImportance is additive.</summary>
         private static Mod ForFocus(StrategicFocus f)
         {
             var m = Mod.One;
@@ -54,11 +50,11 @@ namespace ImprovedAI.AI
             m.captureSlots *= posture;
             // Engagement style: an assault-minded command keeps more marine captures going.
             if (Plugin.Cfg.UseFleetDoctrine && d.engagement == EngagementStyle.Assault) m.captureSlots *= Plugin.Cfg.AssaultCaptureSlots.Value;
-            // P4 escalation: a war they could lose. Loss aversion relaxes, reserves are committed, raids multiply.
+            // Escalated: loss aversion relaxes, reserves are committed, raids multiply.
             if (Escalation.Escalated)
             {
                 float e = Mathf.Clamp(Plugin.Cfg.EscalationBoldness.Value, 0f, 0.9f);
-                m.superiority *= 1f - e;              // 0.25 -> x0.75
+                m.superiority *= 1f - e;              // e = 0.25 -> x0.75
                 m.arrivalFight *= 1f - 0.6f * e;      // -> x0.85
                 m.reserve *= 1f - 2f * e;             // -> x0.5
                 m.raidSlots *= 1f + 2f * e;           // -> x1.5
@@ -66,7 +62,7 @@ namespace ImprovedAI.AI
                 m.raidImportance += 2;
                 m.hateWeight *= 1f + 2f * e;
             }
-            // The strategist's posture (-1 cautious .. +1 aggressive), docs/STRATEGIST.md.
+            // The strategist's posture (-1 cautious .. +1 aggressive).
             float p = Strategist.Directives.On ? Strategist.Directives.AlienPosture : 0f;
             if (p != 0f)
             {
@@ -85,7 +81,7 @@ namespace ImprovedAI.AI
         /// <summary>Share of the exotics drip the base cap may commit to upkeep; escalation diverts part of it to war.</summary>
         public static float SustainableDripShare => Mathf.Clamp01(Plugin.Cfg.SustainableDripShare.Value * (Escalation.Escalated ? Plugin.Cfg.EscalationDripShareFactor.Value : 1f));
 
-        // ---- Fleet doctrine (M2 step 4). Neutral (1 / Balanced) when [Fleet] FleetDoctrine is off. ----
+        // Fleet doctrine axes: neutral (1 / Balanced) when [Fleet] FleetDoctrine is off.
 
         private static Doctrine FleetAxes => Plugin.Cfg.UseFleetDoctrine ? AlienStrategy.Current?.doctrine : null;
 
@@ -122,8 +118,8 @@ namespace ImprovedAI.AI
             get
             {
                 float v = Plugin.Cfg.AlienAttackSuperiority.Value * Current().superiority;
-                // Escalated: a desperate command accepts closer fights (user, 2026-10-17). Without the cap, a defended
-                // Jupiter base needed ~1.5x the whole Resistance navy, more than the aliens could free in a year.
+                // Escalated, superiority is capped: a desperate command accepts closer fights, and uncapped the need
+                // at a defended target can exceed what the aliens can free.
                 return Escalation.Escalated ? Mathf.Min(v, Mathf.Max(1f, Plugin.Cfg.EscalatedMaxSuperiority.Value)) : v;
             }
         }
@@ -136,7 +132,7 @@ namespace ImprovedAI.AI
         public static float RaidHateWeight => Plugin.Cfg.RaidHateWeight.Value * Current().hateWeight;
         public static float ArrivalFightRatio => Plugin.Cfg.ArrivalFightRatio.Value * Current().arrivalFight;
 
-        // ---- Per-difficulty dials (vanilla difficulty 1 Cinematic .. 4 Brutal) ----
+        // Per-difficulty dials (vanilla difficulty 1 Cinematic .. 4 Brutal).
 
         internal static int Difficulty
         {

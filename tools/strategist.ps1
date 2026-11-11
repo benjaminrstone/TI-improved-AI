@@ -1,8 +1,8 @@
 <#
 .SYNOPSIS
-  The local strategist watcher (docs/STRATEGIST.md). Watches the exchange folder for briefs the mod writes at each
-  checkpoint (the game is paused meanwhile), asks Claude (headless Claude Code) for one directive per faction, each call
-  seeing only that faction's part of the brief, and writes directives/<date>.json back. The mod then resumes the game.
+  The local strategist watcher. Watches the exchange folder for briefs the mod writes at each checkpoint (the game is
+  paused meanwhile), asks Claude (headless Claude Code) for one directive per faction, each call seeing only that
+  faction's part of the brief, and writes directives/<date>.json back. The mod then resumes the game.
 .EXAMPLE
   tools\strategist.ps1                                   # watch the game copy's default folder until stopped
 .EXAMPLE

@@ -8,8 +8,7 @@ using PavonisInteractive.TerraInvicta.Tasks;
 namespace ImprovedAI.Harness
 {
     /// <summary>
-    /// Real orders for any faction, issued the way the game's own AI issues them (user, 2026-10-22: scripted orders in
-    /// probes, and the building blocks of the player bot and the strategist). A move picks a trajectory with
+    /// Real orders for any faction, issued the way the game's own AI issues them. A move picks a trajectory with
     /// AIDailyFactionPlanner.SelectTrajectoryAsync (the fastest within the delta-v budget) and confirms the game's
     /// TransferOperation, as SingleFleetOperation does. Every order is journaled ("order").
     /// For an AI-run faction the AI may later re-task the fleet; for a human-controlled (passive) faction it sticks.

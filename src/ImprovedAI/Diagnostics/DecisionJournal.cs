@@ -9,7 +9,7 @@ namespace ImprovedAI.Diagnostics
     /// One line per alien strategic decision, detected by diffing state once per game day:
     /// goals created / dropped / re-prioritised, alien fleet transfers (with the goal and the strength it was sized
     /// against), alien fleets formed / lost, and habs founded / lost by any faction.
-    /// Diffing (rather than patching each decision site) keeps this independent of the AI code we'll be replacing.
+    /// Diffing (rather than patching each decision site) keeps this independent of the AI code.
     /// </summary>
     internal static class DecisionJournal
     {
@@ -161,10 +161,9 @@ namespace ImprovedAI.Diagnostics
                         from = old?.where ?? snap.where, to = GameRead.Name(traj.destination), toBody = GameRead.Body(traj.destination), toSystem = GameRead.System(traj.destination),
                         goal = goal?.GetGoalType().ToString(), goalImp = goal?.importance, goalTarget = GameRead.Name(gt), targetFaction = GameRead.Faction(gt?.ref_faction),
                         desiredScv = goal == null ? (float?)null : GameRead.Safe(() => goal.desiredFleetCombatValue),
-                        // What the alien expects to meet at the goal target (remembered defenders + half the system), for launch-ratio analysis.
+                        // What the alien expects to meet at the goal target (remembered defenders + half the system).
                         defThreat = (gt == null || gt.ref_faction == null || gt.ref_faction.IsAlienFaction || gt.ref_system == null) ? (float?)null
                             : GameRead.Safe(() => AI.DecisiveForce.DefenderThreat(alien, gt)),
-                        // How the move is flown (rendezvous v2 diagnosis, 2026-10-21): joins to the Jupiter muster took 4-10 months.
                         flight = Flight(traj, f),
                     });
                 }
@@ -186,7 +185,7 @@ namespace ImprovedAI.Diagnostics
             return null;
         }
 
-        /// <summary>Monthly basic-resource production of a base's site (what "mine what you lack" chose), or null.</summary>
+        /// <summary>Monthly basic-resource production of a base's site, or null.</summary>
         private static Dictionary<string, float> SiteYields(TIHabState h)
         {
             try

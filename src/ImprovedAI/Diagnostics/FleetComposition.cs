@@ -7,8 +7,8 @@ using PavonisInteractive.TerraInvicta;
 namespace ImprovedAI.Diagnostics
 {
     /// <summary>
-    /// What the alien fleet is made of (M2 step 4 gate): a monthly "fleet" journal record of live ships and active designs,
-    /// and a "ship-built" record per alien ship completed. Weapon classes use the doctrine buckets (Missiles, Beams,
+    /// What the alien fleet is made of: a monthly "fleet" journal record of live ships and active designs, and a
+    /// "ship-built" record per alien ship completed. Weapon classes use the doctrine buckets (Missiles, Beams,
     /// Particles, Kinetics = magnetic/naval/plasma guns), counting attack weapons only (point defense is left out).
     /// </summary>
     internal static class FleetComposition
@@ -69,7 +69,7 @@ namespace ImprovedAI.Diagnostics
             if (__instance == null || template == null || !Plugin.Cfg.DecisionJournal.Value) return;
             if (!__instance.IsAlienFaction)
             {
-                // Human track: ships completed, a fleet-output measure free of combat luck (tools/hfleet.py).
+                // Human factions: ships completed, a fleet-output measure free of combat luck.
                 try
                 {
                     Session.Journal?.Write(new

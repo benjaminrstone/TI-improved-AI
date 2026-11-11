@@ -10,10 +10,10 @@ namespace ImprovedAI.Strategist
     /// <summary>
     /// The strategist's "defend" systems for an AI human faction. Vanilla (ManageFleetGoals) only creates a defence goal
     /// for a station or base when enemy fleets are already in the system, or for the primary hab, and only its main
-    /// shipyard station counts as defensible. So an AI-run Resistance pulled its fleet out of Jupiter while an alien
-    /// strike was inbound (flow-2039-long-ai, 2026-10-22). After vanilla's pass, each directed system gets a defence goal
-    /// at the faction's main hab there (its best station, else the body of its best base) with importance at least
-    /// DefendImportance, so fleets are assigned to it ahead of most other work.
+    /// shipyard station counts as defensible, so an AI faction can pull its fleet out of a system while a strike is
+    /// inbound. After vanilla's pass, each directed system gets a defence goal at the faction's main hab there (its best
+    /// station, else the body of its best base) with importance at least DefendImportance, so fleets are assigned to it
+    /// ahead of most other work.
     /// </summary>
     [HarmonyPatch(typeof(AIDailyFactionPlanner), nameof(AIDailyFactionPlanner.ManageFleetGoals))]
     internal static class DefendDirective

@@ -10,21 +10,16 @@ using PavonisInteractive.TerraInvicta.Tasks;
 namespace ImprovedAI.AI
 {
     /// <summary>
-    /// M2 step 4: fleet doctrines. The doctrine's fleet axes bias what the alien shipyards design and build, within what
-    /// the aliens have unlocked. How vanilla designs alien ships (FINDINGS / M2-PLAN step 4):
-    ///  - the ROLE locks the weapon class: short-range roles score lasers x1e7, medium-range magnetic/particle, long-range
+    /// The doctrine's fleet axes bias what the alien shipyards design and build. How vanilla designs alien ships:
+    ///  - the role locks the weapon class: short-range roles score lasers x1e7, medium-range magnetic/particle, long-range
     ///    missile/plasma, every other class /1e7 (TIShipWeaponTemplate.GetCuratedDesignScore);
     ///  - one design is kept per role x size x exotics category, the one with the best TemplateSpaceCombatValue;
     ///  - the build pick draws a role from the goal's secondary-role weights and a size from aiValues.fleetSmalls/Mediums,
     ///    then takes the best-SCV design of that role and size.
-    /// So the levers are:
-    ///  - weapon focus: the doctrine's class gets WeaponFocusOdds against the role's own class while designing, and a
-    ///    design armed with it counts for more when designs are compared ("fit"), so it survives keep/retire and is built;
-    ///  - hull philosophy: the build-pick size weights; Motherships also gives huge hulls a fit bonus;
-    ///  - engagement style: Artillery / Brawler reweight long- / short-range roles; Assault adds capture slots (Dials).
-    ///    Carrier has no effect yet: vanilla aliens have no fighters outside surface-to-orbit squadrons.
-    /// The fit factor only applies while the aliens compare designs (design coroutine, build pick), never in combat
-    /// evaluation, and never inside the designer itself.
+    /// So weapon focus acts on the design score and on a "fit" factor when designs are compared, hull philosophy on the
+    /// size weights (Motherships also on fit), and engagement style on the role weights. Carrier has no effect: vanilla
+    /// aliens have no fighters outside surface-to-orbit squadrons. The fit factor only applies while the aliens compare
+    /// designs (design coroutine, build pick), never in combat evaluation, and never inside the designer itself.
     /// </summary>
     internal static class FleetDoctrine
     {
@@ -61,7 +56,7 @@ namespace ImprovedAI.AI
             if (t == null) return 1f;
             float fit = 1f + Dials.WeaponFitBonus * WeaponShare(t, Dials.WeaponFocus);
             if (Dials.MothershipFitBonus > 0f && t.hullTemplate != null && t.hullTemplate.hugeHull) fit *= 1f + Dials.MothershipFitBonus;
-            // P4 surge: escalated, the command spends its hoard on wormhole-tier (exotics) warships.
+            // Escalated, the command spends its hoard on wormhole-tier (exotics) warships.
             if (Escalation.Escalated && t.requiresExotics) fit *= 1f + UnityEngine.Mathf.Max(0f, Plugin.Cfg.EscalatedExoticsFitBonus.Value);
             return fit;
         }
@@ -71,7 +66,7 @@ namespace ImprovedAI.AI
 
         /// <summary>
         /// Engagement style reweights combat roles by range: its own range x w, the opposite range / w. Up-weighting alone
-        /// barely moved the build mix: JoinFleet goals weight all ~19 roles equally (gate probes, 2026-10-13).
+        /// barely moves the build mix: JoinFleet goals weight all ~19 roles equally.
         /// </summary>
         public static float RoleWeight(ShipRole role)
         {
@@ -97,7 +92,7 @@ namespace ImprovedAI.AI
         }
     }
 
-    // ---- Designer: the doctrine's weapon class competes with the role's own class ----
+    // Designer: the doctrine's weapon class competes with the role's own class.
 
     [HarmonyPatch(typeof(TIFactionState), nameof(TIFactionState.DesignAlienShip))]
     internal static class FleetDoctrineDesignScope
@@ -120,7 +115,7 @@ namespace ImprovedAI.AI
         }
     }
 
-    // ---- Judging designs: the keep/retire rule in the design coroutine and the build pick ----
+    // Judging designs: the keep/retire rule in the design coroutine and the build pick.
 
     [HarmonyPatch]
     internal static class FleetDoctrineCoroutineScope
@@ -197,7 +192,7 @@ namespace ImprovedAI.AI
         }
     }
 
-    // ---- Engagement style: which combat roles alien fleet goals ask for ----
+    // Engagement style: which combat roles alien fleet goals ask for.
 
     [HarmonyPatch]
     internal static class FleetDoctrineRoles

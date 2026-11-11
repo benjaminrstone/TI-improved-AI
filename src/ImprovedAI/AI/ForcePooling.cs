@@ -8,17 +8,13 @@ using PavonisInteractive.TerraInvicta.Tasks;
 namespace ImprovedAI.AI
 {
     /// <summary>
-    /// Concentrate alien force on one objective at a time (EXPLOITS E9, and the general "spread too thin" problem).
-    ///
-    /// Vanilla gives each attack goal exactly ONE fleet (AssignFleet replaces, never adds); existing fleets only merge
-    /// within the same system, where a defender wins the merge; and GetMaximumFleetCombatValueRatio can fall to 0,
-    /// which blocks merging and splits waiting attack fleets. In the 2039 probe the aliens held ~65k SCV across 24
-    /// defence postings while every Jupiter attack goal starved on a single 1.5k-3.8k fleet and reset all year.
-    ///
-    /// Here, on vanilla's own 4-day fleet tick and after it has run, the alien faction picks ONE focus attack goal and
-    /// orders idle fleets, assembly fleets and surplus defenders (above 1.25x their own desired strength, never the
-    /// primary system, never earmarked boss defenders, never systems in defence mode) to join that goal's fleet until it
-    /// reaches the goal's desired strength. Supporting patches keep vanilla from undoing it (see the classes below).
+    /// Concentrates alien force on one objective at a time (exploit E9). Vanilla gives each attack goal exactly one fleet
+    /// (AssignFleet replaces, never adds); existing fleets only merge within the same system, where a defender wins the
+    /// merge; and GetMaximumFleetCombatValueRatio can fall to 0, which blocks merging and splits waiting attack fleets.
+    /// Here, on vanilla's own 4-day fleet tick and after it has run, the alien faction picks one focus attack goal and
+    /// orders idle fleets, assembly fleets and surplus defenders (within a per-system release budget; never the primary
+    /// system, earmarked boss defenders or systems in defence mode) to join that goal's fleet until it reaches the
+    /// goal's desired strength. The patches below keep vanilla from undoing it.
     /// </summary>
     [HarmonyPatch(typeof(AIDailyFactionPlanner), "ManageFleets")]
     internal static class ForcePooling
@@ -60,7 +56,7 @@ namespace ImprovedAI.AI
 
             float need = goal.desiredFleetCombatValue * Dials.PoolMargin;
             // Rendezvous: once per focus goal, before the joiners commit, muster at the best-placed fleet.
-            // Escalation frees many more fleets ("commit everything"): choose the muster point again at that moment.
+            // Escalation frees many more fleets: choose the muster point again at that moment.
             if (Escalation.Escalated != _wasEscalated) { _wasEscalated = Escalation.Escalated; Staged.Clear(); }
             if (Plugin.Cfg.Rendezvous.Value && !Staged.Contains(goal))
             {
@@ -75,10 +71,8 @@ namespace ImprovedAI.AI
                 }
             }
             float present = anchor.SpaceCombatValue();
-            // Time-aware pooling (2026-10-21). Counting every joiner the moment it was ordered let fleets 300-470 days
-            // out (Triton, Luison, Anansi -> Titan) fill the need on paper; recruiting stopped and the 2039 strike waited
-            // a year for the slowest. Now only joiners that arrive within the join horizon count; the rest still come,
-            // as reinforcements that follow the strike.
+            // Time-aware pooling: only joiners that arrive within the join horizon count toward the need, or distant
+            // fleets fill it on paper and the strike waits for the slowest. The rest still come, as reinforcements.
             bool timeAware = Plugin.Cfg.PoolTimeAware.Value;
             float horizon = Plugin.Cfg.RendezvousMaxJoinDays.Value;
             var pending = goal.pendingFleets.Where(TIGameState.Valid).ToList();
@@ -91,15 +85,14 @@ namespace ImprovedAI.AI
                 else have += v;
             }
             // The goal stays in Pooling (so LeaveMyFleetAlone protects it) until its attack is under way; the cleanup
-            // above drops it then. Releasing it at "ready" let vanilla's weekly 2.3% random discard of war attack goals
-            // (FactionGoal_WarOnFaction.DailyGoalMaintenance) kill an assembled Jupiter strike while its joiners were
-            // still in transit (2039 escalation probe, 2026-10-16).
+            // above drops it then. Released at "ready", vanilla's weekly 2.3% random discard of war attack goals
+            // (FactionGoal_WarOnFaction.DailyGoalMaintenance) could kill an assembled strike while its joiners were
+            // still in transit.
             Pooling.Add(goal);
             if (present >= need)
             {
                 // Ready only when the force is actually there (joiners merged), not when it is merely on its way.
-                // Then a muster: a short coordination period before setting out together (user, 2026-10-16: "getting
-                // your captains aligned"). Later, a command node (mothership) present could shorten it.
+                // Then a muster: a short coordination period before setting out together.
                 var now = TITimeState.Now();
                 if (!MusterStart.TryGetValue(goal, out var since))
                 {
@@ -127,7 +120,7 @@ namespace ImprovedAI.AI
                 return;
             }
 
-            // Why fleets are not donors (diagnostics for tuning).
+            // Why fleets are not donors (diagnostic).
             var rej = new Dictionary<string, int>();
             bool Ok(bool cond, string why) { if (!cond) rej[why] = (rej.TryGetValue(why, out var n) ? n : 0) + 1; return cond; }
             var eta = new Dictionary<TISpaceFleetState, float>();
@@ -175,7 +168,7 @@ namespace ImprovedAI.AI
                 have += v;
                 sent.Add(new { fleet = d.displayName, scv = v, at = GameRead.System(d), was = from?.GetGoalType().ToString(), eta = (float)System.Math.Round(Eta(d)) });
             }
-            // The large fleets left out, and why (15-year campaign, 2026-10-23: 29k sat idle while a 3.5k strike starved).
+            // The large fleets left out, and why (diagnostic).
             string Why(TISpaceFleetState f)
             {
                 if (f.transferAssigned) return "inTransfer";
@@ -208,10 +201,8 @@ namespace ImprovedAI.AI
         }
 
         /// <summary>
-        /// Escalated (P4: "commit everything"), fleets on lesser work are stripped for the decisive strike too: other
-        /// attacks and raids not yet under way, Earth surveillance, sends and joins elsewhere, all below the focus goal's
-        /// importance. Repair, resupply and councilor transport are never stripped. In the 2039 Jupiter probe the pool
-        /// otherwise sat at 4-8k of a 17-21k need for 8 months, its donors all busy (2026-10-16).
+        /// Escalated, fleets on these goals are stripped for the decisive strike too, when the goal is not yet under way
+        /// and below the focus goal's importance. Repair, resupply and councilor transport are never stripped.
         /// </summary>
         private static readonly HashSet<GoalType> StrippableWhenEscalated = new HashSet<GoalType>
         {
@@ -219,11 +210,10 @@ namespace ImprovedAI.AI
         };
 
         /// <summary>
-        /// A fleet moves only as far as its emptiest ship. In the 15-year campaign (2026-10-23) Victor-27 (3.7k, 45 ships)
-        /// sat for years at 409 Aspasia, an asteroid with no alien base, because a few of its ships had no delta-v left:
-        /// its resupply goal could never be carried out. A fleet not in transfer or combat whose dry ships (under
-        /// DryShipShare of their maximum delta-v) are a minority leaves them behind as a fleet of their own, so the rest
-        /// can operate again. The game's own split action, as vanilla uses for ships that fail a goal's requirements.
+        /// A fleet moves only as far as its emptiest ship, so a few ships with no delta-v left can strand it away from any
+        /// base, where its resupply goal can never be carried out. A fleet not in transfer or combat whose dry ships
+        /// (under DryShipShare of their maximum delta-v) are a minority leaves them behind as a fleet of their own. Uses
+        /// the game's own split action, as vanilla does for ships that fail a goal's requirements.
         /// </summary>
         private static void LeaveDryShipsBehind(TIFactionState faction)
         {
@@ -253,8 +243,7 @@ namespace ImprovedAI.AI
         {
             var g = f.AssignedGoal();
             if (g == null || g is FactionGoal_AssembleFleet) return true;
-            // A repositioning order (SendFleet) is lesser work than a pooled strike even outside escalation: 10 of the
-            // fleets refused at every check in 2040-41 (15-year campaign, 2026-10-23) were on one.
+            // A repositioning order (SendFleet) is lesser work than a pooled strike even outside escalation.
             if (Plugin.Cfg.ReleaseSendFleet.Value && focus != null && g is FactionGoal_SendFleet && g.importance < focus.importance && !g.InProgress()) return true;
             if (Escalation.Escalated && focus != null && g != focus && StrippableWhenEscalated.Contains(g.GetGoalType())
                 && g.importance < focus.importance && !g.InProgress() && !(g is FactionGoal_JoinFleet j && j.target()?.ref_fleet == focus.assignedFleet))
@@ -274,8 +263,8 @@ namespace ImprovedAI.AI
     /// <summary>
     /// Escalated, fleets joining the pooled strike burn harder: vanilla picks the fastest trajectory within
     /// (1 - reserve) of the fleet's delta-v, keeping 50% in reserve for any move that doesn't end at a resupply point,
-    /// joins included. In the 2039 probe the strike's joiners took 4-8 months to reach Titan. A desperate command keeps
-    /// EscalatedJoinReserve instead (it spends real propellant; the muster base resupplies them).
+    /// joins included. A desperate command keeps EscalatedJoinReserve instead (it spends real propellant; the muster
+    /// base resupplies them).
     /// </summary>
     [HarmonyPatch(typeof(AIDailyFactionPlanner), nameof(AIDailyFactionPlanner.SelectTrajectoryAsync))]
     internal static class EscalatedJoinBurn
@@ -291,7 +280,7 @@ namespace ImprovedAI.AI
     }
 
     /// <summary>Vanilla's max fleet ratio for attack goals can fall below 1 and is then set to 0, which blocks merges and
-    /// splits waiting attack fleets apart (SingleFleetOperation). Keep it at least 1.5 for the aliens.</summary>
+    /// splits waiting attack fleets apart (SingleFleetOperation). Keep it at least AttackMaxRatioFloor for the aliens.</summary>
     [HarmonyPatch(typeof(FactionGoal_AttackWithFleet), nameof(FactionGoal_AttackWithFleet.GetMaximumFleetCombatValueRatio))]
     internal static class PoolingMaxRatio
     {

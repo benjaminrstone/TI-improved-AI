@@ -10,15 +10,9 @@ using UnityEngine;
 namespace ImprovedAI.Human
 {
     /// <summary>
-    /// Human AI step 2 (user, 2026-10-19: fix the bottleneck they're stuck on, bigger hulls, queue unblocking).
-    /// Measured on vanilla (docs/HUMAN-AI.md §6b): AI human factions want warships but build them slowly and small.
-    ///  - Generic MC sits at 0 for some factions; with none, AttemptInitiateShipConstruction refuses every AI ship and
-    ///    the queue loop skips fleet goals, while hab founding is exempt.
-    ///  - Another faction has metals at 0 all year; $15-54k sits idle everywhere.
-    ///  - Hulls are small (fleetSmalls 3-5, Large fixed at 1, and the pick falls back to smaller sizes, never larger).
-    ///  - One unaffordable ship stops the whole queue loop, and one stuck shipyard head blocks every other yard's start.
-    /// Competence, not handouts: no bonus resources; the AI spends what it has on what blocks it.
-    /// Every change is gated to AI human factions (never the player, never the aliens).
+    /// Fleet building for AI human factions. With no generic MC, vanilla's AttemptInitiateShipConstruction refuses every
+    /// AI ship and the queue loop skips fleet goals, while hab founding is exempt. The patches in this file grant no
+    /// resources and are gated to AI human factions (never the player, never the aliens).
     /// </summary>
     internal static class FleetCompetence
     {
@@ -42,12 +36,9 @@ namespace ImprovedAI.Human
             return v;
         }
 
-        /// <summary>The faction wants warships and has no generic MC to queue or start them.</summary>
         public static bool MissionControlStarved(TIFactionState f) =>
             AIHuman(f) && GameRead.Safe(() => f.AI_GenericMissionControlAvailable) <= 0f && WantsWarships(f);
     }
-
-    // ---- C1. Mission control: invest in it when it is what blocks the warships ----
 
     /// <summary>
     /// After vanilla's ManageNations, a starved faction runs an extra direct-investment pass (at most every 14 days):
@@ -99,8 +90,6 @@ namespace ImprovedAI.Human
         }
     }
 
-    // ---- C2a. Idle boost and money buy what a ship lacks (pay from Earth), as the player does ----
-
     /// <summary>
     /// Vanilla substitutes a missing space resource with money + boost at Earth-system shipyards, but
     /// ShouldSpendBoostAtShipyard only allows it for tiny amounts or with 500+ boost to spare. With warships wanted,
@@ -116,8 +105,6 @@ namespace ImprovedAI.Human
             if (faction.GetCurrentResourceAmount(FactionResource.Boost) - boost >= Plugin.Cfg.HumanBoostReserve.Value) __result = true;
         }
     }
-
-    // ---- B. Bigger hulls ----
 
     /// <summary>
     /// Build-pick size weights for AI humans: vanilla's fleetSmalls 3-5 and fleetMediums 2-4 against a fixed Large 1
@@ -165,10 +152,8 @@ namespace ImprovedAI.Human
         }
     }
 
-    // ---- A. Queue unblocking ----
-
     /// <summary>
-    /// A1. UpdateShipyardQueues stops its whole goal loop (break) when a goal's ship can't be afforded, skipping every
+    /// UpdateShipyardQueues stops its whole goal loop (break) when a goal's ship can't be afforded, skipping every
     /// lower goal. AI_GetBestShipyardForBuild reports that as Failure_CantAfford; for AI humans it becomes
     /// Failure_Generic, which the loop treats as "this goal, not now" and continues. The only other caller tests == Success.
     /// </summary>
@@ -183,7 +168,7 @@ namespace ImprovedAI.Human
     }
 
     /// <summary>
-    /// A2. In ShipConstructionQueueDailyUpdate, after the first unpaid head that can't be afforded, every other
+    /// In ShipConstructionQueueDailyUpdate, after the first unpaid head that can't be afforded, every other
     /// shipyard's head waits (and GetOrderedShipyards puts the stuck yard first every day, so it can block for good).
     /// Afterwards, other yards' unpaid heads may start, unless they need a resource the stuck head is short of and are
     /// not more important, or need exotics (vanilla's own rule).

@@ -11,18 +11,13 @@ using UnityEngine;
 namespace ImprovedAI.Human
 {
     /// <summary>
-    /// Mission control: the hard cap on AI human fleets (2039 probe, 2026-10-19). Generic MC sat at 0 all year for five
-    /// of six AI factions: their habs consume all of it, ships need MC too, and money, boost and metals piled up.
-    /// User, 2026-10-19: "grow MC much harder, and reserve MC for the fleet. Retiring weak habs is usually not optimal:
-    /// develop a hab enough to have an MC building and positive resource flow, or don't found it."
+    /// Mission control is the hard cap on AI human fleets: habs consume generic MC and ships need it too.
     ///  - MC buildings: vanilla builds standard modules only with generic MC available (HumanHabPlanner
     ///    BuildHabModules, HabMayBeUpgraded), so a starved faction can never build the buildings that would end the
-    ///    starvation. Monthly, a starved faction first upgrades Operations Centers (4 MC) to Command Centers (10), with
-    ///    the MC offline during the 240-day build capped, then starts the best MC building it can afford on habs that
-    ///    have none (one per hab, a game limit). Administration buildings are excluded (see IsMCBuilding).
-    ///  - Fleet reserve: while warships are wanted, FOUNDING new habs may only use generic MC beyond FleetMCReserve x MC
-    ///    income (the founding checks and the found-hab MC indulgence see the reserve). Expansion waits; new MC goes to
-    ///    ships first. Existing habs are never retired.
+    ///    starvation. Monthly, a starved faction first upgrades Operations Centers to Command Centers, then starts the
+    ///    best MC building it can afford on habs that have none.
+    ///  - Fleet reserve: while warships are wanted, founding new habs may only use generic MC beyond FleetMCReserve x MC
+    ///    income (the founding checks and the found-hab MC indulgence see the reserve).
     /// </summary>
     internal static class MissionControlPlan
     {
@@ -34,10 +29,9 @@ namespace ImprovedAI.Human
                 : 0f;
 
         /// <summary>
-        /// MC buildings in the sense of this plan: modules that produce MC without a boost upkeep, i.e. the Operations
-        /// Center (4 MC, $30/month) and Command Center (10 MC, $100/month). The Administration buildings cost boost upkeep
-        /// and give little MC (1-2): they pay off through their percent bonus to a hab's production, on very high-value
-        /// habs or in Earth orbit when starved for CP cap (user, 2026-10-19), which is a separate rule (not built yet).
+        /// Modules that produce MC without a boost upkeep: the Operations Center (4 MC, $30/month) and Command Center
+        /// (10 MC, $100/month). The Administration buildings cost boost upkeep and give little MC (1-2); they pay off
+        /// through their percent bonus to a hab's production, so they are excluded.
         /// </summary>
         private static bool IsMCBuilding(TIHabModuleTemplate m) =>
             m != null && m.missionControl > 0 && GameRead.Safe(() => m.MonthlySupportCost(FactionResource.Boost, false)) <= 0f;
@@ -48,7 +42,6 @@ namespace ImprovedAI.Human
         private static float MoneyUpkeep(TIHabModuleTemplate m, TIFactionState f, TIHabState h) =>
             Mathf.Max(0f, GameRead.Safe(() => m.MonthlySupportCost(FactionResource.Money, true, f, h)));
 
-        /// <summary>Monthly: MC buildings on developed habs of starved AI human factions.</summary>
         public static void Monthly()
         {
             if (!Plugin.Cfg.UseHumanMCBuildings) return;
@@ -67,14 +60,13 @@ namespace ImprovedAI.Human
                 }
                 catch { }
                 // Money upkeep must be carried: net monthly money income after all upkeep added this pass, or a stock
-                // covering MCUpkeepMonths of it (Ops Center $30/month, Command Center $100/month).
+                // covering MCUpkeepMonths of it.
                 float netMoney = GameRead.Safe(() => f.GetMonthlyIncome(FactionResource.Money));
                 float stock = f.GetCurrentResourceAmount(FactionResource.Money), added = 0f;
                 float months = Mathf.Max(1f, Plugin.Cfg.HumanMCUpkeepMonths.Value);
-                // First: upgrade MC buildings (Operations Center 4 MC -> Command Center 10 MC). In 2039 the player's 65 MC
-                // buildings averaged ~7 MC, the AI factions' ~4: nearly all Ops Centers. +6 MC each, within the
-                // one-MC-building-per-hab limit; needs the module upgrade unlocked and allowed (tier-3 hab), the extra
-                // power, and the extra money upkeep carried.
+                // Upgrades first (Operations Center to Command Center, +6 MC within the one-MC-building-per-hab limit):
+                // needs the module upgrade unlocked and allowed (tier-3 hab), the extra power, and the extra money
+                // upkeep carried.
                 // The old module produces nothing during the 240-day build, so MC offline in upgrades is capped at
                 // MCUpgradeOfflineShare x MC income (counts under-construction MC buildings that upgrade from one).
                 float offline = 0f, offlineCap = Mathf.Max(0f, Plugin.Cfg.HumanMCUpgradeOffline.Value) * Mathf.Max(0f, GameRead.Safe(() => f.MissionControlIncome));
@@ -120,7 +112,7 @@ namespace ImprovedAI.Human
                         if (started >= max) break;
                         var slots = h.AvailableSlots();
                         if (slots == null || slots.Count == 0) { Why("noSlot"); continue; }
-                        // One MC building per hab is a game limit for everyone (user, 2026-10-19).
+                        // One MC building per hab is a game limit.
                         if (HasMCBuilding(h)) { Why("hasMC"); continue; }
                         float power = GameRead.Safe(() => h.NetPower(includeUnderConstruction: true, includeDeactivated: true));
                         var allowed = h.AllowedModules(f).Where(IsMCBuilding).ToList();

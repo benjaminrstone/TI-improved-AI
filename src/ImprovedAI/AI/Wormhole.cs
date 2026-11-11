@@ -7,15 +7,11 @@ using UnityEngine;
 namespace ImprovedAI.AI
 {
     /// <summary>
-    /// The widening wormhole: P2's soft clock (DESIGN "Two clocks"). The Hydras slowly widen the wormhole, so the
-    /// exotics drip grows over the campaign: the principled, visible cause of alien escalation over time, and the other
-    /// half of the exotics-upkeep balance (user, 2026-10-13: bases and warships compete; widening is part of the balance).
-    ///
-    /// v1: the drip multiplier (TIGlobalConfig.AI_GetExoticsMultiplier, read only for alien exotics income) is scaled by
-    /// W = 1 + rate(difficulty) x calendar campaign years, capped. Calendar years, because vanilla already multiplies
-    /// the drip by the alien progression speed. Builds on, does not replace, vanilla's setup ramp (alienSetupStartIncome
-    /// -> EndIncome, which scales all alien hab income in the Dark Skies scenarios).
-    /// Later: strikes at the terminus set the widening back (sidecar), and the terminus project (the hard clock).
+    /// The soft clock: the Hydras slowly widen the wormhole, so the exotics drip grows over the campaign. The drip
+    /// multiplier (TIGlobalConfig.AI_GetExoticsMultiplier, read only for alien exotics income) is scaled by
+    /// W = 1 + rate(difficulty) x calendar campaign years, capped at WideningMax. Calendar years, because vanilla already
+    /// multiplies the drip by the alien progression speed. Builds on, does not replace, vanilla's setup ramp
+    /// (alienSetupStartIncome -> EndIncome, which scales all alien hab income in the Dark Skies scenarios).
     /// </summary>
     internal static class Wormhole
     {

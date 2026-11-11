@@ -3,8 +3,8 @@
   Chapter playtest: play the game copy yourself with the mod, isolated from your real saves.
 .DESCRIPTION
   - Deploys the plugin to the game copy (never the Steam install).
-  - Uses C:\Games\TI-ImprovedAI-playtest\saves as the game's save folder for this launch: your Documents saves,
-    profile and autosaves are never read or written. Saves you make while playtesting (and their .improvedai.json
+  - Uses C:\Games\TI-ImprovedAI-playtest\saves as the game's save folder for this launch: the game never reads or
+    writes your Documents saves, profile or autosaves. Saves you make while playtesting (and their .improvedai.json
     sidecars) stay in that folder and are there again next time.
   - Copies the chosen fixture save in (a copy; the original is untouched) and loads it, or opens the main menu.
   - Diagnostics (journal, metrics, AI log) go to lab\results\<stamp>-playtest-<name>\<one folder per loaded game>.
@@ -29,8 +29,8 @@ param(
     [string]$Name,
     [switch]$Vanilla,
     [switch]$NoDeploy,
-    # The strategist directs every non-player faction (docs/STRATEGIST.md): enables it for this launch and runs the
-    # local watcher (tools\strategist.ps1) alongside the game; the game pauses at each 3-month checkpoint.
+    # The strategist directs every non-player faction: enables it for this launch and runs the local watcher
+    # (tools\strategist.ps1) alongside the game; the game pauses at each 3-month checkpoint.
     [switch]$Strategist,
     [string]$StrategistModel = 'opus'
 )

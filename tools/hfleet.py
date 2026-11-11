@@ -1,8 +1,7 @@
-"""AI human fleet output of runs: net SCV change, SCV lost in combat, and gross SCV built (net + lost); with
-human-ship-built records (2026-10-19 on), also the ships actually completed (free of combat luck).
+"""AI human fleet output of runs: net SCV change, SCV lost in combat, and gross SCV built (net + lost); when the
+journal has human-ship-built records, also the ships actually completed (free of combat luck).
 
-Fleet SCV alone hides combat losses (in the 2034 soaks the AI humans lost 3.6-5.1k SCV, mostly to the aliens, against
-~3k net growth), so compare gross built. human-fleet records give SCV; combat records give losses.
+Fleet SCV alone hides combat losses, so compare gross built. human-fleet records give SCV; combat records give losses.
 
 usage: python tools/hfleet.py [--months N] <run dir> [<run dir> ...]
 """
