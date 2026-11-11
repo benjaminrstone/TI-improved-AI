@@ -74,7 +74,8 @@ namespace ImprovedAI.Human
                 if (mine < 0.5f * theirs)
                 {
                     faction.selfAssessement = FactionSelfAssessment.LosingBig;
-                    if (Plugin.Cfg.DecisionJournal.Value)
+                    // Runs daily per faction: journal the state once a month.
+                    if (Plugin.Cfg.DecisionJournal.Value && TITimeState.Now().day == 1)
                         Session.Journal?.Write(new { t = GameRead.Now(), kind = "losing-big-fix", faction = GameRead.Faction(faction), rival = GameRead.Faction(rival), ratio = theirs > 0f ? mine / theirs : 0f });
                 }
             }
