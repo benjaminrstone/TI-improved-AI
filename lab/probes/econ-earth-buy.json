@@ -1,6 +1,6 @@
 {
   "name": "econ-earth-buy",
-  "notes": "No buying from Earth (user, 2026-10-13). Vanilla prices a missing space resource as boost + money from Earth for the aliens too. If the aliens really pay it, their boost income is spent as it arrives (stock ~0, as in every run so far); with the mod they can't, so boost accumulates and shortfalls are refused. Run on vanilla first: if alien boost income is 0, vanilla never actually buys and the switch only guards the lore. Also checks the widening wormhole (2026-10-13): vanilla drip in the 2034 fixture is 40/month; at Normal, 0.05/year over ~8 campaign years gives ~1.4x.",
+  "notes": "No buying from Earth. Vanilla prices a missing space resource as boost + money from Earth for the aliens too. If the aliens really pay it, their boost income is spent as it arrives (stock ~0, as in every run so far); with the mod they can't, so boost accumulates and shortfalls are refused. Run on vanilla first: if alien boost income is 0, vanilla never actually buys and the switch only guards the lore. Also checks the widening wormhole: vanilla drip in the 2034 fixture is 40/month; at Normal, 0.05/year over ~8 campaign years gives ~1.4x.",
   "fixture": "accel-2034-fusion-drives",
   "runDays": 90,
   "asserts": [

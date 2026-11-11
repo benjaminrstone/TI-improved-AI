@@ -1,6 +1,6 @@
 {
   "name": "flow-2039-long-ai",
-  "notes": "flow-2039-long with the Resistance handed to the game's AI on day 0 (ai.control; user, 2026-10-22). Compare with flow-2039-long (passive Resistance): does an AI-run defender use the strike's ~198-day flight to reinforce Jupiter, and does the strike still win?",
+  "notes": "flow-2039-long with the Resistance handed to the game's AI on day 0 (ai.control; user). Compare with flow-2039-long (passive Resistance): does an AI-run defender use the strike's ~198-day flight to reinforce Jupiter, and does the strike still win?",
   "fixture": "accel-2039-clean-jupiter",
   "runDays": 540,
   "asserts": [

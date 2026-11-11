@@ -1,120 +1,103 @@
-# Testing a 60-hour game
+# Testing
 
-A full human campaign takes 50–80 hours, so it can't be the inner loop. We test in layers instead. Each layer is roughly 10× cheaper than the one above it, and most changes should be proven in the cheapest layer that can show them.
+A full campaign takes 50–80 hours, so it can't be the inner loop. Everything runs on the isolated game copy (`C:\Games\TI-ImprovedAI`) through the harness: load a save, inject a situation, run game days unattended at max speed, read what the AI decided.
 
-| Layer | What it answers | Cost | Who runs it |
+| Layer | Answers | Cost | Built |
 |---|---|---|---|
-| L0 Save forensics | What did the AI actually do across a real campaign? | seconds | script |
-| L1 Decision probes | Given situation X, does the AI decide Y within N game-days? | 2–10 min | harness, unattended |
-| L2 Campaign soaks | Over 5–20 game-years, do the curves look right? Does it break, stall or run away? | 1–4 h per run, overnight batches | harness, unattended |
-| L3 Combat lab | Do station defenses, fleet compositions and new controls work tactically? | 2–5 min | harness (skirmish) |
-| L4 Chapter playtests | Is it fun, fair and readable for a human? | 1–3 h | the user, from fixture saves |
-| L5 Full campaign | Does the whole arc hold together? | 50–80 h | the user, rarely |
+| Save forensics | What did the AI do across a real campaign? | seconds | `tools/saves/timeline.py` |
+| Probes | Given situation X, does the AI decide Y within N days? | 2–50 min | yes |
+| Soaks | Over years, do the curves look right? Vanilla vs mod, repeated. | ~1 min per 20 game days | yes |
+| Chapter playtest | Is it fun, fair and readable for a human? | 1–3 h of the user's time | `tools/playtest.ps1`; none played yet |
+| Combat lab | Do station defences and fleet compositions work tactically? | — | not built |
 
-## Isolation from the Honorverse project
+## Rules
 
-This project uses its **own copy of the game** (31 GB). It lives *outside* OneDrive, e.g. `C:\Games\TI-ImprovedAI\`; the path is set in `tools/paths.ps1`. The copy has its own BepInEx, plugin, Mods folder and lab lock, so it never collides with Honorverse runs on the Steam install. Re-sync it from the Steam install after game patches.
-- `steam_appid.txt` (1176470) goes in the copy so it launches outside Steam.
-- **Shared folder:** saves and `PlayerOptions.TIProfile` still live in `Documents/My Games/TerraInvicta`, which both copies use. The harness must:
-  - never overwrite the user's saves, by redirecting or disabling autosave (`TIMissionPhaseState` autosaves and `CombatAutosave`) during harness runs;
-  - write its own saves under `lab/results/`;
-  - restore `PlayerOptions.TIProfile` after changing it.
+- **Probe first.** A change starts with a probe that shows the problem on vanilla (`-Vanilla`).
+- **Never conclude balance from one run.** Runs are not deterministic: the RNG is clock-seeded, mission planning runs on worker threads, frame time varies. Use `soaks.ps1` and compare means and ranges with `aggregate.py`.
+- **The regression check is two flow probes**, not the whole roster: `tools\probes.ps1 flow-2034, flow-2039` (~45 min). Their asserts are health checks and wide floors that natural variance passes; the `info` lines are the observations to read. Probes with injected setups are run only for the feature being changed.
+- **The harness player is passive** unless the probe says otherwise. The game's Autopilot clears prompts and resolves combat but gives no orders, so the player's faction slowly loses ground. For a defender that acts, hand the faction to the game's AI (`ai.control ResistCouncil ai`) or the rule-based bot (`ai.bot`). An AI-run player slows the run to ~13 days/min.
+- **One run at a time.** The game copy is locked by `C:\Games\TI-ImprovedAI-harness\harness.lock`.
 
-## L0 Save forensics (`tools/saves/`)
+## Commands
 
-Saves are gzipped FullSerializer JSON, 40–120 MB uncompressed. They contain every faction's resources and **every AI goal** (`FactionGoal_*`), with targets and assigned fleets.
-- `timeline.py` covers fleet and resource curves.
-- To add: alien habs by body, goal census per save, and attack history (from `TISpaceFleetState.Logs`/`CombatLogs`).
-- **Fixture library:** the user's existing saves cover every chapter of a Normal accelerated Resistance campaign. Examples: `past-start` 2026, `mid-mars-construction` 2027, `hot-war` 2031-32, `fusion-drives-mid-build` 2034, `launch-jupiter-assault-fleet` 2037, `clean-jupiter` 2039. Copy the ones we use into `lab/fixtures/` with a manifest. We'll want more from other factions and difficulties over time.
+```
+tools\probes.ps1 flow-2034, flow-2039                    # the regression check
+tools\run.ps1 -Probe <name> [-Vanilla] [-Days N]         # one probe (exit 2 on a failed assert)
+tools\run.ps1 -Fixture <name> -Days 90 -Name look        # ad-hoc run, no asserts
+tools\run.ps1 -Probe <name> -SavePath <run>\final.gz     # start from a run's final save (-FinalSave writes one)
+tools\soaks.ps1 -Fixture accel-2034-fusion-drives -Days 730 -Runs 3 [-ModOnly]
+tools\strategist.ps1 -Harness                            # the strategist watcher (start it before the run)
+tools\playtest.ps1 -Fixture accel-2031-hot-war [-Strategist]   # play it yourself, isolated saves
+python -I tools\probe.py lab\probes\<probe>.json lab\results\<run>   # re-evaluate a run
+python -I tools\summarize.py lab\results\<run>           # the story of one run
+python -I tools\compare.py <runA> <runB>                 # two runs side by side
+python -I tools\aggregate.py "<glob of run folders>"     # means over soaks
+```
 
-## L1 Decision probes (the backbone)
+## What a run does
 
-A probe has four steps:
-1. Load a fixture save.
-2. Inject a situation: harness commands that wrap the game's own debug terminal (`addresource`, `givealltechs`, …) and runtime spawns (fleet at Jupiter, 15 undefended mines in the belt, refit the Earth fleet to weak missiles).
-3. Run N game-days at max speed with the player passive (the game's own Autopilot clears prompts and auto-resolves combat).
-4. Assert on **what the alien AI decided**: goals created, targets chosen, fleets launched, forces committed. Battle outcomes don't matter here.
+1. Builds and deploys the plugin (`deploy.ps1`; it resets the plugin `.cfg` so current defaults apply).
+2. Stages a copy of the fixture save (`lab\fixtures.json` maps names to files in the user's save folder, which is only read) and of the player profile under `C:\Games\TI-ImprovedAI-harness`. The plugin redirects the game's save folder there for this launch; autosaves are blocked.
+3. Launches the game windowed. Unity's display settings live in a registry key shared with the Steam install: they are backed up and restored, also after a killed run.
+4. Loads the save, runs the probe's `commands`, starts the Autopilot and holds max speed.
+5. Stops after `runDays`, writes `results.json`, quits, and evaluates the asserts.
 
-Example probe:
+Throughput is ~17–24 game days per real minute on a mid-game save; a save loads in about a minute.
+
+## Output: `lab\results\<stamp>-<name>\` (gitignored)
+
+| File | What |
+|---|---|
+| `journal.jsonl` | One record per decision or event, each with a `kind`. The record shapes are defined where they are written (`Session.Journal?.Write` in the plugin). |
+| `metrics.jsonl` | One row at load and one per game month: per faction resources, habs, fleets, ships, SCV; alien hate and goal counts. |
+| `ai-log.txt` | The developers' own AI trace (`TIFactionState.LogAI`, a no-op in vanilla). |
+| `results.json` | End reason, throughput, exception samples, terminal output. |
+| `asserts.json` | Probe outcomes and `info` values. |
+| `strategist\` | Briefs and directives, when the strategist ran. |
+| `player.log`, `bepinex.log`, `stall-N.png` | Logs, and a screenshot whenever the date stops advancing for 90 s. |
+
+## Probes (`lab\probes\*.json`)
 
 ```jsonc
 {
-  "name": "undefended-mines-get-raided",
-  "fixture": "accel-2034-fusion-drives-mid-build",
-  "inject": ["spawnMines player belt 15 undefended"],
-  "runDays": 120,
-  "asserts": [
-    "alien.goals.AttackWithFleet[target.isMine].count >= 3",
-    "player.habs[isMine & destroyed].count >= 5"
-  ]
+  "name": "e5-undefended-mines",
+  "expect": "vanilla FAILS ...",        // printed with the results
+  "fixture": "accel-2034-fusion-drives",
+  "runDays": 180,
+  "commands": ["ai.foundoutposts ResistCouncil belt 15 mine", "@60 ai.move ..."],
+  "config": { "Targeting": { "MaxRaidGoals": "2" } },   // per-run plugin config overrides
+  "asserts": ["count('hab-', faction='ResistCouncil', habType='Base') >= 5"],
+  "info": ["last['date']"]              // tracked numbers: printed, never fail the probe
 }
 ```
 
-**Every known exploit becomes a probe.** The community survey and our own play produce an exploit catalogue (`docs/EXPLOITS.md`), and each entry gets a probe that fails on vanilla. A change that re-opens an exploit turns its probe red.
+- **Commands.** `ai.*` lines are harness commands (`Harness/HarnessCommands.cs`); an `@N` prefix runs one N game days after the start. Anything else goes to the game's own debug terminal (`addresource`, `givealltechs`, …).
+- **Asserts and info** are Python expressions over `journal`, `metrics`, `results`, `status`, `first`, `last`, with `count(kind, **match)`, `events(kind, **match)`, `faction(row, name)` and a few builtins (`len sum min max any all abs round sorted set median mean`; no `zip`, `dict` or `str`).
 
-**The regression check is two flow probes, not the whole roster** (user, 2026-10-21). Running every probe back to back took ~4 hours of the single game copy. Instead:
+| Probe | Use |
+|---|---|
+| `flow-2034`, `flow-2039` | The regression check: a natural year each. 2034 covers the alien economy, proxy trade, raids, contempt and the human AI track; 2039 covers escalation, pooled strikes, rendezvous and the terminus. |
+| `flow-2039-long` (`-ai`, `-bot`) | 540 days from 2039: the Jupiter strike arrives and fights. Passive, AI-run or bot-run Resistance. |
+| `flow-2026`, `campaign-2026-15y` | The early game with the strategist; the 15-year campaign (overnight, ~4.5 h). |
+| `strategist-2039` | The strategist end to end. |
+| everything else | Targeted probes with injected setups, for the feature being changed. |
 
-```
-tools\probes.ps1 flow-2034, flow-2039     # ~45 min: two natural years, nothing injected
-```
+Fixtures are all from one Normal accelerated Resistance campaign, plus the final save of the 15-year mod campaign (2041) in its run folder. The harness cannot start a brand-new campaign; "fresh" means the 2026 fixture.
 
-- **`flow-2034`**: alien economy (bases, exotics cap and war chest, widening, no Earth purchases), proxy trade, attack launches, contempt, and the whole human AI track (market, H-fixes, personalities, ships completed).
-- **`flow-2039`**: escalation, pooled strikes at Jupiter and rendezvous, the terminus starting on its own, contempt falling against a strong player, and late-game human fleet growth.
+## Baseline: 2 years from 2034, three runs each
 
-**Defenders that act** (2026-10-22). `ai.control <faction> ai|human` hands a faction to the game's AI mid-game. `ai.move <faction> <fleet|strongest|all|idle[@System]> <fleet|hab|body> [reserve]` and `ai.merge <faction> <fleets> <intoFleet>` issue real orders through the game's own operations; probes can schedule them (`@N`). `ai.bot <faction> reinforce,merge` runs the rule-based player (`Harness/PlayerBot.cs`), which sees true enemy strengths, a v1 simplification. Variants: `flow-2039-long-ai`, `flow-2039-long-bot`. An AI-run player slows the game to ~13 days/min.
+| | Vanilla | Mod |
+|---|---|---|
+| Alien SCV at end | 35.3k | 42.8k (39.8–44.5) |
+| Alien ships lost | 29 | 4.3 |
+| Human ships destroyed by aliens | 144 | 190 |
+| Habs lost, all / Resistance | 95 / 24 | 81 / 26 |
+| Alien attack launches | 64 | 50 |
+| AI human ships completed, year 1 | 69 | 102 / 117 / 113 |
+| Exotics stock | 2.0k → 2.4–2.7k | 2.0k → 1.4k |
 
-**`flow-2039-long`** (540 days, ~35 min) is the same game run on until the Jupiter strike arrives and fights. It is not part of the routine check; run it when strike behaviour changes. In all flow probes the player is passive: the Autopilot clears prompts and resolves combat but gives no fleet orders or missions.
+The player was passive in all of these. No run with an active player has been repeated enough to be a baseline.
 
-Their asserts are health checks plus wide regression floors, calibrated on past runs so that natural variance passes. The many `info` lines are the observations: read them to see how a change moved the flow of the game. Probes with injected setups (e1, e5, doctrines, shame shift, fleet doctrines, terminus, war chest) are run only for the feature being changed. Balance is still judged by soaks.
+## Playtests
 
-Each probe carries `baseline: "vanilla"`, so the same probe runs with the mod disabled to show the delta. Runs aren't deterministic: the RNG is clock-seeded, mission planning runs on a worker thread, and frame time varies. We seed what we can (`TIUtilities.InitRandom`). For behavioural asserts we run a probe 3–5 times and assert on the rate ("raids mines in ≥ 4 of 5 runs").
-
-## L2 Campaign soaks
-
-Load a fixture (or start a new game) and run 5–20 game-years with the human factions under AI control. This uses a Harmony patch that marks the player's faction `isAI`, leaving the UI attached. Record one JSONL row per game-month:
-- date and wall-clock time;
-- per faction: resources and income, habs by body, tier and type, fleets with summed SCV and location, control points, techs;
-- alien hate, war state, and active alien goals by type.
-
-Soaks answer curve questions that a probe can't:
-- Does the alien expand past its old ceiling?
-- Does it spend its stockpiles?
-- Does it ever concentrate forces?
-- Does the human AI get crushed in year 8? That is a warning sign: the aliens shouldn't trivially beat human AI factions either.
-- Do exceptions or stalls appear?
-
-Each soak is compared against a vanilla soak of the same fixture and seed. Overnight batches: 4–8 runs.
-
-**Throughput is unmeasured.** The theoretical top speed is about 1 game-month per real minute. Measuring the real rate is the first harness milestone, because it decides how much of L2 we can afford. Levers: extra speed tiers via JSON, `Time.timeScale`, uncapped frame rate, a small window, autosaves off, `smoothAIMissionPlanning` off.
-
-**Caveat:** human factions under AI control are not a human. Soaks tell us about stability, pacing and gross balance. They don't tell us whether a skilled player is challenged. That is what the exploit probes (L1) and chapter playtests (L4) are for.
-
-## L3 Combat lab
-
-The Honorverse skirmish lab is the reference design: a scenario JSON, an auto-run at max speed, results, an event log, a replay, and asserts. We reimplement a slim version in this repo's plugin; no shared code. Uses:
-- station defense rework (station vs fleet at the old and new ranges);
-- alien fleet doctrine compositions (does a beam-heavy doctrine beat a missile-escort swarm?);
-- the new formation and station-keeping commands.
-
-## L4 Chapter playtests
-
-The user plays a 1–3 hour chapter from a fixture save with the mod, for example "Jupiter assault, 2037", "hot war at Earth, 2031" or "first asteroid expansion, 2029". The mod's changes take effect on load (all AI changes are behavioural and read from the current state), so a mid-game save is a valid test. Things that must be set at game start, such as alien doctrines, get a "pick one on load if missing" path and a debug override.
-
-After each session, a short playtest log goes in `playtests/YYYY-MM-DD-<chapter>.md`, with four questions:
-1. What did the aliens do that surprised you?
-2. What did they do that felt dumb?
-3. What did you exploit?
-4. Where did you feel pressure, and where did you feel safe?
-
-Following "the user knows when something's wrong, not how to fix it", the log records symptoms. Triage turns each symptom into a probe before anyone touches AI code.
-
-## L5 Full campaigns
-
-These are rare and run by the user. A full campaign is the only thing that tests the late-game arc as a whole: the Jupiter/Saturn plateau and whether the tech tree extension is worth turtling for. In the mod, gate the big changes behind config flags so one campaign can isolate one variable.
-
-## Instrumentation the mod ships with
-
-All of this goes to log files and is off by default for players:
-- **Revived `LogAI`:** the developers' own AI trace, to `BepInEx/LogOutput` or its own file.
-- **Decision journal:** one line per alien strategic decision (goal created or dropped, attack launched with perceived vs actual SCV, target chosen with its runners-up). This is how we read why the AI did something, from a playtest or a soak.
-- **Monthly metrics row:** the same schema as the soaks, so a human campaign produces soak-comparable curves for free.
+`tools\playtest.ps1 -Fixture <name>` launches the game copy with the mod in an isolated save folder (`C:\Games\TI-ImprovedAI-playtest\saves`). After a session, record symptoms, not fixes: what surprised you, what felt dumb, what you exploited, where you felt pressure and where you felt safe. Each symptom becomes a probe before anyone touches AI code.

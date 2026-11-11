@@ -1,6 +1,6 @@
 {
   "name": "flow-2039-long",
-  "notes": "Long companion to flow-2039 (user, 2026-10-21: does the strike win when it gets there? one consolidated run, not several). The same natural game from the 2039 save for ~18 months, so the pooled Jupiter strike (launched ~23 Oct 2039, ~198-day flight) arrives and fights. Same asserts as flow-2039, plus: the strike's arrival and the battles at Jupiter, the Resistance's Jupiter strength and habs month by month (defender growth during the transit), terminus progress. Not part of the routine regression check (~40 min); run when strike behaviour changes.",
+  "notes": "Long companion to flow-2039 (does the strike win when it gets there? one consolidated run, not several). The same natural game from the 2039 save for ~18 months, so the pooled Jupiter strike (launched ~23 Oct 2039, ~198-day flight) arrives and fights. Same asserts as flow-2039, plus: the strike's arrival and the battles at Jupiter, the Resistance's Jupiter strength and habs month by month (defender growth during the transit), terminus progress. Not part of the routine regression check (~40 min); run when strike behaviour changes.",
   "fixture": "accel-2039-clean-jupiter",
   "runDays": 540,
   "asserts": [

@@ -1,84 +1,102 @@
-# The strategist: a model that directs a faction (design, 2026-10-22)
+# The strategist: a stronger model directs each faction
 
-**Goal (user, 2026-10-22).** In a real game with a human player, a stronger model (Opus) sets goals and strategy for an AI faction a few times a game-year. Between those checkpoints the game AI (vanilla plus this mod) runs the faction according to the instructions. Testing tools 1–3 (AI control, scripted orders, the rule-based player bot) are the first steps towards it.
+In a game with a human player, a stronger model (Claude Opus, run locally through headless Claude Code) sets the strategy of every non-player faction every three months. Between checkpoints the game AI (vanilla plus this mod) plays the faction under those directives. Directives re-weight choices the AI could make anyway. They never grant resources, intel or units.
 
-Status: **v0 being built (2026-10-22)**, following the decisions below.
+It is off by default (`[Strategist] Enabled`), and `[General] VanillaAI=true` turns it off as well. Code: `src/ImprovedAI/Strategist/`. Watcher: `tools/strategist.ps1`, with the model's instructions in `tools/strategist/prompt.md`.
 
-## The loop
+## Decisions
 
-```
-checkpoint (quarterly, or on a big event)
-  -> brief:      the mod writes what the faction knows, in a compact form
-  -> strategist: the model reads the brief and its previous intent, writes directives
-  -> executor:   the mod validates the directives and applies them through the hooks the AI already reads
-  -> the game AI plays on under them until the next checkpoint
-```
+- **Factions:** all non-player factions, meaning the aliens and every AI human faction. The player's faction is never directed.
+- **Pause:** the game pauses while the strategist thinks.
+- **Transport:** local files. The mod writes briefs to a folder, a local watcher runs the model and writes directives back. No API key in the mod.
+- **What the player sees:** a faction's intent, only through a relationship with that faction (see "What the player sees").
+- **Cadence:** every 3 months.
 
-### 1. The brief (state exporter)
-What the faction knows, not the truth. For the aliens: their perceived threats (ThreatMemory), known human assets and fleets, their own economy (exotics, bases, upkeep), doctrine, contempt, escalation, terminus. For a human AI faction: resources, habs, fleets, research, councilors, relations and hate, threats. Plus a digest of what happened since the last checkpoint (from the decision journal: strikes, losses, trades, wars), and the strategist's own previous intent, so it can judge its plan.
+## The checkpoint loop (`Checkpoint.cs`)
 
-### 2. Directives (what the strategist may set)
-Bounded levers that re-weight choices the AI could make anyway. **No cheating:** no resources, intel or units it doesn't have, and nothing outside the faction's legal actions.
+1. **When.** On the first new day of a campaign whose sidecar records no checkpoint, then on the 1st of a month once `MonthsBetween` (default 3) months have passed since the last one. The harness command `ai.strategist checkpoint` forces one.
+2. **Brief out.** The mod pauses the game, remembers the speed, and writes `briefs/<date>.json` to the exchange folder. It first deletes any directives file already there for that date (left by a reload or by another campaign in the same folder), so a stale answer is never applied.
+3. **Wait.** It holds the game paused and looks for `directives/<date>.json` once a second.
+4. **Directives in.** Each entry for a directed faction replaces that faction's whole directive in the sidecar (`<save>.improvedai.json`), so directives survive save and load. Entries under other names are ignored. A faction missing from the file keeps its previous directive.
+5. **Resume.** The player gets the intel notifications they are entitled to, and the game resumes at the previous speed.
+6. **Timeout.** After `TimeoutMinutes` real minutes (default 20, 0 waits indefinitely) the game plays on under the previous directives, or under the mod alone if there are none. A timeout still counts as the checkpoint, and so does a directives file that fails to parse: the next checkpoint comes after the full interval.
 
-| Lever | Hook it drives today |
+**Exchange folder:** `[Strategist] Folder`. When that is empty: `<run folder>\strategist` in an unattended harness run, otherwise `BepInEx\ImprovedAI-strategist` in the game copy. It holds `briefs\`, `directives\`, `responses\` (the model's raw answers) and `watcher.log`.
+
+**Journal:** `strategist` (`ev`: `brief`, `applied` with the directives, `timeout`, `bad-directives`), `strategist-intel`, `strategist-defend`.
+
+## The brief (`Brief.cs`)
+
+One file per checkpoint: date, campaign years, the player's faction, and one section per directed faction. Each section holds what that faction knows, through its own AI's perception. Hab counts and locations are treated as known to everyone (they are visible on the game map).
+
+| Faction | Contents |
 |---|---|
-| Doctrine and posture dials (attack superiority, raid limits, pool margin, reserves) | `Dials`, within the difficulty's bounds |
-| Strike priorities (which system or hab to pool against next; systems not to touch) | `ForcePooling` focus choice, `RaidPlanner` weights |
-| Defence priorities (systems to hold, release budgets) | pooling release budget, defend goal importance |
-| Economy (resources to mine, build-size mix, exotics spending vs war chest) | `Economy` need weights, build pick, war chest |
-| Human factions: who is the enemy, who to court, trade stance | `Personality` weights, market and treaty rules |
-| Research focus | research priority hook (to add) |
-| Councilor mission emphasis | mission payoff bias (`PersonalityActions`) |
-| Direct orders for a few key fleets (rare) | `Harness/Orders` (move, merge), moved into a runtime service |
-| Intent (free text) | journaled; optionally shown to the player as intel or flavour `[ext]` |
+| The aliens | Doctrine, escalation state and desperation, terminus start and progress, contempt per human faction, exotics (stock, drip, war chest), base count, fleet SCV in total and by system, the pooled strikes in progress (target, system, SCV needed and present). Per human faction: alien hate, habs by system, and fleets by system as the aliens remember them (`ThreatMemory`). |
+| An AI human faction | Persona, self-assessment, resource stocks, habs and fleets by system, ship and councilor counts, its patron if it is a client. Per other human faction: hate, at war, non-aggression pact, habs by system, and fleets by system as perceived (vanilla's system fleet strengths × the faction's perceived-strength factor). The alien threat in the same form. |
 
-The executor clamps every value to its legal range and logs what it applied.
+The brief has no account of what happened since the last checkpoint. The model's only memory is its own previous directive, which the watcher passes back to it.
 
-### 3. Cadence and triggers
-A checkpoint every quarter (configurable). Extra checkpoints on big events: escalation, a lost system, war declared, a failed strike, the terminus begun. Between checkpoints the directives persist in the save's sidecar (`<save>.improvedai.json`), so they survive save and load.
+## Directives (`Directives.cs`)
 
-### 4. Transport: how the model is reached
-| Option | How | Trade-offs |
-|---|---|---|
-| A. Offline, in the harness | A run stops at the checkpoint; I read the brief and write directives; the next run continues from that save (`-SavePath` already carries the sidecar). | No live game. Slow (a load per checkpoint), but needs no new infrastructure. The place to design the brief and the directives. |
-| B. File handshake, live | The mod writes the brief to a folder and either pauses or plays on under the old directives; a local agent (a Claude Code session, or a small script) answers with a directives file. | Works in your real game. Needs a watcher running. Pause vs play-on is a choice. |
-| C. Direct API call from the mod | The plugin calls the Claude API itself. | Simplest to use, but an API key sits in the mod config, plus network access and cost per checkpoint. |
+Every field is optional. A missing field leaves the AI's own judgement in place. Values are clamped when read. Faction names are template names (`ResistCouncil`, `AlienCouncil` and so on) and system names are matched as they appear in the brief, both without regard to case.
 
-Proposed path: build A first (it reuses the harness), then B for real games. C only if B proves clumsy.
+| Field | For | Range | Effect | Hook |
+|---|---|---|---|---|
+| `intent` | all | free text | What the faction means to do. Journaled, and shown to the player under the intel rules. | `Intel.cs` |
+| `posture` | aliens | −1 cautious to +1 aggressive | At posture p: attack superiority × (1 − 0.25p), home reserve × (1 − 0.4p), raid and capture slots × (1 + 0.5p), arrival fight ratio × (1 − 0.15p). | `AI/Dials.cs` |
+| `strikeTargets` | aliens | first 5 systems count | Pooled strikes pick their focus goal in these systems first, in list order. A longer list was no priority at all (one campaign's list grew to 30 systems), hence the cap. | `AI/ForcePooling.cs` |
+| `spare` | aliens | first 12 systems count | No pooled strike and no raid in these systems. | `AI/ForcePooling.cs`, `AI/RaidPlanner.cs` |
+| `raidFactions` | aliens | faction names | Raid scores against these factions' habs × 2. | `AI/RaidPlanner.cs` |
+| `warChestMonths` | aliens | 0 to 36 | Replaces `ExoticsWarChestMonths`: the exotics kept back outside escalation, in months of drip. | `AI/Economy.cs` |
+| `rivals` | AI humans | faction names | Adds 1.5 to the monthly hate change toward each, on top of the personality terms, and favours hostile councilor missions against them. | `Human/Personality.cs`, `Human/PersonalityActions.cs` |
+| `friends` | AI humans | faction names | Subtracts 1.5 from the monthly hate change toward each (never below −1.5 a month), and steers hostile missions away from them. | same |
+| `missionFocus` | AI humans | 0 to 1, default 0.5 | Strength of the mission steer: payoff × (1 + 0.8 × focus) against rivals, × (1 − 0.8 × focus) against friends. | `Human/PersonalityActions.cs` |
+| `defend` | AI humans | systems | In each listed system where the faction has a hab, a fleet defence goal of importance at least 17 at its main hab there (the station with the most shipyards, else the body of its highest-tier base). Vanilla only defends the primary hab or a system that enemy fleets have already entered. | `DefendDirective.cs` |
 
-### 5. Fairness and fallback
-- The brief respects fog of war (the faction's own intel).
-- If no directive arrives, the faction plays on under the last one, and the mod alone under none.
-- Directives can't exceed the difficulty's bounds, so difficulty still sets how tight the constraints are.
+## The watcher (`tools/strategist.ps1`)
 
-## What exists (building blocks, 2026-10-22)
-- `ai.control <faction> ai|human`: hand a faction to the game's AI, or back.
-- `ai.move`, `ai.merge` (`Harness/Orders.cs`): real orders through the game's own transfer and merge operations, journaled.
-- `ai.bot` (`Harness/PlayerBot.cs`): a rule-based player (reinforce threatened systems, merge idle fleets).
-- The decision journal, monthly metrics and the alien strategy sidecar: the raw material of the brief and the storage for directives.
+- It watches the exchange folder for briefs without a matching directives file.
+- For each brief it makes one headless Claude Code call per faction, in parallel, with no tools. Each call sees only the game header, that faction's own section of the brief and that faction's own previous directive, so factions cannot coordinate on knowledge none of them has.
+- An answer must contain one JSON object. A call is tried twice. A faction with no valid answer is left out of the file and keeps its previous directive.
+- Parameters: `-Folder`, `-Model` (default `opus`), `-PollSeconds`, `-Once`, `-StopAfterMinutes`, `-Harness`.
 
-## Decisions (user, 2026-10-22)
-1. **Which factions:** all non-player factions: the aliens and every AI human faction.
-2. **Pause:** the game pauses while the strategist thinks.
-3. **Transport:** local. The mod writes briefs to a folder; a local watcher runs the strategist (Claude Code in headless mode) and writes the directives back. No API key in the mod.
-4. **What the player sees:** a faction's intent, only if that faction is allied with the player, is the player's client, or has a councilor the player has turned.
-5. **Cadence:** every 3 months (event triggers later).
+## What the player sees (`Intel.cs`)
 
-## v0 as built (2026-10-22)
-- **Directives** (`Strategist/Directives.cs`, schema above): aliens `posture`, `strikeTargets`, `spare`, `raidFactions`, `warChestMonths`; human AI factions `rivals`, `friends`, `defend`, `missionFocus`; every faction an `intent`. Stored in the sidecar.
-- **Executor hooks:** posture scales the alien dials (`Dials`); strike targets order the pooling focus and spared systems are skipped (`ForcePooling`, `RaidPlanner`); raid factions double raid scores; the war chest takes the directive's months (`Economy`); rivals and friends add ±1.5 hate a month (`Personality` jealousy) and steer hostile missions (`PersonalityActions`); defend systems get a defence goal of importance 17 at the faction's main hab there (`Strategist/DefendDirective.cs`).
-- **Brief** (`Strategist/Brief.cs`): per faction, through its own AI's perception (aliens: threat memory; humans: vanilla's system fleet strengths x their perceived-strength factor). Hab locations count as known.
-- **Checkpoint loop** (`Strategist/Checkpoint.cs`): right after a game loads without directives, then every 3 months on the 1st. Pauses the game, writes `briefs/<date>.json`, keeps the game paused until `directives/<date>.json` arrives (or `TimeoutMinutes`, default 20, then plays on under the previous directives), applies it, shows intel, resumes.
-- **Watcher** (`tools/strategist.ps1`, instructions `tools/strategist/prompt.md`): one headless Claude Code call per faction, in parallel, **each seeing only its own faction's brief and previous directive**, so the factions can't coordinate on knowledge none of them has. Raw answers go to `responses/<date>.md`.
-- **Intel** (`Strategist/Intel.cs`): the player gets a notification with a faction's intent if that faction has a non-aggression pact or an intel-sharing treaty with them ("allied": the game has no formal alliance), is their client, or has a councilor they turned.
+After each checkpoint the player gets a notification with a faction's intent if that faction:
+- has a non-aggression pact with the player, or
+- has an intel-sharing treaty with the player, or
+- is the player's client (`Human/Personality.cs`), or
+- has a councilor the player has turned.
 
-### Using it in a game on the game copy
-`tools\playtest.ps1 -Fixture <name> -Strategist` (or a `-SavePath`): turns the strategist on for that launch only, starts the watcher in a minimized window, and stops it when you quit. The exchange folder (briefs, directives, raw answers, watcher log) is the session's `strategist` folder under `labesults`. The game pauses at each checkpoint for as long as the seven parallel calls take. (Turning it on in the plugin's .cfg also works, but `deploy.ps1` resets that file.)
+The first two stand in for "allied": the game has no formal alliance. `[Strategist] ShowIntel` turns the notifications off. In unattended harness runs the intel is journaled only. `[ext]`
 
-In the harness: probe `strategist-2039`, with `tools\strategist.ps1 -Harness` running alongside (it follows the newest run; each run keeps its exchange files in `lab\results\<run>\strategist`). While the strategist thinks, the harness holds the Autopilot off so the clock stays stopped.
+## Running it
+
+- **In a game you play:** `tools\playtest.ps1 -Fixture <name> -Strategist` (or `-SavePath <save>`; `-StrategistModel` picks the model). It turns the strategist on for that launch only, starts the watcher in a minimized window and stops it when you quit. The exchange folder is the session's `strategist` folder under `lab\results`. Turning it on in the plugin's .cfg also works, but `deploy.ps1` resets that file.
+- **In the harness:** start `tools\strategist.ps1 -Harness` before the run. It follows the newest run under `lab\results`, and each run keeps its exchange files in `lab\results\<run>\strategist`. Probe: `strategist-2039`. While the strategist thinks, the harness holds the Autopilot off so the clock stays stopped.
+
+## Known limits
+
+- **No digest.** The brief carries the current state only, not the battles, losses and treaties since the last checkpoint.
+- **No event triggers.** Checkpoints come by the calendar only, not on escalation, a lost system or a declaration of war.
+- **Fixed ranges.** Directive values are clamped to the ranges above at every difficulty. They are not tied to the difficulty's dial values.
+- **Pause length.** The game stays paused for as long as the parallel calls take (seven factions in a standard game).
+- **`defend` is a goal, not an order.** It raises a defence goal. Which fleets answer it is still vanilla's assignment.
+- **Quality is unjudged.** One 15-year campaign ran 61 checkpoints without a timeout, with a passive player. Whether each faction stays in character, and whether directives change outcomes, has not been measured.
+
+## Not built
+
+- Research focus, build mix and resource priorities as directive fields.
+- Councilor mission types as a directive field (only the rival and friend steer exists).
+- Direct orders for individual fleets (`Harness/Orders.cs` has move and merge for harness scripts only).
+- A direct API call from the plugin (decided against: transport is local).
 
 ## Next steps
-1. Judge the directives' quality over a long run (does each faction stay in character; do directives move outcomes).
-2. A digest of what happened since the last checkpoint in each brief (battles, losses, treaties), from the decision journal.
-3. Event-triggered checkpoints (escalation, a lost system, war declared).
-4. More levers: research focus, build mix, councilor mission types.
+
+1. Judge the directives over a long run with a player that acts (`ai.control ResistCouncil ai` or `ai.bot`).
+2. Add the digest of events since the last checkpoint to each brief, from the decision journal.
+3. Add event-triggered checkpoints.
+4. Add levers: research focus, build mix, councilor mission types.
+5. Watch the gang-up on the player. In the one long campaign, 5 of 6 human factions named the Resistance a rival in 2039, where it was the runaway leader, and none did in 2026 to 2028.
+
+**Open question for the user:** whether a non-aggression pact or an intel-sharing treaty is too wide a reading of "allied" for intel.

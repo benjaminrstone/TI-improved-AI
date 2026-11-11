@@ -1,6 +1,6 @@
 {
   "name": "strategist-2039",
-  "notes": "Strategist v0 end to end (user decisions 2026-10-22): every non-player faction directed every 3 months, the game paused while the local watcher (tools/strategist.ps1, one headless Claude call per faction) answers. Run the watcher alongside: tools/strategist.ps1 -Harness -StopAfterMinutes 120 (it follows the newest run folder; each run keeps its exchange files in lab/results/<run>/strategist). Checkpoints at the start, June and September 2039.",
+  "notes": "Strategist v0 end to end: every non-player faction directed every 3 months, the game paused while the local watcher (tools/strategist.ps1, one headless Claude call per faction) answers. Run the watcher alongside: tools/strategist.ps1 -Harness -StopAfterMinutes 120 (it follows the newest run folder; each run keeps its exchange files in lab/results/<run>/strategist). Checkpoints at the start, June and September 2039.",
   "fixture": "accel-2039-clean-jupiter",
   "runDays": 200,
   "config": {

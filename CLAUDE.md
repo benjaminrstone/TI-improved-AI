@@ -1,51 +1,47 @@
 # TI Improved AI
 
-A Terra Invicta mod that makes the alien opponent constrained but competent: it plays to win within in-universe limits instead of holding the idiot ball.
+A Terra Invicta mod that makes the opposition constrained but competent: it plays to win within in-universe limits instead of holding the idiot ball. Aliens first; the AI human factions and an LLM strategist are further tracks.
 
-**New session? Read `docs/HANDOFF.md` first.** It has the current state, open questions for the user, and next steps. Then, as needed:
+**New session? Read `docs/HANDOFF.md` first** (state, what is not known, next steps, gotchas).
 
 | Doc | What it covers |
 |---|---|
 | `docs/DESIGN.md` | Vision, pillars P1–P6, user decisions (authoritative) |
-| `docs/M2-PLAN.md` | Current milestone, step by step, with gates |
-| `docs/PROGRESS.md` | What is built and what the probes and soaks showed |
-| `docs/FINDINGS.md` | How vanilla AI works, with code refs; vanilla bugs found |
-| `docs/EXPLOITS.md` | Exploit catalogue and probe status |
-| `docs/HUMAN-AI.md` | The human AI factions track (2026-10-18): how vanilla works, verified bugs, likely weaknesses |
-| `docs/STRATEGIST.md` | The strategist: a stronger model directs every non-player faction every 3 months, the game AI plays in between (v0 built) |
-| `docs/DIALS.md` | Every tunable and its intended difficulty direction; scenario pacing levers |
-| `docs/TESTING.md`, `docs/HARNESS.md` | Test layers and how the harness works |
+| `docs/TESTING.md` | How to run probes, soaks and playtests; what a run produces |
+| `docs/FINDINGS.md` | How the vanilla alien AI works, with code refs |
+| `docs/HUMAN-AI.md` | How the vanilla human AI works, its bugs, what the mod changes |
+| `docs/STRATEGIST.md` | The strategist loop and its directives |
+| `docs/EXPLOITS.md` | Exploit catalogue and status |
+| `docs/DIALS.md` | Which way each dial should move with difficulty; scenario pacing levers |
 
 ## Layout
 
-- **`src/ImprovedAI/`**: BepInEx 5 + Harmony plugin (net472). Patches are applied once the main menu exists (`Plugin.cs` Bootstrap).
-  - `AI/`: alien behaviour changes. Every one sits behind a config switch, and `[General] VanillaAI=true` turns them all off.
-    - `ThreatMemory`, `DecisiveForce` (+ E14 shortcut guard), `ForcePooling`, `StanceCourage`
-    - `RaidPlanner` (+ captures, per-target failure memory)
-    - `AlienStrategy` (doctrine + sidecar), `Dials` (doctrine-scaled dial accessors; **AI code reads dials only through `Dials`**), `Disposition` (contempt)
-    - `FleetDoctrine` (weapon focus, hull size and engagement bias on alien design and build), `Economy` (need-weighted base sites, exotics upkeep instead of the fixed base cap)
-  - `Human/`: the AI human factions (vanilla bug fixes H1–H6, MC plan, queue fixes, market, drain guard, personalities and clients).
-  - `Strategist/`: directives, executor hooks, briefs, the 3-month checkpoint loop (pauses the game), player intel.
-  - `Fixes/`: vanilla bug fixes (`AlienMarineValue`).
-  - `Diagnostics/`: AI log revival, decision journal (`journal.jsonl`), monthly metrics, combat journal, observer clock.
-  - `Harness/`: unattended campaign runner (`run.json`), probe setup commands (`HarnessCommands.cs`: `ai.foundoutposts`, `ai.spawnfleet`, `ai.drainammo`, `ai.doctrine`, `ai.setresource`, `ai.control`, `ai.move`, `ai.merge`, `ai.bot`, `ai.strategist`, `@N` scheduling), `PlayerBot`, `Orders`, `FactionControl`.
-- **`tools/`**:
-  - `deploy.ps1`; `run.ps1` (one run: `-Probe`/`-Fixture`/`-SavePath`, `-Vanilla`, `-Days`, `-FinalSave`)
-  - `playtest.ps1` (the user plays a chapter with the mod: harness `interactive` mode, isolated save folder `C:\Games\TI-ImprovedAI-playtest\saves`); `-Strategist` runs the strategist with it
-  - `strategist.ps1` (the local strategist watcher: one headless Claude call per faction; `-Harness` for harness runs)
-  - `probes.ps1` (several probes); `soaks.ps1` (repeated vanilla/mod soaks)
-  - `probe.py` (asserts + info), `summarize.py` (story of one run), `compare.py` (two runs side by side), `aggregate.py` (means over repeated soaks)
-  - `saves/timeline.py` (offline save analysis)
-- **`lab/`**: `probes/*.json` (exploit and gate probes), `fixtures.json` (user saves used as fixtures), `results/` (gitignored run output).
-- **`_ref/decompiled/`**: decompiled game source (gitignored; build 1.0.53b of 2026-09-12). Regenerate after a game patch: `ilspycmd -p -o _ref/decompiled "<TI>/TerraInvicta_Data/Managed/Assembly-CSharp.dll"`.
+- **`src/ImprovedAI/`**: BepInEx 5 + Harmony plugin (net472). Patches are applied once the main menu exists (`Plugin.cs`).
+  - `AIConfig.cs`: every switch and dial. `[General] VanillaAI=true` turns all behaviour changes off; code checks the `Use*` accessors.
+  - `AI/`: alien behaviour. Dials that a doctrine, escalation or the strategist can scale are read through `AI/Dials.cs`, never from the config directly.
+  - `Human/`: the AI human factions (never the player's faction).
+  - `Strategist/`: briefs, directives, the checkpoint loop, player intel.
+  - `Fixes/`: vanilla bug fixes.
+  - `Diagnostics/`: the journal, metrics and logs every run produces. `Observer.cs` is the daily and monthly clock that drives all the mod's periodic logic.
+  - `Harness/`: the unattended runner and its `ai.*` commands.
+- **`tools/`**: `deploy.ps1`, `run.ps1`, `probes.ps1`, `soaks.ps1`, `playtest.ps1`, `strategist.ps1`, and the Python analysis scripts (`probe.py`, `summarize.py`, `compare.py`, `aggregate.py`).
+- **`lab/`**: `probes/*.json`, `fixtures.json`, `results/` (gitignored run output).
+- **`_ref/decompiled/`**: decompiled game source (gitignored; build 1.0.53b). Regenerate after a game patch: `ilspycmd -p -o _ref/decompiled "<TI>/TerraInvicta_Data/Managed/Assembly-CSharp.dll"`.
 
 ## Rules
 
-- **Separate from the Honorverse mod** (`../TI - HH mod`). Read its tooling for patterns only. Never write there, share code or config with it, or touch the Steam install's BepInEx/Mods.
-- **Run only on the game copy.** This project runs on `C:\Games\TI-ImprovedAI` (outside OneDrive). Harness scratch is `C:\Games\TI-ImprovedAI-harness`. `deploy.ps1` refuses the Steam install.
+- **Separate from the Honorverse mod** (`../TI - HH mod`). Read its tooling for patterns only. Never write there, share code or config with it, or touch the Steam install's BepInEx or Mods.
+- **Run only on the game copy** (`C:\Games\TI-ImprovedAI`, outside OneDrive). Harness scratch is `C:\Games\TI-ImprovedAI-harness`. `deploy.ps1` refuses the Steam install.
 - **Never write to the user's saves** (`Documents/My Games/TerraInvicta/Saves`). The harness stages copies and redirects the save folder, profile and autosaves.
-- **Probe first.** Every AI change starts with a probe that shows the problem on vanilla. **Never conclude balance from one run**: runs are non-deterministic, so use `soaks.ps1` + `aggregate.py`.
-- **Keep it alien-only and save-compatible.** New state goes in the `<save>.improvedai.json` sidecar; the save file is never modified.
+- **Save-compatible.** New state goes in the `<save>.improvedai.json` sidecar; the save file is never modified.
+- **Probe first; never conclude from one run.** A change starts with a probe that shows the problem on vanilla. Runs are non-deterministic: balance claims need repeated runs (`soaks.ps1` + `aggregate.py`). The regression check is `tools\probes.ps1 flow-2034, flow-2039`.
 - **Lore.** Expanding it is allowed; flag any conflict with game text to the user explicitly. Tag ideas `[lore]` / `[ext]` in docs.
-- **Commits.** Commit and push to `main` as work lands (the user's GitHub repo `benjaminrstone/TI-improved-AI`).
-- **Escaping.** Edit files with Windows paths via the Edit tool, not Python heredoc replaces (escape mangling). See the gotchas in `docs/HANDOFF.md`.
+- **Commits.** Commit and push to `main` as work lands (`benjaminrstone/TI-improved-AI`).
+
+## Conventions
+
+- **Code speaks for itself.** A comment states a fact the code cannot: the vanilla behaviour being worked around (with the game method), an invariant, a unit. No dates, run names, attributions, version history or plans in comments.
+- **Docs say what is true now.** No progress log: git has the history. A measurement goes in a doc only when a future run will be compared against it or it explains a decision; say how many runs it rests on.
+- **No backwards compatibility.** There is one user and no release. Rename, restructure and delete freely; don't keep switches or code paths for old behaviour.
+- **A new dial needs a reason to exist.** Prefer a constant until something actually varies it (a doctrine, a difficulty level, a probe).
+- **Windows.** Edit files that contain Windows paths with the Edit tool, not shell heredocs (escape mangling).

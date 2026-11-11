@@ -1,6 +1,6 @@
 {
   "name": "control-smoke",
-  "notes": "Harness check for ai.control (2026-10-22): the player faction handed to the game's AI mid-game must run cleanly and act (planner tasks, investment, ship builds), with the Autopilot still clearing prompts.",
+  "notes": "Harness check for ai.control: the player faction handed to the game's AI mid-game must run cleanly and act (planner tasks, investment, ship builds), with the Autopilot still clearing prompts.",
   "fixture": "accel-2039-clean-jupiter",
   "runDays": 60,
   "commands": ["ai.control ResistCouncil ai"],

@@ -1,6 +1,6 @@
 {
   "name": "human-siteweight-off",
-  "notes": "A/B (user, 2026-10-22): two years from the 2026 fixture with the human need-weighted site scoring (HumanAI MineWhatYouLack) off, strategist off. In the first 2-year comparison Exodus founded 15 habs on vanilla (a Mars cascade from March 2028) and 4 with the mod (Deimos, Jarvis, Cruithne; never Mars). Metric: habs founded per AI human faction, Exodus first.",
+  "notes": "A/B: two years from the 2026 fixture with the human need-weighted site scoring (HumanAI MineWhatYouLack) off, strategist off. In the first 2-year comparison Exodus founded 15 habs on vanilla (a Mars cascade from March 2028) and 4 with the mod (Deimos, Jarvis, Cruithne; never Mars). Metric: habs founded per AI human faction, Exodus first.",
   "fixture": "accel-2026-start",
   "runDays": 730,
   "config": {

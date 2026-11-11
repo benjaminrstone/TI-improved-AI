@@ -1,6 +1,6 @@
 {
   "name": "fixes-2041",
-  "notes": "Consolidated check of the four fixes from the 15-year campaign (user, 2026-10-23): a year from that campaign's final save (2041, campaign year ~15.6), strategist on. Run: tools/run.ps1 -Probe fixes-2041 -SavePath lab/results/20261022-232243-campaign-2026-15y/final.gz, with tools/strategist.ps1 -Harness. Expect: the terminus begins by date in the first month; no new capital hulls while the exotics stock is at or below the war chest in deficit; dry ships split off (Victor-27 at Aspasia); fleets on send orders join strikes; strategist strike lists of at most five.",
+  "notes": "Consolidated check of the four fixes from the 15-year campaign: a year from that campaign's final save (2041, campaign year ~15.6), strategist on. Run: tools/run.ps1 -Probe fixes-2041 -SavePath lab/results/20261022-232243-campaign-2026-15y/final.gz, with tools/strategist.ps1 -Harness. Expect: the terminus begins by date in the first month; no new capital hulls while the exotics stock is at or below the war chest in deficit; dry ships split off (Victor-27 at Aspasia); fleets on send orders join strikes; strategist strike lists of at most five.",
   "fixture": "accel-2026-start",
   "runDays": 365,
   "config": {

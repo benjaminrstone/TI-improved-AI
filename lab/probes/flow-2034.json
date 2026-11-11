@@ -1,6 +1,6 @@
 {
   "name": "flow-2034",
-  "notes": "Regression check, part 1 of 2 (user, 2026-10-21: one or two runs with many observations, not a pass of many probes). The natural game from the 2034 save for a year, nothing injected: alien economy (mine what you lack, exotics cap, war chest, no Earth purchases, widening), proxy trade, raids and captures, attack sizing, fleet mix, contempt; human AI (fixes H1/H2/H4-H6, MC plan, queue fixes, market, drain guard, personalities). Asserts are health checks and wide regression guards; judge balance by soaks, not one run. Feature probes with injected setups (e1, e5, doctrines, shame, fleet doctrines, terminus, war chest) stay for the feature being changed.",
+  "notes": "Regression check, part 1 of 2 (one or two runs with many observations, not a pass of many probes). The natural game from the 2034 save for a year, nothing injected: alien economy (mine what you lack, exotics cap, war chest, no Earth purchases, widening), proxy trade, raids and captures, attack sizing, fleet mix, contempt; human AI (fixes H1/H2/H4-H6, MC plan, queue fixes, market, drain guard, personalities). Asserts are health checks and wide regression guards; judge balance by soaks, not one run. Feature probes with injected setups (e1, e5, doctrines, shame, fleet doctrines, terminus, war chest) stay for the feature being changed.",
   "fixture": "accel-2034-fusion-drives",
   "runDays": 365,
   "asserts": [

@@ -44,11 +44,11 @@ The AI should never lose to something that a person playing the aliens would see
 
 Difficulty should come from what the aliens are allowed to do, not from how clever they are. Each constraint needs an in-universe reason, in the spirit of the vanilla rule against nukes and kinetic strikes on Earth. Candidates, all to be validated by soaks:
 
-- **The narrow wormhole (user, 2026-10-11).** This is the root constraint. The Hydra empire is vast, but the wormhole only lets small things through: an initial base or base supplies, a few workers, a set of eggs, and then a steady drip of exotics. The aliens in the Solar System are an **expeditionary colony that must bootstrap locally**, not an invading army.
+- **The narrow wormhole (user).** This is the root constraint. The Hydra empire is vast, but the wormhole only lets small things through: an initial base or base supplies, a few workers, a set of eggs, and then a steady drip of exotics. The aliens in the Solar System are an **expeditionary colony that must bootstrap locally**, not an invading army.
   - **Narrow in both directions, and nothing goes back.** The Hydras aren't here for Earth's resources (they want Earth as a bastion), so there is no reason to send anything home. Every ship, Hydra and exotic that comes through is committed to this front for good. The lore text describes gravity as flowing one way through the wormhole. We don't rely on that: the reason nothing goes back is purpose, not physics.
   - **Everything but exotics is local.** Hulls, metals, fuel and bases come from Solar System resources, so alien power depends on alien territory and mining. Their economy is a legitimate target: starve them of metals and they can't build.
   - **Exotics are the imported edge.** They gate everything uniquely alien: exotic armor, advanced weapons, wormhole-tier hulls. Upkeep in exotics follows naturally, so bases and advanced warships compete for the same drip. (The 7.8k-exotic stockpile in the 2039 save suggests the drip isn't binding today.)
-  - **Hydra population is a real resource (user, 2026-10-11), but secondary: it binds less and bites less than exotics.**
+  - **Hydra population is a real resource (user), but secondary: it binds less and bites less than exotics.**
     - Hatcheries grow it steadily. It is spent crewing ships and staffing habs.
     - It mainly bites through heavy losses: a destroyed crewed fleet costs years of hatchery output. That gives loss aversion an arithmetic basis.
     - It mostly acts as a price in AI decisions ("is this target worth the crews?"), not a hard cap.
@@ -56,8 +56,8 @@ Difficulty should come from what the aliens are allowed to do, not from how clev
     - Player targets: hatcheries, crewed capital ships, and captives (each one is a Hydra fewer).
   - **The wormhole terminus is the most valuable target in the system.** Threatening it changes everything they do, so it is their best-defended point.
   - **Late-game surge (P4) under this model** is mostly local mobilization: spend stockpiles, divert the whole drip to war, push hatcheries to maximum, strip quiet systems, and accept losses. They are burning their future.
-  - The user agreed the four points above and the late-game surge (2026-10-11).
-  - **Two clocks** (user, 2026-10-11; LW2 Avatar-style).
+  - The user agreed the four points above and the late-game surge.
+  - **Two clocks** (user; LW2 Avatar-style).
     1. **Steady widening (soft clock).** The Hydras are slowly widening the wormhole, so the supply drip grows over time.
        - This is the principled cause of alien escalation over time. It replaces vanilla's opaque year-based ramps (attack-ratio growth, tech timers) with something visible and attackable.
        - Difficulty sets the widening rate, which fits difficulty-as-constraint.
@@ -69,13 +69,13 @@ Difficulty should come from what the aliens are allowed to do, not from how clev
        - **Coupled to the drip.** It is funded by the drip, so a wider wormhole means faster progress. Hitting the widening works slows both clocks.
        - **Start (proposal).** It begins when contempt falls far enough that the aliens take humanity seriously and commit to the long game. Its rate follows their economy.
        - **To investigate in M0:** how vanilla ends a campaign in defeat (TIVictoryTemplate, game-over flow), so the mod can hook an alien victory.
-- **Mine what you lack (user, 2026-10-11).** The aliens run short of metals while water piles up past a million, and they don't react. That is an AI failure, not a constraint. A Hydra planner that sees "1M water, 0 metals" founds metal mines.
+- **Mine what you lack (user).** The aliens run short of metals while water piles up past a million, and they don't react. That is an AI failure, not a constraint. A Hydra planner that sees "1M water, 0 metals" founds metal mines.
   - **Vanilla tries and fails.** It has a "resource base if upkeep is insecure" rule (`AlienHabPlanner` :136-174) and deficiency tracking (`resourceIncomeDeficiencies`, `AnalyzeDeficiences_Alien`). Metals still sat near zero for five years. Suspects: the base cap, and site scoring that ignores deficits.
   - **Fix.** Weight site selection by projected stock-to-need for each resource (metals, volatiles, water, noble metals, fissiles), with base founding limited by exotics upkeep (P2), not a fixed cap.
   - **It's a tell.** The aliens expand toward what they lack, so a player who reads their stocks can predict their next targets: a metal-rich moon or a belt cluster. Contesting those sites is a real strategy.
 - **Loss aversion.** The Hydra administration counts lives. Heavy losses carry a political cost, such as slower decision cadence or a forced pause for that doctrine. The player wins by making attacks expensive, not by baiting them.
-- **Species taboos come from trauma (user, 2026-10-11).** The Hydras' own home planet was nuked. That is why they don't use nukes or long-range bombardment of planets. These taboos hold even when breaking them would win; they are not policy choices. Hypothesis: human nuclear use should land emotionally, shifting the aliens from contempt to fury (more aggressive, more willing to take losses, possibly less calculating). Nukes would then win a fight at the cost of a changed opponent.
-  - **No biological weapons (user, 2026-10-11).** [lore] The Hydras have a deep-seated fear of biological assault (Project_HydraBiowarfare). They never use bioweapons. Hypothesis: if the aliens learn of human bioweapon research (vanilla's Biowarfare → Kill the Hive path), it hits like nuclear use, an existential threat. That pushes them toward fury, and toward desperation once the path is near completion. They prioritise the labs and the factions pursuing it. This gives the player a visible risk on that victory path.
+- **Species taboos come from trauma (user).** The Hydras' own home planet was nuked. That is why they don't use nukes or long-range bombardment of planets. These taboos hold even when breaking them would win; they are not policy choices. Hypothesis: human nuclear use should land emotionally, shifting the aliens from contempt to fury (more aggressive, more willing to take losses, possibly less calculating). Nukes would then win a fight at the cost of a changed opponent.
+  - **No biological weapons (user).** [lore] The Hydras have a deep-seated fear of biological assault (Project_HydraBiowarfare). They never use bioweapons. Hypothesis: if the aliens learn of human bioweapon research (vanilla's Biowarfare → Kill the Hive path), it hits like nuclear use, an existential threat. That pushes them toward fury, and toward desperation once the path is near completion. They prioritise the labs and the factions pursuing it. This gives the player a visible risk on that victory path.
 - **Subjugation, not extermination.** The aliens want Earth's industry and population intact. That limits what they'll bombard.
 - **Imperfect intel.** Alien knowledge of human fleets comes through surveillance assets and is good but not perfect. Destroying surveillance and fitting ECM degrade it. This is the foundation that makes deception an intended mechanic (WS5).
 
@@ -91,7 +91,7 @@ Each campaign draws a hidden **strategic doctrine** and a **fleet doctrine**, we
 - **Fortress-industrial:** expands hard and fields defensive fleets only, winning on economy unless stopped.
 - **Strangler:** blockades and raids the human economy instead of attacking Earth directly.
 
-**More strategic directions** (brainstorm, user asked to keep exploring, 2026-10-11):
+**More strategic directions** (brainstorm, user asked to keep exploring):
 - **Puppet master.** The main effort is on Earth: Servants, mind control, expanding the Alien Administration, capturing nations. Space posture stays defensive. This leans into the mind-control angle.
 - **Divide and rule.** Uses Earth's division. Honest, binding pacts with weaker human factions isolate the strongest one. The Hydras can afford honesty because humans betray each other.
 - **Bastion.** Fortifies the Jupiter–Saturn line until it's nearly impregnable, and lets the terminus clock run. A counter-turtle that forces the player to attack.
@@ -100,15 +100,15 @@ Each campaign draws a hidden **strategic doctrine** and a **fleet doctrine**, we
 - **Quality over quantity.** Minimal expansion. Exotics are hoarded for wormhole-tier hulls, producing a small, late, terrifying fleet.
 - **Xenoformer.** Ground operations and xenoforming on Earth (a vanilla system), with space held defensively.
 
-**Compose axes, don't pick from a list (agreed with the user, 2026-10-11).** A doctrine is a combination of separate dimensions, which gives much more variety than a fixed set:
+**Compose axes, don't pick from a list (agreed with the user).** A doctrine is a combination of separate dimensions, which gives much more variety than a fixed set:
 - strategic focus (the lists above);
 - political posture: force versus puppetry;
 - command style: centralised versus forward (pherocyte command);
 - fleet philosophy (below).
 
-**Rejected: Blockade** (user, 2026-10-11, for player-experience reasons). Keeping humanity gravity-bound attacks the player's ability to play at all, not just their assets. If it ever returns, it is Brutal-only.
+**Rejected: Blockade** (user, for player-experience reasons). Keeping humanity gravity-bound attacks the player's ability to play at all, not just their assets. If it ever returns, it is Brutal-only.
 
-**Difficulty gates the doctrine pool** (user, 2026-10-11). The more punishing and aggressive doctrines only occur on higher difficulties. This is consistent with difficulty-as-constraint: on lower difficulties the harsher strategies are not available to the Hydra command. Draft tiers, to tune with soaks:
+**Difficulty gates the doctrine pool** (user). The more punishing and aggressive doctrines only occur on higher difficulties. This is consistent with difficulty-as-constraint: on lower difficulties the harsher strategies are not available to the Hydra command. Draft tiers, to tune with soaks:
 
 | Tier | Doctrines added |
 |---|---|
@@ -129,7 +129,7 @@ Each tier includes the doctrines of the tiers below it. **Strangler stays on Nor
 
 **Expansion** is driven by doctrine, by resource need, and by contesting human expansion, not by the fixed Neptune → Uranus → Saturn script. The hard base cap is replaced by the upkeep constraint (P2).
 
-**Stealthy human expansion is a valid style, but it costs something** (user, 2026-10-11). Vanilla aliens see everything within 500 AU. Instead, alien detection of each human asset is a chance, checked each period. The chance rises with:
+**Stealthy human expansion is a valid style, but it costs something** (user). Vanilla aliens see everything within 500 AU. Instead, alien detection of each human asset is a chance, checked each period. The chance rises with:
 - the asset's signature: size, activity, drives burning;
 - nearness to alien sensors: surveillance stations, fleets, bases;
 - the alien detection effort for that faction, which grows with hate and with lower contempt.
@@ -138,34 +138,13 @@ ECM on colony ships and on bases lowers the signature. An undetected asset gener
 
 ### P4. A late-game arc
 
-**Target experience (user, 2026-10-11).** Holding Jupiter or Saturn means the aliens now take you seriously as an opponent. The game doesn't simply get harder. Two things are true at once:
+**Target experience (user).** Holding Jupiter or Saturn means the aliens now take you seriously as an opponent. The game doesn't simply get harder. Two things are true at once:
 - you are in a much better position;
 - the aliens are going all out against you.
 
 The final phase should feel different (higher stakes, decisive battles), not merely tougher.
 
-**Built v1 (2026-10-16, `AI/Escalation.cs`).**
-- **Desperation**, judged monthly, from:
-  - human habs in the gas-giant systems;
-  - gas-giant systems lost outright (humans present, aliens absent);
-  - respect (contempt below 0.35);
-  - alien habs lost in the last 12 months.
-- **At 0.55 the aliens escalate**, and stay escalated until 6 months below 0.4. While escalated:
-  - total war becomes possible at once (vanilla waits 20 progression-years on Normal);
-  - loss aversion relaxes (bolder attacks, reserves committed, more raids aimed at the hated);
-  - half the expansion share of the drip goes to war.
-- **Added 2026-10-17/18:**
-  - Escalated sizing is capped at 1.2× superiority.
-  - Joiners burn harder (a 20% delta-v reserve).
-  - Musters are chosen by fleet-aware time to strike.
-  - Exotics surge: escalated, wormhole-tier designs are favoured (1.5× in design comparisons), and the exotics-aware build pressure on capital hulls is lifted.
-- **The terminus is built (2026-10-18, `AI/Terminus.cs`):**
-  - It begins on escalation, or when any faction's contempt falls to 0.35.
-  - 30% of the drip funds it: 2,400 exotics on Normal, so ~8–10 years if ignored.
-  - Defeats and hab losses in the alien HQ system knock it back.
-  - The player is told at 25/50/75/90%.
-  - On completion the campaign ends in alien victory: vanilla's end-game popup, then credits, then the main menu. Unattended harness runs only journal it.
-- **Not yet:** riskAversion; the posture panel's meter; captives' silence on the terminus.
+**Built** (`AI/Escalation.cs`, `AI/Terminus.cs`): monthly desperation from human presence in the gas-giant systems, systems lost, respect and hab losses; above a threshold the aliens escalate (total war at once, relaxed loss aversion, the drip diverted to war, harder burns, wormhole-tier designs favoured). The terminus begins on escalation, on respect, or by a campaign year set per difficulty; it is funded from the drip, knocked back by defeats in the alien HQ system, announced to the player at 25/50/75/90%, and ends the campaign in alien victory. **Not built:** the posture panel's meter, captives' silence on the terminus.
 
 - **Change of posture, triggered by real losses.** Losing a gas-giant system, or a threat to the main base, moves the aliens from managing a nuisance to fighting a war they could lose.
   - **They commit everything they have saved:** the wormhole surges using stockpiled exotics, advanced tech is released, total war begins, and they launch concentrated counteroffensives.
@@ -176,7 +155,7 @@ The final phase should feel different (higher stakes, decisive battles), not mer
 
 ### Pherocyte command
 
-Status: [ext], user interested 2026-10-11, to be developed.
+Status: [ext], not built. The user is interested.
 
 **Root.** [lore] Hydra speech is simple, and its meaning and intent travel chemically through pherocytes (Project_HydraLanguage). Radio carries the words but not the intent. [ext] So real command (adaptive, intent-driven decisions) needs a senior Hydra physically present. Fleets far from command run on **standing orders**.
 
@@ -208,11 +187,11 @@ Status: [ext], user interested 2026-10-11, to be developed.
 - **A (cheap, high value):** a command gate on our adaptive behaviours. Motherships and the primary base are nodes. Standing orders outside their range. Decapitation reverts fleets.
 - **B:** doctrine propagation delay, an alien command module, the AI deciding where to forward-deploy command, status in fleet tooltips and on the posture panel.
 - **C:** tactical-combat effects: in-command fleets get the better combat AI.
-- **Rejected: physical couriers** (user, 2026-10-11).
+- **Rejected: physical couriers** (user).
 
 ### Disposition: contempt × hate (the danger meter)
 
-The user agreed this framing on 2026-10-11. The alien attitude toward each human faction has two axes.
+The alien attitude toward each human faction has two axes.
 
 - **Hate** is how much they want to hurt you. It is vanilla `factionHate`, unchanged in meaning. It drives war, retaliation and target priority.
 - **Contempt** is how little they think you can hurt them. It is new. [lore] The Hydras regard humanity as beneath notice (Project_HydraDiplomacy). It drives:
@@ -230,7 +209,7 @@ The user agreed this framing on 2026-10-11. The alien attitude toward each human
 - **What moves it back up:** losses that confirm their view.
 - **Fury** is a spike in hate plus less calculation. It comes from human nuclear use and discovered deceptions.
 - **It's visible.** The player sees an estimate of both axes. Vanilla already shows estimated hate. Reading the meter is part of the game: provoking hate while still held in contempt is the dangerous corner, and a "Wary" alien can be bargained with.
-- **Difficulty sets starting contempt and how fast it erodes** (user, 2026-10-12): arrogant and slow to learn on Cinematic, wary and quick to learn on Brutal.
+- **Difficulty sets starting contempt and how fast it erodes** (user): arrogant and slow to learn on Cinematic, wary and quick to learn on Brutal.
 
 ### P5. Legibility and counterplay
 
@@ -239,7 +218,7 @@ The player must be able to read and answer the AI:
 - alien behaviour follows from its constraints, so a player who understands it can exploit it;
 - the decision journal (TESTING.md) shows why the AI did something, for us and optionally for players.
 
-**Seeing their doctrine** (agreed with the user, 2026-10-11). There are three channels.
+**Seeing their doctrine** (agreed with the user). There are three channels.
 1. **Observed behaviour.** Fleet compositions, targets and posture visibly change. Intel events report what sensors and wrecks reveal, e.g. "Alien shipyards at Titan have retooled for heavy laser hulls."
 2. **Captive interrogation, ongoing.** A captive answers truthfully or goes silent (P6). What they know is frozen at the moment of capture, so they show doctrine *as of capture*. As time passes and the aliens change course, their answers go stale. A fresh captive is worth more than an old one. There are no separate "leadership change" events: a doctrine change shows up as a difference between old and new captives and in observed behaviour.
 3. **The alien posture panel** (approved). An intel screen that fills in with intel:
@@ -255,7 +234,7 @@ The player must be able to read and answer the AI:
 
 ### P6. The information game: Hydras conceal, humans deceive
 
-**Root.** [lore] A Hydra would rather go silent than be caught lying; failed deception is a deep shame (Project_TheirPurpose). The user called this the core of the alien character (2026-10-11). Everything below follows from it. Tags: [lore] = in the game's text, [ext] = our extrapolation.
+**Root.** [lore] A Hydra would rather go silent than be caught lying; failed deception is a deep shame (Project_TheirPurpose). The user called this the core of the alien character. Everything below follows from it. Tags: [lore] = in the game's text, [ext] = our extrapolation.
 
 **The asymmetry.**
 - Hydras never feint, bluff, fake a signature or stage a false retreat.
@@ -290,7 +269,7 @@ The player must be able to read and answer the AI:
 **Captives: truth or silence [lore].**
 - **They can't lie,** so interrogation yields true answers or silence.
 - **The pattern of silences is intelligence.** A report might read "answered: current doctrine is Strangler; silent on: wormhole defenses, Titan." Silence marks what they're hiding: a project, a secret staging area, the widening of the wormhole.
-- **"They don't abandon their own", tied to interrogation** (user mildly likes it, 2026-10-11).
+- **"They don't abandon their own", tied to interrogation** (user mildly likes it).
   - **The loop.** Captives give ongoing, as-of-capture intel. Fresh captives keep that view current (P5), so the player is pulled to keep capturing Hydras. Each capture, and each captive held, draws alien attention: recovery attempts, and strikes on where captives are held. Intel versus exposure is a risk/reward loop the player controls.
   - **Guard against farmed bait.** Their response obeys loss aversion and verification. They come for their own when the odds are acceptable and go silent otherwise. Response strength scales with how many captives you hold and what those captives know, not with a fixed reflex.
   - **Smallest test first.** A crash-site race on vanilla's existing alien crash sites: alien recovery teams compete with human investigators trying to capture survivors.
@@ -298,7 +277,7 @@ The player must be able to read and answer the AI:
 **Shame drives doctrinal inertia [ext].**
 - **Failure is shameful,** like failed deception, so the Hydra command persists with a failing doctrine longer than is optimal. That is the root of P3's inertia, and an exploitable flaw.
 - **Collapse is visible.** Past a threshold the command abandons the doctrine and adopts a new one. Players see this through behaviour and fresh captives, not a dedicated event.
-- **One will, no internal factions (user, 2026-10-11).** The Hydras are a single, unified threat. Doctrine changes are one command revising its course, never rival factions. Earth is the divided side. A unified intelligence bending divided humans leans into the mind-control angle (Servants, pherocyte control).
+- **One will, no internal factions (user).** The Hydras are a single, unified threat. Doctrine changes are one command revising its course, never rival factions. Earth is the divided side. A unified intelligence bending divided humans leans into the mind-control angle (Servants, pherocyte control).
 - **Players can read and steer it.** A player who understands this can keep a failing alien doctrine alive by not handing it the decisive defeat that would force the change.
 
 **Pherocyte truth-sense [ext, speculative].** Hydra falsehoods carry a chemical signature [lore]; perhaps Hydras also read human chemistry up close. That would explain why disguises fail at close range and why Hydra ground operations and boarding are hard to fool. It is a possible in-universe justification for "verification needs proximity".
@@ -319,51 +298,42 @@ The player must be able to read and answer the AI:
 
 ## Milestones
 
-- **M0, see the AI.**
-  - Plugin skeleton on the game copy, with `LogAI` revived and the decision journal.
-  - The probe runner works and throughput is measured.
-  - Probes for E1, E3, E5 and E9 run and fail on vanilla.
-  - Save forensics extended.
-- **M1, no idiot ball.**
-  - WS1 plus the E5 part of WS2.
-  - Those probes pass. A soak shows no runaway and no stall.
-  - Chapter playtests at "hot war 2031" and "Jupiter assault 2037".
+Status is in `docs/HANDOFF.md`.
+
+- **M0, see the AI.** Plugin, diagnostics, harness, probes that fail on vanilla.
+- **M1, no idiot ball.** WS1 plus the E5 part of WS2. Probes pass; a soak shows no runaway and no stall; chapter playtests at "hot war 2031" and "Jupiter assault 2037".
 - **M2, a different opponent each game.** WS3 doctrines and WS4 constraints. Soak curves are tuned. Playtests on early chapters.
 - **M3, the war they could lose.** WS3 escalation, WS7 tech extension, WS6 stations. Full user campaign.
-- **WS8 controls** are independent and can land at any point. It's a good parallel track for a separate session.
+- **WS8 controls** are independent and can land at any point.
 
 ## Decisions
 
-The user made these on 2026-10-11:
+All by the user.
 
-- **Lore:** expanding the lore is allowed. Keep it consistent with the game's text. Where a mod idea conflicts with existing lore, that can be acceptable, but call it out explicitly to the user.
-
-- **Scope:** aliens only. The human AI factions stay vanilla for now. Soaks will show whether they get steamrolled.
-- **Difficulty:** reuse the vanilla levels (Cinematic, Normal, Veteran, Brutal). Each level sets how tight the constraints are (P2), not how competent the AI is (P1).
-- **Test install:** an isolated game copy at `C:\Games\TI-ImprovedAI`.
-- **Passive players (2026-10-12).** Punishing a passive player is fine. Every dial we create or turn is tracked in `docs/DIALS.md`, so a smooth difficulty curve can be built across the levels.
-- **Willingness to fight (2026-10-12).** "Never lose a ship" is too cautious.
+- **Lore.** Expanding the lore is allowed. Keep it consistent with the game's text. A conflict with existing lore can be acceptable, but call it out explicitly to the user.
+- **Scope.** The aliens first. The AI human factions are a second track with the same aim, competence over handouts: no bonus resources, they play better instead (`docs/HUMAN-AI.md`). A stronger model may direct every non-player faction (`docs/STRATEGIST.md`).
+- **Difficulty.** Reuse the vanilla levels (Cinematic, Normal, Veteran, Brutal). Each level sets how tight the constraints are (P2), not how competent the AI is (P1).
+- **Test install.** An isolated game copy at `C:\Games\TI-ImprovedAI`.
+- **Passive players.** Punishing a passive player is fine. Every dial we create or turn has a direction across difficulty in `docs/DIALS.md`, so a smooth difficulty curve can be built.
+- **Willingness to fight.** "Never lose a ship" is too cautious.
   - Alien fleets defend their bases and stations (there are Hydras aboard), unless the odds are hopeless.
   - Attack fleets that arrive to roughly even odds fight rather than burn fuel going home.
-- **Raid targeting (2026-10-12).** Weigh value and hate together. A faction the aliens hate intensely has its assets prioritised anywhere; at lower hate they go for the most valuable targets.
-- **Fresh mine spam (2026-10-12).** Leave it as is. Fresh tier-1 mines get a grace period (about 8 months from goal to kill) because raids hit bigger bases first.
-- **Contempt by difficulty (2026-10-12).** Yes. Difficulty sets both the starting contempt (higher on easy: arrogant, careless raids) and how fast it erodes (faster on hard). Dials `ContemptDifficultyOffset` and `ContemptLearning` (DIALS.md).
-- **Terminus (2026-10-12).** Completing the full terminus is a hard alien victory (game over), LW2 Avatar-style: a visible meter, knocked back by strikes on the construction site.
-- **Chapter playtest (2026-10-12).** Build the one-command playtest setup after M2 steps 4 and 6 land, so there is more to feel.
-- **No buying from Earth (2026-10-13).** Clarified the same day: Earth counts as local by the wormhole lore. What the aliens lack is access to Earth's open market, not to Earth goods. Their sanctioned channel is their human proxies (trades with the Servants or Protectorate, maybe the Academy later), which the player can see and disrupt. Original decision: The aliens lose vanilla's boost-and-money substitution for missing space resources. They build only from what they mine, plus the exotics drip. Metals become a real constraint, and alien mining a real target.
-- **Exotics upkeep (2026-10-13).** Bases and exotic warships should definitely compete for the drip. The widening wormhole is part of that balance, so the upkeep numbers are tuned together with the widening clock, not on their own.
-- **Sustainable base cap (2026-10-16).** "We want intelligent aliens." The cap budgets bases and capital-hull upkeep from about 75% of the drip, so the aliens don't over-expand and then starve their exotic warships. Expansion resumes as the wormhole widens.
-- **Rendezvous then set out (2026-10-16).** A strike musters somewhere and then sets out together, as a navy does, with a coordination period ("getting your captains aligned"). The muster point should be chosen intelligently, for example not where Saturn sits on the far side of the Sun. v1 picks the best-placed alien fleet by time to strike and musters for 14 days.
-- **Proxy supply line (2026-10-17).** The aliens actively seek deals with pro-alien human factions (Servants, Protectorate; maybe the Academy later). A proxy can send only what its own mines produce, never its stockpile: difficulty bonuses (Veteran/Brutal AI ship-cost discounts leave stockpiles unspent) must not flow to the aliens, because the player has no counterplay against a bonus. The counterplay is to hit the proxies' mines or flip the proxies.
-- **Human AI factions, later (user, 2026-10-17).** Look for better ways to strengthen the human AI factions than bonus resources (their difficulty bonuses today: +50/+100 CP cap and +20/+50 mission control on Veteran/Brutal, ships at ×0.75/×0.5 cost, mission bonuses). This means competence over handouts, as for the aliens. Out of scope for now (aliens only).
-- **Doctrine selection stays seeded (2026-10-13).** No opening-weighted selection. Variety comes from the campaign seed and from shame shifts.
-- **Terminus by date (2026-10-23).** The terminus also begins by a set campaign year even if humanity never threatened the aliens (a 15-year campaign showed escalation and respect never firing against weak humans): year 14 / 11 / 9 / 7 on Cinematic / Normal / Veteran / Brutal (`[Strategy] TerminusStartYear`).
-- **Unpaid exotics upkeep retires ships (2026-10-23).** With the alien exotics stock at 0 and upkeep above the drip, the oldest capital hulls are retired until upkeep fits. While short of exotics the aliens also found no new bases (scripted goals included), so bases and warships truly compete for the drip.
-- **The strategist (2026-10-22).** A stronger model directs **all non-player factions** (the aliens and every AI human faction), checking in **every 3 months**. It runs **locally** (a local agent answers through files, no API key in the mod). **The game pauses while it thinks.** The player sees a faction's intentions only if that faction is **allied** with them, is their **client**, or has a councilor the player has **turned**. Design: `docs/STRATEGIST.md`.
+- **Raid targeting.** Weigh value and hate together. A faction the aliens hate intensely has its assets prioritised anywhere; at lower hate they go for the most valuable targets.
+- **Fresh mine spam.** Leave it as is. Fresh tier-1 mines get a grace period (about 8 months from goal to kill) because raids hit bigger bases first.
+- **Contempt by difficulty.** Difficulty sets both the starting contempt (higher on easy: arrogant, careless raids) and how fast it erodes (faster on hard).
+- **Terminus.** Completing the full terminus is a hard alien victory (game over), LW2 Avatar-style: a visible meter, knocked back by strikes on the construction site. It also begins by a set campaign year (14 / 11 / 9 / 7 on Cinematic / Normal / Veteran / Brutal) even if humanity never threatened the aliens.
+- **No buying from Earth.** The aliens lose vanilla's boost-and-money substitution for missing space resources. They build only from what they mine, plus the exotics drip. Earth counts as local by the wormhole lore: what the aliens lack is access to Earth's open market, not to Earth goods. Their sanctioned channel is their human proxies, which the player can see and disrupt.
+- **Proxy supply line.** The aliens actively seek deals with pro-alien human factions (Servants, Protectorate; maybe the Academy later). A proxy can send only what its own mines produce, never its stockpile: difficulty bonuses must not flow to the aliens, because the player has no counterplay against a bonus. The counterplay is to hit the proxies' mines or flip the proxies.
+- **Exotics upkeep.** Bases and exotic warships compete for the drip. The upkeep numbers are tuned together with the widening clock, not on their own.
+- **Sustainable base cap.** "We want intelligent aliens." The cap budgets bases and capital-hull upkeep from a share of the drip, so the aliens don't over-expand and then starve their exotic warships. Expansion resumes as the wormhole widens.
+- **Unpaid exotics upkeep retires ships.** With the exotics stock at 0 and upkeep above the drip, the oldest capital hulls are retired, at most 10% of them a month, until upkeep fits. While short of exotics the aliens found no new bases, scripted goals included.
+- **Rendezvous then set out.** A strike musters somewhere and then sets out together, as a navy does, with a coordination period ("getting your captains aligned"). The muster point is chosen by time to strike, for example not where Saturn sits on the far side of the Sun.
+- **Doctrine selection stays seeded.** No opening-weighted selection. Variety comes from the campaign seed and from shame shifts.
+- **The strategist.** A stronger model directs all non-player factions, checking in every 3 months. It runs locally (a local agent answers through files, no API key in the mod). The game pauses while it thinks. The player sees a faction's intentions only if that faction is allied with them, is their client, or has a councilor the player has turned.
 
 ## Engineering rules
 
-- **Ship structure.** One BepInEx plugin and one JSON mod. Every feature sits behind its own config switch, so A/B tests and probes can toggle them.
-- **Mid-game loading.** All AI changes take effect when an existing save loads. State the mod adds (doctrine, threat memory) is stored in a sidecar keyed by the save, or rebuilt on load. **Never break vanilla save loading.**
-- **Scope of changes.** Only change alien behaviour unless a change is explicitly meant to affect the human AI factions. Shared code paths, such as `SpaceCombatValue`, are guarded by a "who is asking" context.
+- **One BepInEx plugin.** Features sit behind config switches so probes can A/B them; `[General] VanillaAI` turns every behaviour change off.
+- **Mid-game loading.** All AI changes take effect when an existing save loads. State the mod adds is stored in a sidecar keyed by the save, or rebuilt on load. **Never break vanilla save loading.**
+- **Who is asking.** A patch on a shared code path (`SpaceCombatValue`, site scoring, trade valuation) checks which faction is asking, so alien changes don't leak to humans or the reverse, and nothing changes for the player's faction.
 - **Probe first.** Any AI change starts with a probe that shows the problem on vanilla.

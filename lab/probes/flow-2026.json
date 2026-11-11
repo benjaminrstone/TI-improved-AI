@@ -1,6 +1,6 @@
 {
   "name": "flow-2026",
-  "notes": "Early game from the 2026 fixture (accel-2026-start, 28 Aug 2026, just past the start of the user's accelerated Resistance campaign; the harness cannot start a brand-new campaign) for a year, with the strategist directing every non-player faction (user, 2026-10-22: 'try a fresh 2026 run'). One consolidated run: flow-2034's observations plus the strategist's. Run tools/strategist.ps1 -Harness alongside. Passive player (the Autopilot gives no orders).",
+  "notes": "Early game from the 2026 fixture (accel-2026-start, 28 Aug 2026, just past the start of the user's accelerated Resistance campaign; the harness cannot start a brand-new campaign) for a year, with the strategist directing every non-player faction ('try a fresh 2026 run'). One consolidated run: flow-2034's observations plus the strategist's. Run tools/strategist.ps1 -Harness alongside. Passive player (the Autopilot gives no orders).",
   "fixture": "accel-2026-start",
   "runDays": 365,
   "config": {

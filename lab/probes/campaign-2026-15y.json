@@ -1,6 +1,6 @@
 {
   "name": "campaign-2026-15y",
-  "notes": "Overnight 15-year campaign (user, 2026-10-22): from the 2026 fixture (28 Aug 2026) to ~2041, full mod with the strategist directing every non-player faction every 3 months (~60 checkpoints). Passive player. Strategist TimeoutMinutes 5 so a failed watcher can't stall the night. Run with -FinalSave; tools/strategist.ps1 -Harness alongside. Read with tools/summarize.py and the early.py-style comparison; the escalation, terminus, Jupiter and human-fleet observations come from flow-2039.",
+  "notes": "Overnight 15-year campaign: from the 2026 fixture (28 Aug 2026) to ~2041, full mod with the strategist directing every non-player faction every 3 months (~60 checkpoints). Passive player. Strategist TimeoutMinutes 5 so a failed watcher can't stall the night. Run with -FinalSave; tools/strategist.ps1 -Harness alongside. Read with tools/summarize.py and the early.py-style comparison; the escalation, terminus, Jupiter and human-fleet observations come from flow-2039.",
   "fixture": "accel-2026-start",
   "runDays": 5475,
   "config": {

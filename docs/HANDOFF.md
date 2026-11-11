@@ -1,75 +1,59 @@
-# Handoff (2026-10-23)
+# Handoff
 
-Read this first. Details live in `docs/PROGRESS.md` (newest first), decisions in `docs/DESIGN.md` ("Decisions"), every tunable in `docs/DIALS.md`, and the test method in `docs/TESTING.md`.
+Where the project stands and what to do next. Design and user decisions are in `DESIGN.md`; how to run things is in `TESTING.md`. History is in git; this file says only what is true now.
 
-## State in brief
+## State
 
 | Area | State |
 |---|---|
-| **M0 infrastructure** | Done. Plugin, diagnostics, harness and tools work on the game copy; ~17–24 game days per real minute. |
-| **M1 no idiot ball** | Done: threat memory (E1 bait), force pooling (E9 Jupiter plateau), decisive force, the shortcut guard. |
-| **M2 a different opponent each game** | Built: seeded doctrines and shame shifts, raids and captures, fleet doctrines, contempt, economy (mine what you lack, exotics upkeep, sustainable base cap, war chest, no Earth purchases), the widening wormhole, P4 escalation, time-aware pooling and rendezvous, proxy trade, the terminus (hard alien victory). |
-| **Human AI track** | Built: vanilla bugs H1, H2, H4, H5 and H6 fixed (H3 off); MC plan; queue fixes; the human market (metals, nobles, water); the drain guard; personalities, clients and forgiveness. Year-one ships from 2034: **112 vs vanilla 69** (`docs/HUMAN-AI.md`). |
-| **The strategist (v0)** | Built and working: a stronger model (Opus, local, headless Claude Code) directs every non-player faction every 3 months, with the game paused; intel to the player through pacts, intel-sharing, clients or turned councilors (`docs/STRATEGIST.md`). Ran 61 checkpoints over a 15-year campaign without a timeout. |
-| **Testing tools** | Flow probes (the regression check), `ai.control` (any faction to the game's AI), `ai.move` / `ai.merge` (scripted orders), `ai.bot` (rule-based player), the strategist watcher's `-Harness` mode. |
+| **Infrastructure** | Plugin, diagnostics, harness and tools work on the game copy. |
+| **Aliens: no idiot ball (M1)** | Built: threat memory, decisive force and the shortcut guard, force pooling, stance courage. **Open in `EXPLOITS.md`:** E2 scarecrow, E4 no re-evaluation in flight, E6 fuel-drain decoy, E7 surveillance reset, E12 never targets the strongest fleet, E13 never retreats. None has a probe yet. |
+| **Aliens: a different opponent each game (M2)** | Built: seeded doctrines and shame shifts, raids and captures, fleet doctrines, contempt, the economy (mine what you lack, exotics upkeep, sustainable base cap, war chest, hull retirement, no Earth purchases), the widening wormhole, escalation, time-aware pooling and rendezvous, proxy trade, the terminus (alien victory). |
+| **AI human factions** | Built: vanilla bugs H1, H2, H4, H5, H6 fixed (H3 off), the mission-control plan, queue fixes, the human market, the drain guard, personalities, clients and forgiveness (`HUMAN-AI.md`). |
+| **Strategist** | Built: a stronger model directs every non-player faction every 3 months with the game paused (`STRATEGIST.md`). 61 checkpoints over a 15-year run without a timeout. |
 
-## Latest work (2026-10-23)
-**Since:** capital-hull retirement when exotics run out, at most 10% of capital hulls a month (user decisions), a block on new alien bases while short of exotics, and the exotics slack now counts the terminus draw (`retire-2041`, PROGRESS).
+## What is not known
 
-A 15-year campaign with the strategist (2026 → 2041) exposed four problems; the fixes are built and passed a one-year test from that campaign's final save (`fixes-2041`, PROGRESS):
-1. **Terminus by date** (user decision): it now also begins by campaign year 14 / 11 / 9 / 7 (Cinematic → Brutal). In the test it began on 1 Sep 2041 and reached 10.8% in a year.
-2. **Stranded fleets:** alien fleets leave dry ships behind (a fleet moves only as far as its emptiest ship); fleets on send orders join strikes outside escalation.
-3. **Exotics drain:** no new capital hulls in deficit at or below the war chest.
-4. **Strategist strike lists** capped at five.
+**Nobody has played it.** Every result so far comes from unattended runs with a passive player: the Autopilot gives no orders, and in the 15-year run the Resistance held one hab and no fleet throughout. The numbers show the mod is stable and that the aliens out-build and out-fight vanilla against opponents who do nothing. They do not show whether the aliens are a good opponent for a person, which is the goal. Many of the recent fixes (terminus by date, hull retirement, the base block, dry-ship splits) also rest on a single run each.
 
-**Regression check passed on the final build** (`flow-2034`, `flow-2039`, 2026-10-23): retirement and the base block did not fire there (healthy stocks); 2034 aliens 24k → 34k, 18 bases, AI-human ships 107; 2039 aliens 40k → 70k.
+So: no new features, dials or switches until the first two steps below are done. They will change what matters.
+
+## Next steps
+
+1. **A chapter playtest by the user.** `tools\playtest.ps1 -Fixture accel-2034-fusion-drives` (add `-Strategist` for the strategist). One to three hours, then symptoms: what surprised, what felt dumb, what was exploitable, where there was pressure.
+2. **Long runs against a defender that acts**, repeated: `flow-2039-long-ai` and `-bot` exist; run each three times and aggregate. The same from 2034 for two years. This is the first balance evidence against opposition.
+3. **The open exploits.** They are the original definition of "no idiot ball" and were passed over for new systems. E4, E12 and E13 have their mechanism located in vanilla code; each needs a probe that fails on vanilla, then a fix. Most need an active defender, which step 2 provides.
+4. **Why the aliens built no ships in 2041–42** (542 → 541 with 1.5k exotics above the war chest): read the build pick and the yard queues in the `fixes-2041` run.
+5. **Exotics balance after retirement** (open question 1).
+6. **Strategist:** a digest of what happened since the last checkpoint in each brief; event-triggered checkpoints; more levers (research focus, build mix). Watch the gang-up on the player: 5 of 6 factions named the Resistance a rival in 2039.
+7. **Later:** rendezvous at empty staging points, proxy trade with a player-run pro-alien faction, AI humans defending remote holdings, fury, the posture panel, the information game (WS5), stations (WS6), the tech extension (WS7), fleet controls (WS8).
+
+## Known defects
+
+Found by reading the code; each changes behaviour, so each needs its probe before and after.
+
+- **Threat memory is lost on a load** (it is not in the sidecar) **and on a ship rename** (it is keyed by ship name, because a refit creates a new ship state that keeps only the name). A reload or a rename reopens the bait exploit E1. Fix: key by ship ID, carry the memory across `CopyDataForRefit`, persist the best showing per ship in the sidecar.
+- **Station targets are over-sized.** `DecisiveForce.DefenderThreat` adds the defending fleets and the perception factor on top of vanilla's `PerceivedAggregateDefensiveScore_Station`, which already includes both.
+- **Two exotics budgets disagree.** The base cap (`Economy.ExoticsBaseCap`) ignores the terminus draw and the war chest; the slack and the "short of exotics" test count both. The cap can allow bases that the base block then refuses. Settle this with open question 1.
+- **The muster point is rarely reconsidered.** `Rendezvous.Choose` reports "decided" on its early exits too, so a goal that could not gather its need is not looked at again until escalation flips. Reported by review, not yet confirmed in a run.
+- **Human personalities:** a "friend" directive can raise hate when the base term is already below −1.5; client relations flip at a single compatibility threshold with no band; a `defend` goal is never lowered when a later directive drops the system. Reported by review, not yet confirmed.
+- **Body names are compared as English text** (`Escalation`, `RaidPlanner`): a non-English game would read no gas-giant threat.
+- **Playtest launcher:** it does not restore the display registry key, leaves `run.json` and the strategist watcher behind if killed, and ignores `@N` commands. The watcher stops on any exception in its loop.
 
 ## Open questions for the user
-1. **Exotics after retirement:** bases (38/month) and the terminus (21) take ~83% of the 2041 drip, so the stock hovers near 0 even once upkeep fits. Tune the base upkeep (2/month) with the widening clock?
-2. **"Allied" for intel:** the game has no formal alliance, so a non-aggression pact or an intel-sharing treaty counts. Narrower?
-3. **Forgiveness rates** (2026-10-19 starting values): Exodus 15%/month, Initiative 6%, Academy 4%, Resistance 3%, pro-alien 2%, Humanity First never.
-4. **Chapter playtest:** postponed by the user (2026-10-20) while improvements land. `tools\playtest.ps1 -Fixture <name> -Strategist` is ready for it.
 
-## Next steps (recommended order)
-1. **Why the aliens built no ships in 2041–42** (542 → 541 with 1.5k exotics above the chest): read the build pick and the yard queues in `fixes-2041`.
-2. **Exotics balance after retirement** (open question 1).
-3. **A long run with a player that acts.** Every harness run so far has a passive player (the Autopilot gives no orders): in 15 years the Resistance held one hab and no fleet. Use `ai.control ResistCouncil ai` or `ai.bot` in long runs, so the aliens and the strategist face a real opponent.
-4. **Strategist next:** a digest of what happened since the last checkpoint in each brief; event-triggered checkpoints; more levers (research focus, build mix). Watch the gang-up on the player (5 of 6 factions named the Resistance a rival in 2039, where it is the runaway leader; none did in 2026–28).
-5. **Later:** rendezvous v2 (empty staging points), proxy trade v2 (a player-run pro-alien faction), the AI human defence of remote holdings (the AI-run Resistance abandoned Jupiter; the strategist's `defend` lever addresses part of it), fury, the posture panel, the info-game (WS5), stations (WS6), the tech extension (WS7), fleet controls (WS8).
+1. **Exotics after retirement.** Bases (38/month) and the terminus (21) take ~83% of the 2041 drip, so the stock hovers near 0 even once upkeep fits. Tune the base upkeep (2/month) with the widening clock?
+2. **"Allied" for intel.** The game has no formal alliance, so a non-aggression pact or an intel-sharing treaty counts. Narrower?
+3. **Forgiveness rates** are starting values: Exodus 15%/month, Initiative 6%, Academy 4%, Resistance 3%, pro-alien 2%, Humanity First never.
 
-## How to run things
+## Gotchas
 
-```
-tools\probes.ps1 flow-2034, flow-2039                    # the regression check (~45 min)
-tools\run.ps1 -Probe <name> [-Vanilla] [-Days N]         # one probe (exit 2 on a failed assert)
-tools\run.ps1 -Probe fixes-2041 -SavePath lab\results\20261022-232243-campaign-2026-15y\final.gz   # from a run's final save
-tools\soaks.ps1 -Fixture accel-2034-fusion-drives -Days 730 -Runs 3 [-ModOnly]
-tools\strategist.ps1 -Harness                            # the strategist watcher for harness runs (start before the run)
-tools\playtest.ps1 -Fixture accel-2031-hot-war [-Strategist]   # play it yourself, isolated saves
-python -I tools\probe.py lab\probes\<probe>.json lab\results\<run>   # re-evaluate a run
-python -I tools\summarize.py lab\results\<run>           # story of a run
-python -I tools\aggregate.py "<glob of run folders>"     # means over soaks
-```
-
-Useful probes (`lab/probes/`):
-
-| Probe | What |
-|---|---|
-| **flow-2034, flow-2039** | **The regression check**: natural years, health asserts and many observations. |
-| flow-2039-long (-ai, -bot) | 540 days from 2039: the Jupiter strike arrives and fights; passive, AI-run or bot-run Resistance. |
-| flow-2026, campaign-2026-15y | The early game with the strategist; the 15-year campaign (overnight, ~4.5 h). |
-| strategist-2039, fixes-2041 | The strategist end to end; the 2026-10-23 fixes (from the 15-year final save). |
-| econ-war-chest, human-batch5, human-siteweight-on/off | Feature gates and A/Bs. |
-| e1, e3, e5, e9, doctrine-*, fleet-*, contempt-arc, econ-*, escalation-*, terminus | Targeted probes with injected setups: run only for the feature being changed. |
-
-## Gotchas learned the hard way
-- **Runs are non-deterministic.** Single-run conclusions were wrong several times (most recently Exodus's expansion: a few months' difference in its first Mars landing swings two-year totals by ~10 habs). Use repeated runs before changing anything.
-- **Regression = two flow probes, not the whole roster** (user, 2026-10-21); consolidate several checks into one run.
-- **The harness player is passive** (the Autopilot clears prompts and resolves combat, nothing more). The harness cannot start a brand-new campaign; "fresh" means the 2026 fixture.
-- **The strategist in the harness:** start `tools\strategist.ps1 -Harness` before the run; each run keeps its exchange files in `lab\results\<run>\strategist`. While it thinks, the harness holds the Autopilot off so the clock stays stopped. Never `tail -f` the watcher's log on Windows (it locked the file and killed the watcher once; the log write is now fault-tolerant).
-- **Escaping.** The shell tool collapses `\\` to `\` even inside quoted heredocs, which breaks JSON with Windows paths: write such files with the Edit or Write tool, or use forward slashes. PowerShell 5.1 has no `??`, `$args` is reserved, and it pipes text to programs as ASCII unless `$OutputEncoding` is set (the watcher sets UTF-8).
-- **Probe expressions** run with a small set of builtins (`len sum min max any all abs round sorted set median mean`): no `zip`, `dict` or `str`.
-- **BepInEx keeps old config values**; `deploy.ps1` deletes the plugin .cfg so the current defaults apply. Probes and playtests override settings per launch (`config` in the probe, `-Strategist` for playtests).
-- **Display settings** share a registry key with the Steam install; `run.ps1` backs it up and restores it.
+- **Runs are not deterministic.** Single-run conclusions have been wrong several times (a few months' difference in Exodus's first Mars landing swings two-year totals by ~10 habs).
+- **The strategist in the harness:** start `tools\strategist.ps1 -Harness` before the run. While it thinks, the harness holds the Autopilot off so the clock stays stopped. Don't `tail -f` the watcher's log on Windows: a reader holding the file can block the writer.
+- **Escaping.** The shell tool collapses `\\` to `\` even inside quoted heredocs, which breaks JSON with Windows paths: write such files with the Edit or Write tool, or use forward slashes.
+- **PowerShell 5.1** has no `??`, `$args` is reserved, `"$k:"` is a drive-scoped variable (use `${k}:`), `*>` writes UTF-16, and it pipes text to programs as ASCII unless `$OutputEncoding` is set.
+- **Git Bash mangles robocopy flags** (`/E` becomes `E:/`); run robocopy from PowerShell. Exit code 1 is success.
+- **BepInEx keeps old config values.** `deploy.ps1` deletes the plugin `.cfg` so current defaults apply; probes and playtests override settings per launch.
+- **A running batch deploys once**, at its start. While one runs, compile-check with `dotnet build -o <scratch>` and don't deploy.
 - **Aliens never own human habs** (a capture destroys the hab). **The user's campaign uses no missiles** (`ai.spawnfleet … missile` borrows another faction's design).
-- **Fixtures** are all from one Normal accelerated Resistance campaign (`lab/fixtures.json`), plus the 15-year run's final save (2041, a mod campaign).
+- **Game patches.** The patches target build 1.0.53b by method name and, in places, call order. After a game update: re-sync the game copy, regenerate `_ref/decompiled`, check `bepinex.log` for failed patch classes, and run the regression check.
