@@ -7,7 +7,7 @@ A full campaign takes 50–80 hours, so it can't be the inner loop. Everything r
 | Save forensics | What did the AI do across a real campaign? | seconds | `tools/saves/timeline.py` |
 | Probes | Given situation X, does the AI decide Y within N days? | 2–50 min | yes |
 | Soaks | Over years, do the curves look right? Vanilla vs mod, repeated. | ~1 min per 20 game days | yes |
-| Stand-in player | How does it hold up against an opponent that acts? | as a soak | the game's AI or the bot on the player's faction; a player that attacks the aliens is not built |
+| Stand-in player | How does it hold up against an opponent that acts? | as a soak | the game's AI on the player's faction, or the bot (`hunt` attacks the aliens) |
 | Combat lab | Do station defences and fleet compositions work tactically? | — | not built |
 
 ## Rules
@@ -15,7 +15,8 @@ A full campaign takes 50–80 hours, so it can't be the inner loop. Everything r
 - **Probe first.** A change starts with a probe that shows the problem on vanilla (`-Vanilla`).
 - **Never conclude balance from one run.** Runs are not deterministic: the RNG is clock-seeded, mission planning runs on worker threads, frame time varies. Use `soaks.ps1` and compare means and ranges with `aggregate.py`.
 - **The regression check is two flow probes**, not the whole roster: `tools\probes.ps1 flow-2034, flow-2039` (~45 min). Their asserts are health checks and wide floors that natural variance passes; the `info` lines are the observations to read. Probes with injected setups are run only for the feature being changed.
-- **The harness player is passive** unless the probe says otherwise. The game's Autopilot clears prompts and resolves combat but gives no orders, so the player's faction slowly loses ground. For a player that acts, hand the faction to the game's AI (`ai.control ResistCouncil ai`) or the rule-based bot (`ai.bot`). Neither attacks the aliens: the game's AI fights the other human factions, the bot reinforces and merges. An AI-run player costs little speed (14–21 days/min).
+- **The harness player is passive** unless the probe says otherwise. The game's Autopilot clears prompts and resolves combat but gives no orders, so the player's faction slowly loses ground. For a player that acts, hand the faction to the game's AI (`ai.control ResistCouncil ai`) or the rule-based bot (`ai.bot <faction> reinforce,merge,hunt`, rules in `Harness/PlayerBot.cs`). The game's AI fights the other human factions, not the aliens. The bot's `hunt` rule attacks alien stations and parked fleets it outguns, destroys the stations and flies home to resupply; it needs a fleet worth sending, which `ai.spawnfleet` provides. An AI-run player costs little speed (14–21 days/min).
+- **The Autopilot never presses a fight.** It answers every stance prompt with Defend and does not answer the delta-v bid of a pursuit, so a fight the player's fleet starts happens only if the other side pursues. The `hunt` bot pursues in the fights it starts and bids as the game's AI would. An AI-run player is not affected: the game answers its prompts.
 - **An AI-run player makes the game's own mission planner throw.** `AICouncilorMissionPlanner` logs "Collection was modified" and retries on the main thread, in the vanilla arm too; these do not count as exceptions. A null reference in `TIEffectsState.ProcessInstantEffect` from a narrative event is also the game's (seen once, in a vanilla run).
 - **One run at a time.** The game copy is locked by `C:\Games\TI-ImprovedAI-harness\harness.lock`.
 
@@ -80,6 +81,7 @@ Throughput is ~17–24 game days per real minute on a mid-game save; a save load
 |---|---|
 | `flow-2034`, `flow-2039` | The regression check: a natural year each. 2034 covers the alien economy, proxy trade, raids, contempt and the human AI track; 2039 covers escalation, pooled strikes, rendezvous and the terminus. |
 | `flow-2034-ai` | Stand-in player: two years from 2034 with the game's AI playing the Resistance. Health asserts only; run repeated with a vanilla arm. |
+| `flow-2034-hunt` | Stand-in player that attacks: the same two years with the bot hunting, given about 3,000 SCV of ships at the start and 2,000 more every 180 days. Health asserts, and that it attacked. |
 | `flow-2039-long` (`-ai`, `-bot`) | 540 days from 2039: the Jupiter strike arrives and fights. Passive, AI-run or bot-run Resistance. |
 | `flow-2026`, `campaign-2026-15y` | The early game with the strategist; the 15-year campaign (overnight, ~4.5 h). |
 | `strategist-2039` | The strategist end to end. |

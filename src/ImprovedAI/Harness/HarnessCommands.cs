@@ -90,7 +90,7 @@ namespace ImprovedAI.Harness
                         output.Add(Strategist.Directives.On ? Strategist.Checkpoint.Begin() : "! [Strategist] Enabled is off");
                         break;
                     case "ai.bot":
-                        // ai.bot <faction> <reinforce,merge|off>: the rule-based player (PlayerBot).
+                        // ai.bot <faction> <reinforce,merge,hunt|off>: the rule-based player (PlayerBot).
                         output.Add(PlayerBot.Set(Faction(parts[1]), parts[2]));
                         break;
                     case "ai.control":

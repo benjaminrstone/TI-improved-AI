@@ -76,6 +76,23 @@ namespace ImprovedAI.Harness
             return ok ? $"> {fleet.displayName} -> {GameRead.Name(target)}, arrives {GameRead.Date(traj.arrivalTime)}" : $"! {fleet.displayName}: transfer refused";
         }
 
+        /// <summary>Start an operation that needs no trajectory (destroy the hab docked at, resupply and repair, ...).</summary>
+        public static bool Do<T>(TISpaceFleetState fleet, TIGameState target, string why) where T : IOperation
+        {
+            if (!OperationsManager.operationsLookup.TryGetValue(typeof(T), out var op) || !fleet.AvailableOperationList().Contains(op)) return false;
+            if (!op.ActorCanPerformOperation(fleet, target)) return false;
+            bool ok = op.OnOperationConfirm(fleet, target, null, null);
+            Session.Journal?.Write(new { t = GameRead.Now(), kind = "order", order = typeof(T).Name, ok, why, faction = GameRead.Faction(fleet.faction), fleet = fleet.displayName, target = GameRead.Name(target), at = GameRead.Body(fleet) });
+            return ok;
+        }
+
+        /// <summary>Close with a station in the fleet's own orbit: a fight if it or its docked fleets resist, else a docking.</summary>
+        public static void ApproachDock(TISpaceFleetState fleet, TIHabState station, string why)
+        {
+            fleet.faction.playerControl.StartAction(new PavonisInteractive.TerraInvicta.Actions.ApproachDockAction(station, fleet));
+            Session.Journal?.Write(new { t = GameRead.Now(), kind = "order", order = "approach", ok = true, why, faction = GameRead.Faction(fleet.faction), fleet = fleet.displayName, scv = GameRead.Safe(() => fleet.SpaceCombatValue()), target = station.displayName, at = GameRead.Body(fleet) });
+        }
+
         /// <summary>Merge a fleet into another at the same location.</summary>
         public static string MergeInto(TISpaceFleetState fleet, TISpaceFleetState into, string why)
         {
