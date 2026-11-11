@@ -30,6 +30,8 @@ A Terra Invicta mod that makes the opposition constrained but competent: it play
 
 ## Rules
 
+- **The user is the player, not the tester.** The target is their next real campaign, played fresh. Never ask them to playtest; test with stand-in players. Don't spoil what the AI does in test runs: report verdicts and health. What can ruin a 60-hour game outranks polish.
+
 - **Separate from the Honorverse mod** (`../TI - HH mod`). Read its tooling for patterns only. Never write there, share code or config with it, or touch the Steam install's BepInEx or Mods.
 - **Run only on the game copy** (`C:\Games\TI-ImprovedAI`, outside OneDrive). Harness scratch is `C:\Games\TI-ImprovedAI-harness`. `deploy.ps1` refuses the Steam install.
 - **Never write to the user's saves** (`Documents/My Games/TerraInvicta/Saves`). The harness stages copies and redirects the save folder, profile and autosaves.

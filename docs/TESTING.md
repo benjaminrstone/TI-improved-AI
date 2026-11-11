@@ -7,7 +7,7 @@ A full campaign takes 50–80 hours, so it can't be the inner loop. Everything r
 | Save forensics | What did the AI do across a real campaign? | seconds | `tools/saves/timeline.py` |
 | Probes | Given situation X, does the AI decide Y within N days? | 2–50 min | yes |
 | Soaks | Over years, do the curves look right? Vanilla vs mod, repeated. | ~1 min per 20 game days | yes |
-| Chapter playtest | Is it fun, fair and readable for a human? | 1–3 h of the user's time | `tools/playtest.ps1`; none played yet |
+| Stand-in player | How does it hold up against an opponent that acts? | as a soak | the game's AI or the bot on the player's faction; a model-directed player is not built |
 | Combat lab | Do station defences and fleet compositions work tactically? | — | not built |
 
 ## Rules
@@ -98,6 +98,6 @@ Fixtures are all from one Normal accelerated Resistance campaign, plus the final
 
 The player was passive in all of these. No run with an active player has been repeated enough to be a baseline.
 
-## Playtests
+## Playing it
 
-`tools\playtest.ps1 -Fixture <name>` launches the game copy with the mod in an isolated save folder (`C:\Games\TI-ImprovedAI-playtest\saves`). After a session, record symptoms, not fixes: what surprised you, what felt dumb, what you exploited, where you felt pressure and where you felt safe. Each symptom becomes a probe before anyone touches AI code.
+The user does not playtest: the target is their next real campaign, played fresh (`HANDOFF.md`). `tools\playtest.ps1` is how that campaign is played on the game copy: it launches the game with the mod in an isolated save folder (`C:\Games\TI-ImprovedAI-playtest\saves`), from the main menu or from a save, and writes the journal and metrics for each loaded game under `lab\results`. Symptoms the user reports from a play become probes before anyone touches AI code.

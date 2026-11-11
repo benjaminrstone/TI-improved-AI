@@ -301,14 +301,17 @@ The player must be able to read and answer the AI:
 Status is in `docs/HANDOFF.md`.
 
 - **M0, see the AI.** Plugin, diagnostics, harness, probes that fail on vanilla.
-- **M1, no idiot ball.** WS1 plus the E5 part of WS2. Probes pass; a soak shows no runaway and no stall; chapter playtests at "hot war 2031" and "Jupiter assault 2037".
-- **M2, a different opponent each game.** WS3 doctrines and WS4 constraints. Soak curves are tuned. Playtests on early chapters.
-- **M3, the war they could lose.** WS3 escalation, WS7 tech extension, WS6 stations. Full user campaign.
+- **M1, no idiot ball.** WS1 plus the E5 part of WS2. Probes pass; a soak shows no runaway and no stall.
+- **M2, a different opponent each game.** WS3 doctrines and WS4 constraints. Soak curves are tuned against a stand-in player.
+- **M3, the war they could lose.** WS3 escalation, WS7 tech extension, WS6 stations.
 - **WS8 controls** are independent and can land at any point.
+- **The user's campaign** is what all of it is for, and it is played once the build is safe for a full game, not as a test along the way.
 
 ## Decisions
 
 All by the user.
+
+- **The user plays; they don't playtest.** The aim is a fun, improved next campaign, played fresh with the new systems still to be discovered. The user brings symptoms from past play and talks through ideas; testing is done without them. Publishing is likely if it comes out well, as not thoroughly playtested.
 
 - **Lore.** Expanding the lore is allowed. Keep it consistent with the game's text. A conflict with existing lore can be acceptable, but call it out explicitly to the user.
 - **Scope.** The aliens first. The AI human factions are a second track with the same aim, competence over handouts: no bonus resources, they play better instead (`docs/HUMAN-AI.md`). A stronger model may direct every non-player faction (`docs/STRATEGIST.md`).
