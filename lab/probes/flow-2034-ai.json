@@ -1,0 +1,47 @@
+{
+  "name": "flow-2034-ai",
+  "notes": "Stand-in player: two years from the 2034 save with the Resistance handed to the game's AI on day 0 (ai.control), nothing else injected. Run repeated, with a vanilla arm (probes.ps1 -Runs 3 -WithVanilla), and compare with aggregate.py: how the aliens and the AI humans fare against a player faction that builds, moves and fights. Asserts are health checks only; the info lines are the observations.",
+  "fixture": "accel-2034-fusion-drives",
+  "runDays": 730,
+  "commands": [
+    "ai.control ResistCouncil ai"
+  ],
+  "asserts": [
+    "results['endReason'] == 'days-elapsed'",
+    "status['stalls'] == 0",
+    "status['gameDays'] >= 725",
+    "count('init') == 1",
+    "status['exceptions'] == 0"
+  ],
+  "info": [
+    "events('control')",
+    "(faction(first, 'ResistCouncil').get('scv'), faction(last, 'ResistCouncil').get('scv'), faction(last, 'ResistCouncil').get('ships'))",
+    "(faction(first, 'ResistCouncil').get('bases', 0) + faction(first, 'ResistCouncil').get('stations', 0), faction(last, 'ResistCouncil').get('bases', 0) + faction(last, 'ResistCouncil').get('stations', 0))",
+    "[(r['t'][:7], round(faction(r, 'ResistCouncil').get('scv', 0)), round(faction(r, 'AlienCouncil').get('scv', 0)), round(sum(faction(r, f).get('scv', 0) for f in ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil']))) for r in metrics][::3]",
+    "(count('combat', occurred=True), count('combat', occurred=True, winner='AlienCouncil'), count('combat', occurred=True, winner='ResistCouncil'))",
+    "(count('combat', attacker='ResistCouncil', occurred=True), count('combat', attacker='ResistCouncil', occurred=True, winner='ResistCouncil'))",
+    "count('hab-', faction='AlienCouncil')",
+    "events('doctrine')[0]['doctrine'] if count('doctrine') else None",
+    "(count('doctrine', ev='shifted'), count('shame'))",
+    "(faction(first, 'AlienCouncil').get('scv'), faction(last, 'AlienCouncil').get('scv'), faction(last, 'AlienCouncil').get('ships'))",
+    "(faction(first, 'AlienCouncil').get('bases'), faction(last, 'AlienCouncil').get('bases'))",
+    "[(e['t'][:7], e['bases'], e['cap'], round(e['drip'], 1), round(e['upkeep'], 1), e['stock']['Exotics'], e.get('warChest'), e.get('largeFactor')) for e in events('economy')][::3]",
+    "(count('transfer', goal='AttackWithFleet'), count('goal+', type='CaptureHab'), count('raid'))",
+    "median([r['scv'] / r['defThreat'] for r in events('transfer', goal='AttackWithFleet') if r.get('defThreat')] or [0])",
+    "(count('combat', attacker='AlienCouncil', occurred=True), count('combat', attacker='AlienCouncil', occurred=True, winner='AlienCouncil'))",
+    "{f: count('hab-', faction=f) for f in ['ResistCouncil'] + ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil']}",
+    "events('fleet')[-1]['bySize'] if count('fleet') else None",
+    "(count('ship-built'), {s: count('ship-built', size=s) for s in ['Small', 'Medium', 'Large', 'Huge']})",
+    "sum(e['earthBlocked'] for e in events('economy'))",
+    "(count('trade', to='AlienCouncil'), sum(e['resources'].get('Metals', 0) for e in events('trade', to='AlienCouncil')))",
+    "[(f['faction'], round(f['contempt'], 2)) for f in events('disposition')[-1]['factions']] if count('disposition') else None",
+    "{f: count('human-ship-built', f=f) for f in ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil']}",
+    "sum(count('human-ship-built', f=f) for f in ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil'])",
+    "{f: (faction(first, f).get('scv'), faction(last, f).get('scv'), faction(last, f).get('ships')) for f in ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil']}",
+    "{r: count('human-market', ok=True, resource=r) for r in ['Metals', 'NobleMetals', 'Water']}",
+    "(count('human-market', ok=True, buyer='ExploitCouncil'), count('human-market', ok=False, buyer='ExploitCouncil'))",
+    "(count('human-drain-guard'), count('human-yard-unblock'), count('human-mc-invest'), count('direct-invest'), count('losing-big-fix'))",
+    "{f: (faction(first, f).get('bases', 0) + faction(first, f).get('stations', 0), faction(last, f).get('bases', 0) + faction(last, f).get('stations', 0)) for f in ['ResistCouncil'] + ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil']}",
+    "{f: faction(last, f).get('self') for f in ['ResistCouncil'] + ['DestroyCouncil','CooperateCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil']}"
+  ]
+}

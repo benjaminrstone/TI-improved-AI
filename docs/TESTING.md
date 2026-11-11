@@ -25,7 +25,8 @@ tools\probes.ps1 flow-2034, flow-2039                    # the regression check
 tools\run.ps1 -Probe <name> [-Vanilla] [-Days N]         # one probe (exit 2 on a failed assert)
 tools\run.ps1 -Fixture <name> -Days 90 -Name look        # ad-hoc run, no asserts
 tools\run.ps1 -Probe <name> -SavePath <run>\final.gz     # start from a run's final save (-FinalSave writes one)
-tools\soaks.ps1 -Fixture accel-2034-fusion-drives -Days 730 -Runs 3 [-ModOnly]
+tools\probes.ps1 flow-2034-ai -Runs 3 -WithVanilla       # a probe repeated, each also as a vanilla baseline
+tools\soaks.ps1 -Fixture accel-2034-fusion-drives -Days 730 -Runs 3 [-ModOnly]   # the same for a bare fixture
 tools\strategist.ps1 -Harness                            # the strategist watcher (start it before the run)
 tools\playtest.ps1 -Fixture accel-2031-hot-war [-Strategist]   # play it yourself, isolated saves
 python -I tools\probe.py lab\probes\<probe>.json lab\results\<run>   # re-evaluate a run
@@ -77,6 +78,7 @@ Throughput is ~17–24 game days per real minute on a mid-game save; a save load
 | Probe | Use |
 |---|---|
 | `flow-2034`, `flow-2039` | The regression check: a natural year each. 2034 covers the alien economy, proxy trade, raids, contempt and the human AI track; 2039 covers escalation, pooled strikes, rendezvous and the terminus. |
+| `flow-2034-ai` | Stand-in player: two years from 2034 with the game's AI playing the Resistance. Health asserts only; run repeated with a vanilla arm. |
 | `flow-2039-long` (`-ai`, `-bot`) | 540 days from 2039: the Jupiter strike arrives and fights. Passive, AI-run or bot-run Resistance. |
 | `flow-2026`, `campaign-2026-15y` | The early game with the strategist; the 15-year campaign (overnight, ~4.5 h). |
 | `strategist-2039` | The strategist end to end. |
