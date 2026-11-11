@@ -7,7 +7,7 @@ A full campaign takes 50–80 hours, so it can't be the inner loop. Everything r
 | Save forensics | What did the AI do across a real campaign? | seconds | `tools/saves/timeline.py` |
 | Probes | Given situation X, does the AI decide Y within N days? | 2–50 min | yes |
 | Soaks | Over years, do the curves look right? Vanilla vs mod, repeated. | ~1 min per 20 game days | yes |
-| Stand-in player | How does it hold up against an opponent that acts? | as a soak | the game's AI or the bot on the player's faction; a model-directed player is not built |
+| Stand-in player | How does it hold up against an opponent that acts? | as a soak | the game's AI or the bot on the player's faction; a player that attacks the aliens is not built |
 | Combat lab | Do station defences and fleet compositions work tactically? | — | not built |
 
 ## Rules
@@ -15,7 +15,8 @@ A full campaign takes 50–80 hours, so it can't be the inner loop. Everything r
 - **Probe first.** A change starts with a probe that shows the problem on vanilla (`-Vanilla`).
 - **Never conclude balance from one run.** Runs are not deterministic: the RNG is clock-seeded, mission planning runs on worker threads, frame time varies. Use `soaks.ps1` and compare means and ranges with `aggregate.py`.
 - **The regression check is two flow probes**, not the whole roster: `tools\probes.ps1 flow-2034, flow-2039` (~45 min). Their asserts are health checks and wide floors that natural variance passes; the `info` lines are the observations to read. Probes with injected setups are run only for the feature being changed.
-- **The harness player is passive** unless the probe says otherwise. The game's Autopilot clears prompts and resolves combat but gives no orders, so the player's faction slowly loses ground. For a defender that acts, hand the faction to the game's AI (`ai.control ResistCouncil ai`) or the rule-based bot (`ai.bot`). An AI-run player slows the run to ~13 days/min.
+- **The harness player is passive** unless the probe says otherwise. The game's Autopilot clears prompts and resolves combat but gives no orders, so the player's faction slowly loses ground. For a player that acts, hand the faction to the game's AI (`ai.control ResistCouncil ai`) or the rule-based bot (`ai.bot`). Neither attacks the aliens: the game's AI fights the other human factions, the bot reinforces and merges. An AI-run player costs little speed (14–21 days/min).
+- **An AI-run player makes the game's own mission planner throw.** `AICouncilorMissionPlanner` logs "Collection was modified" and retries on the main thread, in the vanilla arm too; these do not count as exceptions. A null reference in `TIEffectsState.ProcessInstantEffect` from a narrative event is also the game's (seen once, in a vanilla run).
 - **One run at a time.** The game copy is locked by `C:\Games\TI-ImprovedAI-harness\harness.lock`.
 
 ## Commands
@@ -88,17 +89,22 @@ Fixtures are all from one Normal accelerated Resistance campaign, plus the final
 
 ## Baseline: 2 years from 2034, three runs each
 
-| | Vanilla | Mod |
-|---|---|---|
-| Alien SCV at end | 35.3k | 42.8k (39.8–44.5) |
-| Alien ships lost | 29 | 4.3 |
-| Human ships destroyed by aliens | 144 | 190 |
-| Habs lost, all / Resistance | 95 / 24 | 81 / 26 |
-| Alien attack launches | 64 | 50 |
-| AI human ships completed, year 1 | 69 | 102 / 117 / 113 |
-| Exotics stock | 2.0k → 2.4–2.7k | 2.0k → 1.4k |
+Means, with the range in brackets where it was kept.
 
-The player was passive in all of these. No run with an active player has been repeated enough to be a baseline.
+| | Vanilla, passive | Mod, passive | Vanilla, AI-run player | Mod, AI-run player |
+|---|---|---|---|---|
+| Alien SCV at end | 35.3k | 42.8k (39.8–44.5) | 35.0k (32.3–36.7) | 43.6k (39.7–45.9) |
+| Alien ships lost | 29 | 4.3 | 25.7 (9–43) | 5.7 (1–12) |
+| Human ships destroyed by aliens | 144 | 190 | 142 (89–179) | 171 (146–196) |
+| Habs lost, all / Resistance | 95 / 24 | 81 / 26 | 89 / 31 (27–36) | 83 / 28 (27–28) |
+| Alien attack launches, all / at the player | 64 / – | 50 / – | 54 / 12 | 48 / 8 |
+| Resistance SCV at end (873 at start) | – | – | 3.2k (1.7–3.9) | 2.6k (2.1–2.9) |
+| AI human ships completed, year 1 / both years | 69 / – | 102, 117, 113 / – | – / 161 | – / 211 |
+| Exotics stock | 2.0k → 2.4–2.7k | 2.0k → 1.4k | | |
+
+The AI-run player (`flow-2034-ai`) changes nothing for the aliens: it loses about half its 54 habs in both arms and does not attack them. The aliens won every battle they started in all six runs.
+
+540 days from 2039, mod only, three runs each (`flow-2039-long-ai`, `-bot`): Resistance habs lost 9.3 (8–11) with the AI-run player and 14.7 (11–19) with the bot; alien ships lost 0 and 2.0 (0–5); alien SCV at end 65.7k and 70.0k.
 
 ## Playing it
 
