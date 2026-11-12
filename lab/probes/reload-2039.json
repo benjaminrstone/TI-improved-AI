@@ -1,0 +1,45 @@
+{
+  "name": "reload-2039",
+  "notes": "Campaign safety: a year from the 2039 save (escalation, pooled strikes gathering and in flight, the terminus running) with the game saved and that save loaded in the running game every 45 days, as a player who reloads does. Each reload journals whether the mod's state came back the same (the sidecar's contents, threat memory, the dials, counts of alien fleets and human ships). The run must stay healthy and still do what flow-2039 does, and a load must not make the aliens choose a strike's muster point again (flow-2039 chooses three times in the year).",
+  "fixture": "accel-2039-clean-jupiter",
+  "runDays": 365,
+  "commands": [
+    "@30 ai.reload",
+    "@75 ai.reload",
+    "@120 ai.reload",
+    "@165 ai.reload",
+    "@210 ai.reload",
+    "@255 ai.reload",
+    "@300 ai.reload",
+    "@345 ai.reload"
+  ],
+  "asserts": [
+    "results['endReason'] == 'days-elapsed'",
+    "status['stalls'] == 0",
+    "status['exceptions'] == 0",
+    "status['gameDays'] >= 360",
+    "count('reload') == 8",
+    "all(e['same'] for e in events('reload'))",
+    "count('init') == 9",
+    "count('posture', ev='escalated') == 1",
+    "count('terminus', ev='started') == 1",
+    "count('terminus', ev='month') >= 10",
+    "count('pool') >= 1",
+    "count('rendezvous') <= 5"
+  ],
+  "info": [
+    "[(e['t'], e['seconds'], e['same'], e.get('memoryGB')) for e in events('reload')]",
+    "[(e['t'], [k for k in e['before'] if e['before'][k] != e['after'][k]]) for e in events('reload') if not e['same']]",
+    "[(e['t'], [(k, e['before']['strategy'][k][:120], e['after']['strategy'][k][:120]) for k in e['before']['strategy'] if e['before']['strategy'][k] != e['after']['strategy'].get(k)]) for e in events('reload') if not e['same'] and e['before'].get('strategy')]",
+    "[(e['t'][:7], e['desperation'], e['escalated']) for e in events('escalation')][::2]",
+    "[(e['t'][:7], e['ev'], e.get('after'), e.get('invest')) for e in events('terminus')][::3]",
+    "[(e['t'][:7], e['target'], e['targetSystem'], round(e['need']), round(e['have']), round(e['present'])) for e in events('pool')][::4]",
+    "(count('pool-muster'), count('pool-ready'), count('rendezvous'))",
+    "[(r['t'][:7], r['fleet'], round(r['scv']), r['toBody']) for r in events('transfer', goal='AttackWithFleet')][:20]",
+    "(count('combat', occurred=True), count('combat', occurred=True, winner='AlienCouncil'))",
+    "(faction(first, 'AlienCouncil').get('scv'), faction(last, 'AlienCouncil').get('scv'), faction(last, 'AlienCouncil').get('ships'))",
+    "(faction(first, 'ResistCouncil').get('scv'), faction(last, 'ResistCouncil').get('scv'))",
+    "(count('raid'), count('goal+', type='CaptureHab'))",
+    "results['exceptionSamples'][:5]"
+  ]
+}

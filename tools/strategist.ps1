@@ -16,6 +16,8 @@ param(
     [switch]$Once,
     # Stop watching after this many real minutes (0 = never); for harness runs.
     [int]$StopAfterMinutes = 0,
+    # Real seconds to wait for the factions' answers; the mod itself gives up after its TimeoutMinutes (3).
+    [int]$AnswerSeconds = 150,
     # Harness mode: follow the newest lab\results\<run>\strategist folder (each run keeps its own exchange files).
     [switch]$Harness
 )
@@ -62,14 +64,17 @@ $ask = {
 $started = Get-Date
 if ($Harness) { Write-Host "watching the newest run under $resultsDir (model $Model)" } else { Log "watching $Folder (model $Model)" }
 while ($true) {
-    $Folder = Resolve-Folder
     $pending = @()
-    if ($Folder -and (Test-Path (Join-Path $Folder 'briefs'))) {
-        foreach ($d in 'directives', 'responses') { New-Item -ItemType Directory -Force (Join-Path $Folder $d) | Out-Null }
-        $pending = Get-ChildItem (Join-Path $Folder 'briefs') -Filter *.json | Where-Object { -not (Test-Path (Join-Path $Folder "directives\$($_.Name)")) } | Sort-Object Name
-    }
+    try {
+        $Folder = Resolve-Folder
+        if ($Folder -and (Test-Path (Join-Path $Folder 'briefs'))) {
+            foreach ($d in 'directives', 'responses') { New-Item -ItemType Directory -Force (Join-Path $Folder $d) | Out-Null }
+            $pending = Get-ChildItem (Join-Path $Folder 'briefs') -Filter *.json | Where-Object { -not (Test-Path (Join-Path $Folder "directives\$($_.Name)")) } | Sort-Object Name
+        }
+    } catch { Log "scan failed: $($_.Exception.Message)" }
     foreach ($b in $pending) {
-        $date = $b.BaseName
+      $date = $b.BaseName
+      try {
         Log "checkpoint $date"
         $brief = [IO.File]::ReadAllText($b.FullName) | ConvertFrom-Json
         $header = @{ date = $brief.date; campaignYears = $brief.campaignYears; player = $brief.player } | ConvertTo-Json -Compress
@@ -81,7 +86,10 @@ while ($true) {
             $previous = if ($prev -and $prev.factions.PSObject.Properties[$p.Name]) { $prev.factions.($p.Name) | ConvertTo-Json -Depth 6 -Compress } else { 'none (first checkpoint)' }
             $jobs += Start-Job -ScriptBlock $ask -ArgumentList $p.Name, $date, $header, $section, $previous, $Model, $promptFile
         }
-        $results = $jobs | Wait-Job | Receive-Job
+        $null = $jobs | Wait-Job -Timeout $AnswerSeconds
+        $results = @($jobs | Where-Object { $_.State -eq 'Completed' } | Receive-Job)
+        $late = @($jobs | Where-Object { $_.State -ne 'Completed' })
+        if ($late.Count -gt 0) { Log "  no answer within $AnswerSeconds s from $($late.Count) factions; they keep their previous directives" }
         $jobs | Remove-Job -Force
         $out = [ordered]@{ checkpoint = $date; factions = [ordered]@{} }
         $raw = New-Object System.Text.StringBuilder
@@ -94,6 +102,11 @@ while ($true) {
         [IO.File]::WriteAllText($tmp, ($out | ConvertTo-Json -Depth 8), $utf8)
         Move-Item $tmp (Join-Path $Folder "directives\$date.json") -Force
         Log "  directives written for $($out.factions.Count) factions"
+      } catch {
+        # An empty answer lets the game play on at once under the previous directives.
+        Log "  checkpoint $date failed: $($_.Exception.Message)"
+        try { [IO.File]::WriteAllText((Join-Path $Folder "directives\$date.json"), "{`"checkpoint`":`"$date`",`"factions`":{}}", $utf8) } catch { }
+      }
     }
     if ($Once) { break }
     if ($StopAfterMinutes -gt 0 -and ((Get-Date) - $started).TotalMinutes -ge $StopAfterMinutes) { Log 'stop time reached'; break }

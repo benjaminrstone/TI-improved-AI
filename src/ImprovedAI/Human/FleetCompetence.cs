@@ -21,6 +21,8 @@ namespace ImprovedAI.Human
 
         private static readonly Dictionary<TIFactionState, (string day, bool v)> _wantsShips = new Dictionary<TIFactionState, (string, bool)>();
 
+        public static void Reset() { _wantsShips.Clear(); HumanMissionControlInvest.Last.Clear(); }
+
         /// <summary>Some space-combat fleet goal wants ships (cached per faction per day).</summary>
         public static bool WantsWarships(TIFactionState f)
         {
@@ -49,7 +51,7 @@ namespace ImprovedAI.Human
     [HarmonyPatch(typeof(AIDailyFactionPlanner), "ManageNations")]
     internal static class HumanMissionControlInvest
     {
-        private static readonly Dictionary<TIFactionState, TIDateTime> Last = new Dictionary<TIFactionState, TIDateTime>();
+        internal static readonly Dictionary<TIFactionState, TIDateTime> Last = new Dictionary<TIFactionState, TIDateTime>();
 
         private static void Postfix(AIDailyFactionPlanner __instance, TIFactionState faction)
         {

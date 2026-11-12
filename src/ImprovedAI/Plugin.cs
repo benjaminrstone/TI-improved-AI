@@ -41,7 +41,10 @@ namespace ImprovedAI
         internal static void ApplyPatches()
         {
             int failed = 0;
-            foreach (var type in AccessTools.GetTypesFromAssembly(typeof(Plugin).Assembly))
+            var types = AccessTools.GetTypesFromAssembly(typeof(Plugin).Assembly);
+            // Before the patches themselves, so no patched game method is compiled against an unguarded patch.
+            int guarded = PatchGuard.Apply(Harmony, types);
+            foreach (var type in types)
             {
                 try { Harmony.CreateClassProcessor(type).Patch(); }
                 catch (Exception e)
@@ -56,7 +59,7 @@ namespace ImprovedAI
                 count++;
                 Log.LogDebug($"Patched {m.DeclaringType?.FullName}.{m.Name}");
             }
-            Log.LogInfo($"{count} methods patched, {failed} patch classes failed.");
+            Log.LogInfo($"{count} methods patched ({guarded} of them our own patches, guarded), {failed} patch classes failed.");
         }
     }
 
@@ -70,11 +73,14 @@ namespace ImprovedAI
             if (_patched) return;
             if (FindObjectOfType<StartMenuController>() == null) return;
             _patched = true;
-            Plugin.ApplyPatches();
-            gameObject.AddComponent<Diagnostics.Observer>();
-            gameObject.AddComponent<Strategist.Checkpoint>();
-            if (Harness.CampaignHarness.Active)
-                gameObject.AddComponent<Harness.CampaignHarness>();
+            PatchGuard.Run(() =>
+            {
+                Plugin.ApplyPatches();
+                gameObject.AddComponent<Diagnostics.Observer>();
+                gameObject.AddComponent<Strategist.Checkpoint>();
+                if (Harness.CampaignHarness.Active)
+                    gameObject.AddComponent<Harness.CampaignHarness>();
+            }, "Bootstrap");
         }
     }
 }

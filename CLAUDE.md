@@ -7,7 +7,7 @@ A Terra Invicta mod that makes the opposition constrained but competent: it play
 | Doc | What it covers |
 |---|---|
 | `docs/DESIGN.md` | Vision, pillars P1–P6, user decisions (authoritative) |
-| `docs/TESTING.md` | How to run probes, soaks and playtests; what a run produces |
+| `docs/TESTING.md` | How to run probes and soaks; what a run produces; how the user's campaign is installed and played |
 | `docs/FINDINGS.md` | How the vanilla alien AI works, with code refs |
 | `docs/HUMAN-AI.md` | How the vanilla human AI works, its bugs, what the mod changes |
 | `docs/STRATEGIST.md` | The strategist loop and its directives |
@@ -16,7 +16,7 @@ A Terra Invicta mod that makes the opposition constrained but competent: it play
 
 ## Layout
 
-- **`src/ImprovedAI/`**: BepInEx 5 + Harmony plugin (net472). Patches are applied once the main menu exists (`Plugin.cs`).
+- **`src/ImprovedAI/`**: BepInEx 5 + Harmony plugin (net472). Patches are applied once the main menu exists (`Plugin.cs`). `PatchGuard.cs` wraps every Prefix and Postfix so an exception in one is logged and skipped instead of breaking the game method it sits in.
   - `AIConfig.cs`: every switch and dial. `[General] VanillaAI=true` turns all behaviour changes off; code checks the `Use*` accessors.
   - `AI/`: alien behaviour. Dials that a doctrine, escalation or the strategist can scale are read through `AI/Dials.cs`, never from the config directly.
   - `Human/`: the AI human factions (never the player's faction).
@@ -24,7 +24,7 @@ A Terra Invicta mod that makes the opposition constrained but competent: it play
   - `Fixes/`: vanilla bug fixes.
   - `Diagnostics/`: the journal, metrics and logs every run produces. `Observer.cs` is the daily and monthly clock that drives all the mod's periodic logic.
   - `Harness/`: the unattended runner and its `ai.*` commands.
-- **`tools/`**: `deploy.ps1`, `run.ps1`, `probes.ps1`, `soaks.ps1`, `playtest.ps1`, `strategist.ps1`, and the Python analysis scripts (`probe.py`, `summarize.py`, `compare.py`, `aggregate.py`).
+- **`tools/`**: `deploy.ps1`, `run.ps1`, `probes.ps1`, `soaks.ps1`, `strategist.ps1`, `release.ps1` and `play.ps1` (the user's campaign), and the Python analysis scripts (`probe.py`, `summarize.py`, `compare.py`, `aggregate.py`).
 - **`lab/`**: `probes/*.json`, `fixtures.json`, `results/` (gitignored run output).
 - **`_ref/decompiled/`**: decompiled game source (gitignored; build 1.0.53b). Regenerate after a game patch: `ilspycmd -p -o _ref/decompiled "<TI>/TerraInvicta_Data/Managed/Assembly-CSharp.dll"`.
 
@@ -34,8 +34,9 @@ A Terra Invicta mod that makes the opposition constrained but competent: it play
 
 - **Separate from the Honorverse mod** (`../TI - HH mod`). Read its tooling for patterns only. Never write there, share code or config with it, or touch the Steam install's BepInEx or Mods.
 - **Run only on the game copy** (`C:\Games\TI-ImprovedAI`, outside OneDrive). Harness scratch is `C:\Games\TI-ImprovedAI-harness`. `deploy.ps1` refuses the Steam install.
+- **The play install is the user's campaign** (`C:\Games\TI-ImprovedAI-play`, data in `C:\Games\TI-ImprovedAI-play-data`). Only `release.ps1` writes to it, and only a commit that passed the regression check. Never run the harness there, and never write to its saves; its `sessions` folder may be read to look into a symptom the user reports.
 - **Never write to the user's saves** (`Documents/My Games/TerraInvicta/Saves`). The harness stages copies and redirects the save folder, profile and autosaves.
-- **Save-compatible.** New state goes in the `<save>.improvedai.json` sidecar; the save file is never modified.
+- **Save-compatible.** New state goes in the sidecar beside the saves (`<save folder>\ImprovedAI\<campaign>\<game time>.json`, one per saved moment); the save file is never modified.
 - **Probe first; never conclude from one run.** A change starts with a probe that shows the problem on vanilla. Runs are non-deterministic: balance claims need repeated runs (`soaks.ps1` + `aggregate.py`). The regression check is `tools\probes.ps1 flow-2034, flow-2039`.
 - **Lore.** Expanding it is allowed; flag any conflict with game text to the user explicitly. Tag ideas `[lore]` / `[ext]` in docs.
 - **Commits.** Commit and push to `main` as work lands (`benjaminrstone/TI-improved-AI`).

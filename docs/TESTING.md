@@ -18,7 +18,9 @@ A full campaign takes 50–80 hours, so it can't be the inner loop. Everything r
 - **The harness player is passive** unless the probe says otherwise. The game's Autopilot clears prompts and resolves combat but gives no orders, so the player's faction slowly loses ground. For a player that acts, hand the faction to the game's AI (`ai.control ResistCouncil ai`) or the rule-based bot (`ai.bot <faction> reinforce,merge,hunt`, rules in `Harness/PlayerBot.cs`). The game's AI fights the other human factions, not the aliens. The bot's `hunt` rule attacks alien stations and parked fleets it outguns, destroys the stations and flies home to resupply; it needs a fleet worth sending, which `ai.spawnfleet` provides. An AI-run player costs little speed (14–21 days/min).
 - **The Autopilot never presses a fight.** It answers every stance prompt with Defend and does not answer the delta-v bid of a pursuit, so a fight the player's fleet starts happens only if the other side pursues. The `hunt` bot pursues in the fights it starts and bids as the game's AI would. An AI-run player is not affected: the game answers its prompts.
 - **An AI-run player makes the game's own mission planner throw.** `AICouncilorMissionPlanner` logs "Collection was modified" and retries on the main thread, in the vanilla arm too; these do not count as exceptions. A null reference in `TIEffectsState.ProcessInstantEffect` from a narrative event is also the game's (seen once, in a vanilla run).
-- **One run at a time.** The game copy is locked by `C:\Games\TI-ImprovedAI-harness\harness.lock`.
+- **One run at a time.** The game copy is locked by `C:\Games\TI-ImprovedAI-harness\harness.lock`. A run also waits while the play install's game is open and until 16 GB of memory is free (`-MinFreeGB`): beside another game it swaps, and its stalls and timings mean nothing.
+- **`status['exceptions']` includes what `PatchGuard` swallowed** in the mod's own patches (`status['guarded']`), so a health assert on exceptions also catches a patch that fails quietly.
+- **A run is quiet by default:** the mod's player notices (terminus, intel, the strategist's pause box) are only journaled. A probe with `"notices": true` shows them as a real play does and saves a screenshot of each (`notice-N-<what>.png`); the harness holds the Autopilot off until the shot is taken and closes the campaign-ending popup once, as a player does.
 
 ## Commands
 
@@ -30,7 +32,6 @@ tools\run.ps1 -Probe <name> -SavePath <run>\final.gz     # start from a run's fi
 tools\probes.ps1 flow-2034-ai -Runs 3 -WithVanilla       # a probe repeated, each also as a vanilla baseline
 tools\soaks.ps1 -Fixture accel-2034-fusion-drives -Days 730 -Runs 3 [-ModOnly]   # the same for a bare fixture
 tools\strategist.ps1 -Harness                            # the strategist watcher (start it before the run)
-tools\playtest.ps1 -Fixture accel-2031-hot-war [-Strategist]   # play it yourself, isolated saves
 python -I tools\probe.py lab\probes\<probe>.json lab\results\<run>   # re-evaluate a run
 python -I tools\summarize.py lab\results\<run>           # the story of one run
 python -I tools\compare.py <runA> <runB>                 # two runs side by side
@@ -75,6 +76,8 @@ Throughput is ~17–24 game days per real minute on a mid-game save; a save load
 ```
 
 - **Commands.** `ai.*` lines are harness commands (`Harness/HarnessCommands.cs`); an `@N` prefix runs one N game days after the start. Anything else goes to the game's own debug terminal (`addresource`, `givealltechs`, …).
+- **`ai.reload`** saves, renames the save (as the game renames its autosaves) and loads it in the running game, then the run goes on. Each one journals a `reload` record: `same` says whether the mod's state came back unchanged, `memoryGB` is the game's memory afterwards.
+- **A new campaign.** Instead of `"fixture"`, `"newGame": { "faction": "CooperateCouncil", "difficulty": 3, "accelerated": true }` starts one from the main menu through the New Game screen's own controls (difficulty 1 Cinematic to 4 Brutal; `"scenario"` picks a start other than the default). Hand the player's faction to the game's AI with `ai.control`, or the campaign has no player.
 - **Asserts and info** are Python expressions over `journal`, `metrics`, `results`, `status`, `first`, `last`, with `count(kind, **match)`, `events(kind, **match)`, `faction(row, name)` and a few builtins (`len sum min max any all abs round sorted set median mean`; no `zip`, `dict` or `str`).
 
 | Probe | Use |
@@ -85,9 +88,15 @@ Throughput is ~17–24 game days per real minute on a mid-game save; a save load
 | `flow-2039-long` (`-ai`, `-bot`) | 540 days from 2039: the Jupiter strike arrives and fights. Passive, AI-run or bot-run Resistance. |
 | `flow-2026`, `campaign-2026-15y` | The early game with the strategist; the 15-year campaign (overnight, ~4.5 h). |
 | `strategist-2039` | The strategist end to end. |
+| `newgame-smoke` | A new Veteran campaign with the Academy as the player, 90 days. |
+| `reload-2039` | Campaign safety: a year with eight reloads in the running game; the mod's state must come back the same each time. |
+| `e1-bait-reload` | Threat memory across a reload. |
+| `guard-fault` | A patch of ours that throws on every call must not disturb the game. |
+| `terminus-ending` | The terminus notices and the campaign-ending popup, shown and closed as a player would. |
+| `strategist-timeout` | A checkpoint nobody answers: the pause notice, then play goes on. Run it with no watcher. |
 | everything else | Targeted probes with injected setups, for the feature being changed. |
 
-Fixtures are all from one Normal accelerated Resistance campaign, plus the final save of the 15-year mod campaign (2041) in its run folder. The harness cannot start a brand-new campaign; "fresh" means the 2026 fixture.
+Fixtures are all from one Normal accelerated Resistance campaign. A run's `final.gz` (`-FinalSave`) is a fixture too: `-SavePath` loads it and copies the sidecars beside it (`ImprovedAI\`) along. The mod switched off and on again mid-campaign is checked with three such legs: a mod run, `-Vanilla` from its final save, the mod again from that one's.
 
 ## Baseline: 2 years from 2034, three runs each
 
@@ -131,6 +140,26 @@ What to keep in mind when reading these:
 
 540 days from 2039, mod only, three runs each (`flow-2039-long-ai`, `-bot`): Resistance habs lost 9.3 (8–11) with the AI-run player and 14.7 (11–19) with the bot; alien ships lost 0 and 2.0 (0–5); alien SCV at end 65.7k and 70.0k.
 
-## Playing it
+## The user's campaign: the play install
 
-The user does not playtest: the target is their next real campaign, played fresh (`HANDOFF.md`). `tools\playtest.ps1` is how that campaign is played on the game copy: it launches the game with the mod in an isolated save folder (`C:\Games\TI-ImprovedAI-playtest\saves`), from the main menu or from a save, and writes the journal and metrics for each loaded game under `lab\results`. Symptoms the user reports from a play become probes before anyone touches AI code.
+The user does not playtest: the target is their next real campaign, played fresh (`HANDOFF.md`). It runs on its own copy of the game, so development, deploys and harness runs never change what the campaign runs.
+
+| | |
+|---|---|
+| `C:\Games\TI-ImprovedAI-play` | The play install: a copy of the game copy with a pinned plugin build. `BepInEx\plugins\ImprovedAI\build.txt` names the commit. |
+| `C:\Games\TI-ImprovedAI-play-data\saves` | The campaign's saves and sidecars. The game never reads or writes the Documents saves: a standing `home.json` in the plugin folder redirects every launch, also one that starts the exe directly. |
+| `…\sessions\<stamp>\<stamp>\` | Journal, metrics and logs of each loaded game. Read these when the user reports a symptom; they are spoilers for the user. |
+| `…\options.json` | The options `play.ps1` remembers. |
+
+```
+tools\release.ps1                               # install the committed build (creates the install on first use: 27 GB)
+tools\play.ps1 -Strategist on                   # first launch; the option is remembered
+tools\play.ps1                                  # every later launch
+tools\play.ps1 -Set Strategy.Terminus=false     # switch one feature off (remembered)
+tools\play.ps1 -Set General.VanillaAI=true      # the escape hatch: every AI change off (-Unset General.VanillaAI undoes it)
+```
+
+- **Release only what passed the regression check.** `release.ps1` refuses uncommitted changes under `src\`. A campaign in progress keeps its saves and sidecars across releases.
+- **Switches take effect at the next launch**, for the campaign as it stands: the sidecar is carried through saves made with `VanillaAI` on, so turning it off again resumes where the mod's state was.
+- **A harness run waits while the play install's game is open**, so a test batch never competes with the user's session.
+- Symptoms the user reports become probes before anyone touches AI code.

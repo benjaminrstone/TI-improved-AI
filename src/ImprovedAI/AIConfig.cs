@@ -331,7 +331,7 @@ namespace ImprovedAI
                 "A stronger model directs every non-player faction (docs/STRATEGIST.md). At each checkpoint the game pauses, the mod writes a brief, and a local watcher (tools/strategist.ps1) writes directives back.");
             StrategistMonths = cfg.Bind("Strategist", "MonthsBetween", 3, "Months between checkpoints.");
             StrategistFolder = cfg.Bind("Strategist", "Folder", "", "Exchange folder for briefs and directives (default: BepInEx/ImprovedAI-strategist).");
-            StrategistTimeoutMinutes = cfg.Bind("Strategist", "TimeoutMinutes", 20f, "Real minutes to wait for directives before playing on under the previous ones (0 = wait indefinitely).");
+            StrategistTimeoutMinutes = cfg.Bind("Strategist", "TimeoutMinutes", 3f, "Real minutes to wait for directives before playing on under the previous ones (0 = wait indefinitely).");
             StrategistIntel = cfg.Bind("Strategist", "ShowIntel", true, "Show the player a faction's intent when it has a pact or intel-sharing treaty with them, is their client, or has a councilor they turned.");
 
             AlienMarineFix = cfg.Bind("Fixes", "AlienMarineValue", true,

@@ -1,0 +1,26 @@
+{
+  "name": "newgame-smoke",
+  "notes": "A campaign started from the main menu as the New Game screen does (Veteran, the Academy as the player, the Accelerated Campaign preset), with the game's AI playing the Academy, for 90 days. Checks that day one works with the mod: the doctrine is derived, nothing throws, the clock runs.",
+  "newGame": { "faction": "CooperateCouncil", "difficulty": 3, "accelerated": true },
+  "runDays": 90,
+  "commands": [
+    "ai.control CooperateCouncil ai"
+  ],
+  "asserts": [
+    "results['endReason'] == 'days-elapsed'",
+    "status['stalls'] == 0",
+    "status['exceptions'] == 0",
+    "count('init') == 1",
+    "events('doctrine')[0]['source'] == 'derived'",
+    "events('doctrine')[0]['difficulty'] == 3",
+    "count('control', faction='CooperateCouncil', ai=True) == 1"
+  ],
+  "info": [
+    "(status['start'], status['date'], status['gameDaysPerRealMinute'], status['unsticks'], status['resumes'])",
+    "events('doctrine')[0]['key']",
+    "[(f['f'], f.get('scv'), f.get('bases', 0) + f.get('stations', 0)) for f in last['factions']]",
+    "sorted(set(e['kind'] for e in journal))",
+    "results['exceptionSamples'][:8]",
+    "results['terminal']"
+  ]
+}

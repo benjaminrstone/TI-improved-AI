@@ -23,8 +23,9 @@ namespace ImprovedAI.Strategist
     /// The checkpoint loop. Every MonthsBetween months (and once right after a game loads without directives): pause the
     /// game, write briefs/&lt;date&gt;.json to the exchange folder, wait for directives/&lt;date&gt;.json from the local
     /// watcher (tools/strategist.ps1), validate and store it in the sidecar, show the player the intent of factions they
-    /// have intel on, and resume at the previous speed. If nothing arrives within TimeoutMinutes, play on under the
-    /// previous directives.
+    /// have intel on, and resume at the previous speed. While it waits the player sees why the game is paused and, after
+    /// a short while, a button to resume. If nothing arrives within TimeoutMinutes, or the player resumes, play goes on
+    /// under the previous directives.
     /// </summary>
     internal class Checkpoint : MonoBehaviour
     {
@@ -33,6 +34,9 @@ namespace ImprovedAI.Strategist
         private static float _since, _lastPoll;
         private static int _resumeSpeed = 1;
         private static bool _hooked;
+        private static GUIStyle _box, _button;
+        private static Texture2D _boxFill;
+        private const float ResumeButtonAfterSeconds = 30f;
 
         public static string Folder
         {
@@ -93,6 +97,7 @@ namespace ImprovedAI.Strategist
                 _pending = date;
                 _since = Time.realtimeSinceStartup;
                 Waiting = true;
+                Harness.CampaignHarness.ShootSoon("checkpoint");
                 Plugin.Log.LogInfo($"[Strategist] checkpoint {date}: brief written to {path}; game paused, waiting for directives");
                 Session.Journal?.Write(new { t = date, kind = "strategist", ev = "brief", path });
                 return "> strategist checkpoint " + date;
@@ -105,7 +110,9 @@ namespace ImprovedAI.Strategist
             }
         }
 
-        private void Update()
+        private void Update() => PatchGuard.Run(Poll, "Checkpoint.Update");
+
+        private void Poll()
         {
             if (!Waiting) return;
             float now = Time.realtimeSinceStartup;
@@ -116,13 +123,40 @@ namespace ImprovedAI.Strategist
             string path = Path.Combine(Folder, "directives", _pending + ".json");
             if (File.Exists(path)) { Apply(path); return; }
             float timeout = Plugin.Cfg.StrategistTimeoutMinutes.Value;
-            if (timeout > 0f && now - _since > timeout * 60f)
+            if (timeout > 0f && now - _since > timeout * 60f) GiveUp("timeout");
+        }
+
+        private static void GiveUp(string why)
+        {
+            Plugin.Log.LogWarning($"[Strategist] no directives for {_pending} ({why}); playing on under the previous ones");
+            Session.Journal?.Write(new { t = GameRead.Now(), kind = "strategist", ev = why, checkpoint = _pending });
+            if (AlienStrategy.Current != null) AlienStrategy.Current.lastCheckpoint = _pending;   // wait for the next checkpoint, don't re-ask tomorrow
+            Finish();
+        }
+
+        private void OnGUI() => PatchGuard.Run(Notice, "Checkpoint.OnGUI");
+
+        private void Notice()
+        {
+            if (!Waiting || Harness.CampaignHarness.Quiet) return;
+            if (_box == null || _boxFill == null)
             {
-                Plugin.Log.LogWarning($"[Strategist] no directives for {_pending} after {timeout} min; playing on under the previous ones");
-                Session.Journal?.Write(new { t = GameRead.Now(), kind = "strategist", ev = "timeout", checkpoint = _pending });
-                if (AlienStrategy.Current != null) AlienStrategy.Current.lastCheckpoint = _pending;   // wait for the next checkpoint, don't re-ask tomorrow
-                Finish();
+                // An opaque panel: the map's labels show through Unity's default box.
+                _boxFill = new Texture2D(1, 1) { hideFlags = HideFlags.HideAndDontSave };
+                _boxFill.SetPixel(0, 0, new Color(0.05f, 0.07f, 0.1f, 0.94f));
+                _boxFill.Apply();
+                _box = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter, wordWrap = true };
+                _box.normal.background = _boxFill;
+                _box.normal.textColor = Color.white;
+                _button = new GUIStyle(GUI.skin.button);
             }
+            float k = Mathf.Max(1f, Screen.height / 1080f);   // sized for 1080p, larger on larger screens
+            _box.fontSize = Mathf.RoundToInt(18f * k);
+            _button.fontSize = Mathf.RoundToInt(15f * k);
+            float waited = Time.realtimeSinceStartup - _since;
+            var r = new Rect(Screen.width / 2f - 300f * k, 96f * k, 600f * k, 72f * k);
+            GUI.Label(r, $"Paused: the other factions are planning their next moves ({waited:F0} s).\nThe game resumes by itself.", _box);
+            if (waited > ResumeButtonAfterSeconds && GUI.Button(new Rect(r.xMax - 150f * k, r.yMax + 4f * k, 150f * k, 30f * k), "Resume now", _button)) GiveUp("resumed-by-player");
         }
 
         private static void Apply(string path)

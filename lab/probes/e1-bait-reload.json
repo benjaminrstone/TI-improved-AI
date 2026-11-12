@@ -1,0 +1,25 @@
+{
+  "name": "e1-bait-reload",
+  "exploit": "E1",
+  "notes": "e1-empty-magazine-bait with a save and load in between: the swarm is seen at full strength for 30 days, its magazines are emptied, and on day 45 the game is saved and that save loaded (ai.reload). The aliens' estimate of the Earth fleet must still be what the fleet showed them before the drain.",
+  "expect": "FAILS if threat memory does not survive a load (the estimate collapses to the drained SCV at the reload)",
+  "fixture": "accel-2034-fusion-drives",
+  "runDays": 100,
+  "commands": [
+    "ai.spawnfleet ResistCouncil Earth 20 missile",
+    "@30 ai.drainammo ResistCouncil Earth",
+    "@45 ai.reload"
+  ],
+  "asserts": [
+    "results['endReason'] == 'days-elapsed'",
+    "status['exceptions'] == 0",
+    "count('reload') == 1 and events('reload')[0]['same']",
+    "events('inject', cmd='drainammo')[0]['scvAfter'] < 0.35 * events('inject', cmd='drainammo')[0]['scvBefore']",
+    "min(r['systems'].get('Earth', {}).get('perceived', 0) for r in events('perceive') if r['t'] > events('reload')[0]['t']) >= 0.8 * [r for r in events('perceive') if r['t'] < events('inject', cmd='drainammo')[0]['t']][-1]['systems']['Earth']['perceived']"
+  ],
+  "info": [
+    "[(r['t'], round(r['systems'].get('Earth', {}).get('perceived', 0))) for r in events('perceive')][::10]",
+    "[(e['t'], e['seconds'], e['same']) for e in events('reload')]",
+    "[(e.get('before'), e.get('after')) for e in events('reload') if not e['same']]"
+  ]
+}

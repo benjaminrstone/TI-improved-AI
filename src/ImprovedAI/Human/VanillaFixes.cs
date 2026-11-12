@@ -30,7 +30,7 @@ namespace ImprovedAI.Human
     [HarmonyPatch(typeof(AIDailyFactionPlanner), nameof(AIDailyFactionPlanner.AttemptFundPriority))]
     internal static class FixDirectInvestBudget
     {
-        private static readonly Dictionary<TIFactionState, string> Fixed = new Dictionary<TIFactionState, string>();
+        internal static readonly Dictionary<TIFactionState, string> Fixed = new Dictionary<TIFactionState, string>();
 
         private static void Prefix(TIFactionState faction, ref Dictionary<FactionResource, float> resourcesAvailable)
         {
@@ -167,6 +167,8 @@ namespace ImprovedAI.Human
     {
         private static readonly Dictionary<TIFactionState, (string day, bool idle)> _cache = new Dictionary<TIFactionState, (string, bool)>();
         internal static readonly Dictionary<TIFactionState, int> IdleDays = new Dictionary<TIFactionState, int>();
+
+        public static void Reset() { _cache.Clear(); IdleDays.Clear(); FixDirectInvestBudget.Fixed.Clear(); }
 
         /// <summary>The saving target is a ship design that is queued, but only behind other ships (or at inactive yards).</summary>
         internal static bool Idle(TIFactionState f)

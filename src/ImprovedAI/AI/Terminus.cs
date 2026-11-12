@@ -50,6 +50,8 @@ namespace ImprovedAI.AI
                 string why = Escalation.Escalated ? "escalation" : minContempt <= Plugin.Cfg.TerminusStartContempt.Value ? "respect" : "date";
                 s.history.Add($"{s.terminusStarted} terminus begun ({why}; escalated {Escalation.Escalated}, min contempt {minContempt:F2}, campaign year {Wormhole.CampaignYears:F1})");
                 Session.Journal?.Write(new { t = GameRead.Now(), kind = "terminus", ev = "started", why, escalated = Escalation.Escalated, minContempt, campaignYears = Wormhole.CampaignYears, cost = Cost, site = GameRead.Body(Site()) });
+                Notify("The Hydras have begun a terminus",
+                    $"Wormhole traffic at the alien homeworld near {GameRead.Body(Site())} has changed. The Hydras have begun building a full terminus on this side; if it is completed, they will be able to bring through whatever they want, and humanity will have lost. The work will take them years. Strike the site to set it back.", false);
             }
 
             float drip = Economy.Drip(alien);
@@ -92,7 +94,7 @@ namespace ImprovedAI.AI
             s.history.Add($"{GameRead.Now()} terminus complete: alien victory");
             Plugin.Log.LogInfo("[Strategy] Terminus complete: alien victory.");
             Session.Journal?.Write(new { t = GameRead.Now(), kind = "terminus", ev = "complete" });
-            // In unattended harness runs Notify only journals and the run goes on; otherwise this ends the campaign.
+            // A quiet harness run only journals the notice and goes on; otherwise this ends the campaign.
             Notify("The alien terminus is complete",
                 "The full wormhole terminus is open. The Hydras can now bring through fleets, colonists and armies without limit, and nothing humanity has can stop the flood. The war is lost.", true);
         }
@@ -105,12 +107,10 @@ namespace ImprovedAI.AI
         /// </summary>
         private static void Notify(string headline, string text, bool endGame)
         {
-            // Unattended harness runs: journal only (an unsuppressible popup could stall the clock).
-            if (Harness.CampaignHarness.Active && !Harness.CampaignHarness.Interactive)
-            {
-                Session.Journal?.Write(new { t = GameRead.Now(), kind = "terminus-notice", headline, endGame });
-                return;
-            }
+            Session.Journal?.Write(new { t = GameRead.Now(), kind = "terminus-notice", headline, endGame });
+            if (Harness.CampaignHarness.Quiet) return;
+            Harness.CampaignHarness.ShootSoon(endGame ? "terminus-complete" : "terminus");
+            if (endGame) Harness.CampaignHarness.CloseEndGameNotice();
             try
             {
                 var alien = GameStateManager.AlienFaction();

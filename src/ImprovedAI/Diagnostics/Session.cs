@@ -15,7 +15,7 @@ namespace ImprovedAI.Diagnostics
         public static void Start()
         {
             End();
-            // A playtest may open several games in one launch: one subfolder per loaded game.
+            // A play session may open several games in one launch: one subfolder per loaded game.
             if (Harness.CampaignHarness.Interactive) Dir = Path.Combine(Harness.CampaignHarness.OutDir, DateTime.Now.ToString("yyyyMMdd-HHmmss"));
             else if (Harness.CampaignHarness.Active) Dir = Harness.CampaignHarness.OutDir;
             else

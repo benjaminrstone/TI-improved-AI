@@ -1,0 +1,25 @@
+{
+  "name": "terminus-ending",
+  "notes": "Campaign safety: the alien victory as the player meets it. Notices are shown as in a real play (\"notices\": true), each with a screenshot. The terminus is forced to 0.745 so the 75% milestone is announced at the next month, then to 0.995 so it completes a month later: the end-of-campaign popup appears and closing it ends the campaign (credits, main menu). The run ends with 'campaign-ended' when the game has left the campaign.",
+  "fixture": "accel-2039-clean-jupiter",
+  "runDays": 150,
+  "notices": true,
+  "commands": [
+    "@15 ai.terminus 0.745",
+    "@50 ai.terminus 0.995"
+  ],
+  "asserts": [
+    "status['exceptions'] == 0",
+    "count('terminus', ev='milestone') >= 1",
+    "count('terminus', ev='complete') == 1",
+    "count('terminus-notice', endGame=True) == 1",
+    "results['endReason'] == 'campaign-ended'"
+  ],
+  "info": [
+    "[(e['t'], e['ev'], round(e.get('after', 0), 3)) for e in events('terminus')]",
+    "[(e['t'], e['headline'], e['endGame']) for e in events('terminus-notice')]",
+    "(results['endReason'], status['gameDays'], status['stalls'])",
+    "[(e['t'], e['prompts']) for e in events('stall')]",
+    "results['exceptionSamples'][:5]"
+  ]
+}

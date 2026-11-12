@@ -1,0 +1,21 @@
+{
+  "name": "guard-fault",
+  "notes": "Campaign safety: PatchGuard. From day 5 a patch of ours throws on every call inside every AI faction's fleet tick (ai.fault on), in its Prefix and its Postfix. The game must carry on as if the patch were not there: the clock runs, the aliens still launch fleets, and every exception is one the guard swallowed and counted.",
+  "fixture": "accel-2034-fusion-drives",
+  "runDays": 45,
+  "commands": [
+    "@5 ai.fault on"
+  ],
+  "asserts": [
+    "results['endReason'] == 'days-elapsed'",
+    "status['stalls'] == 0",
+    "status['guarded'] >= 20",
+    "status['exceptions'] == status['guarded']",
+    "len([e for e in events('transfer') if e['t'] >= '2034-06-08']) >= 1"
+  ],
+  "info": [
+    "(status['guarded'], status['exceptions'], status['gameDaysPerRealMinute'])",
+    "len([e for e in events('transfer') if e['t'] >= '2034-06-08'])",
+    "results['exceptionSamples'][:5]"
+  ]
+}

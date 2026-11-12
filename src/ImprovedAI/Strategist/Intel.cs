@@ -37,7 +37,7 @@ namespace ImprovedAI.Strategist
                 string headline = $"Intelligence: {f.displayNameCapitalized}";
                 string text = $"Through our {src}, we have learned what the {f.displayNameCapitalized} intend:\n\n{d.intent}";
                 Session.Journal?.Write(new { t = GameRead.Now(), kind = "strategist-intel", faction = f.templateName, source = src, intent = d.intent });
-                if (Harness.CampaignHarness.Active && !Harness.CampaignHarness.Interactive) continue;   // an unattended run must not stack popups
+                if (Harness.CampaignHarness.Quiet) continue;
                 Notify(f, player, headline, text);
             }
         }

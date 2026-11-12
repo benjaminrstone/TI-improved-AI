@@ -23,23 +23,20 @@ namespace ImprovedAI.AI
         internal static readonly HashSet<FactionGoal_AttackWithFleet> Pooling = new HashSet<FactionGoal_AttackWithFleet>();
         /// <summary>Goals whose pool-ready was journaled (once each).</summary>
         private static readonly HashSet<FactionGoal_AttackWithFleet> Announced = new HashSet<FactionGoal_AttackWithFleet>();
-        private static bool _wasEscalated;
-        /// <summary>Goals whose rendezvous was chosen (once each, before joiners commit; again when escalation begins).</summary>
-        private static readonly HashSet<FactionGoal_AttackWithFleet> Staged = new HashSet<FactionGoal_AttackWithFleet>();
-        /// <summary>When each goal's force became complete at the rendezvous (muster start).</summary>
-        private static readonly Dictionary<FactionGoal_AttackWithFleet, TIDateTime> MusterStart = new Dictionary<FactionGoal_AttackWithFleet, TIDateTime>();
 
+        // Which goals have their muster point chosen, and when a force became complete there, are in the sidecar
+        // (StrategyState.stagedGoals, musterStart): a load must not move the muster point or restart the muster.
         public static void Reset()
         {
-            Pooling.Clear(); Announced.Clear(); Staged.Clear(); MusterStart.Clear();
-            _wasEscalated = false;
+            Pooling.Clear(); Announced.Clear();
         }
 
         internal static bool On(TIFactionState f) => Plugin.Cfg.UseForcePooling && f != null && f.IsAlienFaction;
 
         private static void Postfix(TIFactionState faction)
         {
-            if (!On(faction) || !AIEvaluators.ShouldAliensGoLoud()) return;
+            var state = AlienStrategy.Current;
+            if (!On(faction) || state == null || !AIEvaluators.ShouldAliensGoLoud()) return;
             if (!AIDailyFactionPlanner.factionAIData.TryGetValue(faction, out var data)) return;
             if ((TITimeState.Now().day + data.every4DaysOffset) % 4 != 0) return;   // vanilla's ManageFleets tick
 
@@ -59,15 +56,19 @@ namespace ImprovedAI.AI
             if (goal == null) return;
             var anchor = goal.assignedFleet;
             if (anchor == null || anchor.transferAssigned) return;    // let vanilla assign a fleet first
+            int goalId = GameRead.Id(goal);
+            var live = new HashSet<int>(faction.GoalsOfType(GoalType.AttackWithFleet).Select(g => GameRead.Id(g)));
+            state.stagedGoals.RemoveWhere(id => !live.Contains(id));
+            foreach (int id in state.musterStart.Keys.Where(id => !live.Contains(id)).ToList()) state.musterStart.Remove(id);
 
             float need = goal.desiredFleetCombatValue * Dials.PoolMargin;
             // Rendezvous: once per focus goal, before the joiners commit, muster at the best-placed fleet.
             // Escalation frees many more fleets: choose the muster point again at that moment.
-            if (Escalation.Escalated != _wasEscalated) { _wasEscalated = Escalation.Escalated; Staged.Clear(); }
-            if (Plugin.Cfg.Rendezvous.Value && !Staged.Contains(goal))
+            if (Escalation.Escalated != state.stagedEscalated) { state.stagedEscalated = Escalation.Escalated; state.stagedGoals.Clear(); }
+            if (Plugin.Cfg.Rendezvous.Value && !state.stagedGoals.Contains(goalId))
             {
                 var better = Rendezvous.Choose(faction, goal, anchor, need, f => Releasable(faction, f, goal), out bool decided);
-                if (decided) Staged.Add(goal);
+                if (decided) state.stagedGoals.Add(goalId);
                 if (better != null)
                 {
                     var old = anchor;
@@ -99,19 +100,19 @@ namespace ImprovedAI.AI
             {
                 // Ready only when the force is actually there (joiners merged), not when it is merely on its way.
                 // Then a muster: a short coordination period before setting out together.
-                var now = TITimeState.Now();
-                if (!MusterStart.TryGetValue(goal, out var since))
+                if (!state.musterStart.TryGetValue(goalId, out string since))
                 {
-                    MusterStart[goal] = since = now;
-                    Session.Journal?.Write(new { t = GameRead.Now(), kind = "pool-muster", goalId = GameRead.Id(goal), target = GameRead.Name(goal.target()), targetSystem = GameRead.System(goal.target()), have = present, need, fleet = anchor.displayName, at = GameRead.Body(anchor) });
+                    state.musterStart[goalId] = since = GameRead.Now();
+                    Session.Journal?.Write(new { t = GameRead.Now(), kind = "pool-muster", goalId, target = GameRead.Name(goal.target()), targetSystem = GameRead.System(goal.target()), have = present, need, fleet = anchor.displayName, at = GameRead.Body(anchor) });
                 }
-                if (now.DifferenceInDays(since) < Dials.MusterDays) return;
+                var began = System.DateTime.ParseExact(since, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+                if (TITimeState.Now().DifferenceInDays(new TIDateTime(began.Year, began.Month, began.Day)) < Dials.MusterDays) return;
                 if (Announced.Add(goal))
                     Session.Journal?.Write(new { t = GameRead.Now(), kind = "pool-ready", goalId = GameRead.Id(goal), target = GameRead.Name(goal.target()), targetSystem = GameRead.System(goal.target()), have = present, need, fleet = anchor.displayName });
                 AIDailyFactionPlanner.SingleFleetOperation(anchor);
                 return;
             }
-            MusterStart.Remove(goal);   // fell below need again (losses, need grew): muster restarts when complete
+            state.musterStart.Remove(goalId);   // fell below need again (losses, need grew): muster restarts when complete
             if (have >= need)
             {
                 // Enough is on its way: wait for the joiners (logged monthly so the assembly can be followed).

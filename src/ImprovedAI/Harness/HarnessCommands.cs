@@ -18,6 +18,10 @@ namespace ImprovedAI.Harness
     ///       orbit). "missile" = its strongest design armed with missiles (default), "best" = strongest design.
     ///   ai.doctrine focus=Raider weapons=Missiles hulls=Swarm engagement=Assault puppetry=0.2 forward=0.8
     ///       Force (part of) the alien doctrine for this run.
+    ///   ai.fault on|off
+    ///       Make a patch of ours throw on every call (FaultInjection), to check PatchGuard.
+    ///   ai.reload
+    ///       Save and load that save in the running game (CampaignHarness.Reload).
     ///   ai.drainammo &lt;faction&gt; &lt;system&gt;
     ///       Empty every magazine on that faction's fleets in a system (e.g. Earth). Weapons without ammo count as
     ///       inoperable, so missile fleets drop to ~0 SCV.
@@ -50,6 +54,13 @@ namespace ImprovedAI.Harness
                         if (AI.AlienStrategy.Current == null) { output.Add("! no strategy state"); break; }
                         AI.AlienStrategy.Current.shame = float.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture);
                         output.Add("> shame " + parts[1]);
+                        break;
+                    case "ai.fault":
+                        FaultInjection.On = !parts[1].Equals("off", StringComparison.OrdinalIgnoreCase);
+                        output.Add("> fault injection " + (FaultInjection.On ? "on" : "off"));
+                        break;
+                    case "ai.reload":
+                        output.Add(CampaignHarness.Instance.Reload());
                         break;
                     case "ai.terminus":
                         output.Add(AI.Terminus.Force(float.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture)));

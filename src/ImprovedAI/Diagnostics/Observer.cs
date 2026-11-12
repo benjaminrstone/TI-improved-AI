@@ -14,7 +14,9 @@ namespace ImprovedAI.Diagnostics
         private TIFactionState _player;
         private int _y, _m, _d;
 
-        private void Update()
+        private void Update() => PatchGuard.Run(Tick, "Observer.Update");
+
+        private void Tick()
         {
             if (!GameRead.InCampaign())
             {
@@ -33,15 +35,18 @@ namespace ImprovedAI.Diagnostics
                 _y = now.year; _m = now.month; _d = now.day;
                 Session.Start();
                 Plugin.Log.LogInfo($"[Diagnostics] Campaign ready at {GameRead.Date(now)}; player {GameRead.Faction(player)}.");
-                AI.ThreatMemory.Reset();
+                // Caches keyed by game objects would keep the previous game's whole state alive after a load.
                 AI.RaidPlanner.Reset();
                 AI.Economy.Reset();
                 AI.ForcePooling.Reset();
                 Human.Personality.Reset();
+                Human.FleetCompetence.Reset();
+                Human.HabDrainGuard.Reset();
+                Human.FixIdleSavings.Reset();
                 HateLedger.Reset();
-                Safe(() => AI.ThreatMemory.Sample(now), "threat memory");
                 Safe(DecisionJournal.Init, "journal init");
                 Safe(AI.AlienStrategy.OnCampaignReady, "strategy");
+                Safe(() => AI.ThreatMemory.Sample(now), "threat memory");
                 Safe(Metrics.Write, "metrics");
                 if (Plugin.Cfg.DecisionJournal.Value) Safe(FleetComposition.Monthly, "fleet composition");
                 OnCampaignReady?.Invoke();

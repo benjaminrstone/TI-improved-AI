@@ -1,0 +1,25 @@
+{
+  "name": "strategist-timeout",
+  "notes": "Campaign safety: the strategist with nobody answering (run it with no watcher). The first checkpoint pauses the game and shows the player why (\"notices\": true, with a screenshot); after TimeoutMinutes (half a minute here) play goes on under the previous directives, and no second checkpoint is asked before the next one is due.",
+  "fixture": "accel-2039-clean-jupiter",
+  "runDays": 45,
+  "notices": true,
+  "config": {
+    "Strategist": {
+      "Enabled": "true",
+      "TimeoutMinutes": "0.5"
+    }
+  },
+  "asserts": [
+    "results['endReason'] == 'days-elapsed'",
+    "status['stalls'] == 0",
+    "status['exceptions'] == 0",
+    "count('strategist', ev='brief') == 1",
+    "count('strategist', ev='timeout') == 1",
+    "count('strategist', ev='applied') == 0"
+  ],
+  "info": [
+    "[(e['t'], e['ev']) for e in events('strategist')]",
+    "(status['gameDays'], status['realSeconds'], status['resumes'])"
+  ]
+}

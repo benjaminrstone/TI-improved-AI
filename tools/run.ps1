@@ -10,7 +10,7 @@
 param(
     [string]$Probe,
     [string]$Fixture,
-    # Load this save instead of a fixture (e.g. a run's final.gz); its .improvedai.json sidecar is copied along.
+    # Load this save instead of a fixture (e.g. a run's final.gz); the sidecars beside it (ImprovedAI\) are copied along.
     [string]$SavePath,
     [double]$Days = 30,
     [string]$Name,
@@ -19,7 +19,9 @@ param(
     [switch]$KeepOpen,
     [switch]$FinalSave,
     # Turn every AI change off (diagnostics still run): the vanilla baseline for a probe.
-    [switch]$Vanilla
+    [switch]$Vanilla,
+    # Free physical memory to wait for before launching the game.
+    [int]$MinFreeGB = 16
 )
 $ErrorActionPreference = 'Stop'
 . "$PSScriptRoot\paths.ps1"
@@ -34,8 +36,11 @@ if ($Probe) {
     if (-not $Name) { $Name = $p.name }
     if ($p.commands) { $spec.commands = @($p.commands) }
     if ($p.config) { $spec.config = $p.config }
+    if ($p.notices) { $spec.notices = $true }
+    # A probe with "newGame" starts a campaign from the main menu instead of loading a fixture.
+    if ($p.newGame -and -not $SavePath) { $spec.newGame = $p.newGame }
 }
-if (-not $Fixture -and -not $SavePath) { throw 'Give -Probe, -Fixture or -SavePath' }
+if (-not $Fixture -and -not $SavePath -and -not $spec.newGame) { throw 'Give -Probe, -Fixture or -SavePath' }
 if (-not $Name) { $Name = if ($Fixture) { $Fixture } else { [IO.Path]::GetFileNameWithoutExtension($SavePath) } }
 if ($Vanilla) {
     $Name = "$Name-vanilla"
@@ -45,7 +50,11 @@ if ($Vanilla) {
     $spec.config = $cfg
 }
 
-if ($SavePath) {
+if ($spec.newGame) {
+    $srcSave = $null
+    $fx = [pscustomobject]@{ date = 'new game' }
+    $Fixture = 'new game'
+} elseif ($SavePath) {
     $srcSave = (Resolve-Path $SavePath).Path
     $fx = [pscustomobject]@{ date = '?'; file = [IO.Path]::GetFileName($srcSave) }
     $Fixture = $fx.file
@@ -55,7 +64,7 @@ if ($SavePath) {
     if (-not $fx) { throw "Unknown fixture '$Fixture' (see lab\fixtures.json)" }
     $srcSave = Join-Path $UserSaves $fx.file
 }
-if (-not (Test-Path $srcSave)) { throw "Fixture save missing: $srcSave" }
+if ($srcSave -and -not (Test-Path $srcSave)) { throw "Fixture save missing: $srcSave" }
 
 # One harness run at a time on this game copy.
 New-Item -ItemType Directory -Force $HarnessDir | Out-Null
@@ -70,6 +79,15 @@ if (-not $lock) { throw 'Timed out waiting for the harness lock.' }
 try {
     $ours = { Get-Process TerraInvicta -ErrorAction SilentlyContinue | Where-Object { $_.Path -and $_.Path.StartsWith($GameDir, 'OrdinalIgnoreCase') } }
     if (& $ours) { throw "The game copy at $GameDir is already running; close it first." }
+    # A second game would take the machine from the user's own play.
+    if (& $Playing) { Write-Host 'The play install is running; waiting for it to close.'; while (& $Playing) { Start-Sleep -Seconds 30 } }
+    # The game takes 10 to 15 GB. Started on a machine short of memory it swaps: whatever the user is doing slows
+    # down, and the run's stalls and timings mean nothing.
+    $freeGB = { (Get-CimInstance Win32_OperatingSystem).FreePhysicalMemory / 1MB }
+    if ((& $freeGB) -lt $MinFreeGB) {
+        Write-Host ("Waiting for {0} GB of free memory (now {1:N0})." -f $MinFreeGB, (& $freeGB))
+        while ((& $freeGB) -lt $MinFreeGB) { Start-Sleep -Seconds 60 }
+    }
     if (-not $NoDeploy) { & (Join-Path $PSScriptRoot 'deploy.ps1') }
 
     $stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
@@ -78,9 +96,13 @@ try {
     New-Item -ItemType Directory -Force $outDir, $savesDir | Out-Null
 
     # Stage copies: the game never sees the user's save folder during a harness run.
-    $save = Join-Path $savesDir ([IO.Path]::GetFileName($srcSave))
-    Copy-Item $srcSave $save
-    if (Test-Path "$srcSave.improvedai.json") { Copy-Item "$srcSave.improvedai.json" "$save.improvedai.json" }
+    $save = $null
+    if ($srcSave) {
+        $save = Join-Path $savesDir ([IO.Path]::GetFileName($srcSave))
+        Copy-Item $srcSave $save
+        $sidecars = Join-Path (Split-Path -Parent $srcSave) 'ImprovedAI'
+        if ($SavePath -and (Test-Path $sidecars)) { Copy-Item $sidecars (Join-Path $savesDir 'ImprovedAI') -Recurse }
+    }
     $profileSrc = Join-Path $UserSaves 'PlayerOptions.TIProfile'
     if (Test-Path $profileSrc) {
         $text = [IO.File]::ReadAllText($profileSrc)
@@ -96,6 +118,8 @@ try {
         commands = $spec.commands; finalSave = [bool]$FinalSave
     }
     if ($spec.config) { $run.config = $spec.config }
+    if ($spec.notices) { $run.notices = $true }
+    if ($spec.newGame) { $run.newGame = $spec.newGame }
     New-Item -ItemType Directory -Force $PluginDir | Out-Null
     $runFile = Join-Path $PluginDir 'run.json'
     $run | ConvertTo-Json -Depth 6 | Set-Content -Path $runFile -Encoding utf8

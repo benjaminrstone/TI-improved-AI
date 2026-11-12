@@ -19,6 +19,8 @@ namespace ImprovedAI.Human
         private static readonly FactionResource[] ShipMetals = { FactionResource.Metals, FactionResource.NobleMetals };
         private static readonly Dictionary<(TIFactionState, FactionResource), (string day, float v)> _flow = new Dictionary<(TIFactionState, FactionResource), (string, float)>();
 
+        public static void Reset() => _flow.Clear();
+
         internal static float HabFlow(TIFactionState f, FactionResource r)
         {
             string day = GameRead.Now();

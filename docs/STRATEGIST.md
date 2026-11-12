@@ -17,7 +17,7 @@ It is off by default (`[Strategist] Enabled`), and `[General] VanillaAI=true` tu
 1. **When.** On the first new day of a campaign whose sidecar records no checkpoint, then on the 1st of a month once `MonthsBetween` (default 3) months have passed since the last one. The harness command `ai.strategist checkpoint` forces one.
 2. **Brief out.** The mod pauses the game, remembers the speed, and writes `briefs/<date>.json` to the exchange folder. It first deletes any directives file already there for that date (left by a reload or by another campaign in the same folder), so a stale answer is never applied.
 3. **Wait.** It holds the game paused and looks for `directives/<date>.json` once a second.
-4. **Directives in.** Each entry for a directed faction replaces that faction's whole directive in the sidecar (`<save>.improvedai.json`), so directives survive save and load. Entries under other names are ignored. A faction missing from the file keeps its previous directive.
+4. **Directives in.** Each entry for a directed faction replaces that faction's whole directive in the sidecar, so directives survive save and load. Entries under other names are ignored. A faction missing from the file keeps its previous directive.
 5. **Resume.** The player gets the intel notifications they are entitled to, and the game resumes at the previous speed.
 6. **Timeout.** After `TimeoutMinutes` real minutes (default 20, 0 waits indefinitely) the game plays on under the previous directives, or under the mod alone if there are none. A timeout still counts as the checkpoint, and so does a directives file that fails to parse: the next checkpoint comes after the full interval.
 
@@ -58,7 +58,7 @@ Every field is optional. A missing field leaves the AI's own judgement in place.
 - It watches the exchange folder for briefs without a matching directives file.
 - For each brief it makes one headless Claude Code call per faction, in parallel, with no tools. Each call sees only the game header, that faction's own section of the brief and that faction's own previous directive, so factions cannot coordinate on knowledge none of them has.
 - An answer must contain one JSON object. A call is tried twice. A faction with no valid answer is left out of the file and keeps its previous directive.
-- Parameters: `-Folder`, `-Model` (default `opus`), `-PollSeconds`, `-Once`, `-StopAfterMinutes`, `-Harness`.
+- Parameters: `-Folder`, `-Model` (default `opus`), `-PollSeconds`, `-AnswerSeconds`, `-Once`, `-StopAfterMinutes`, `-Harness`.
 
 ## What the player sees (`Intel.cs`)
 
@@ -72,7 +72,9 @@ The first two stand in for "allied": the game has no formal alliance. `[Strategi
 
 ## Running it
 
-- **In a game you play:** `tools\playtest.ps1 -Fixture <name> -Strategist` (or `-SavePath <save>`; `-StrategistModel` picks the model). It turns the strategist on for that launch only, starts the watcher in a minimized window and stops it when you quit. The exchange folder is the session's `strategist` folder under `lab\results`. Turning it on in the plugin's .cfg also works, but `deploy.ps1` resets that file.
+- **In the campaign:** `tools\play.ps1 -Strategist on` once; it is remembered, so later launches are `tools\play.ps1` (`-StrategistModel` picks the model). The launcher starts the watcher in a minimized window, restarts it if it stops, and stops it when the game quits. The exchange folder is `strategist` in the play install's data folder.
+- **What the player sees at a checkpoint:** a box at the top of the screen says the game is paused while the other factions plan, with the seconds waited. After 30 seconds it offers "Resume now". If no answer comes within `[Strategist] TimeoutMinutes` (3), or the player resumes, play goes on under the previous directives and the next checkpoint asks again. A checkpoint normally takes about ten seconds.
+- **The watcher** waits at most `-AnswerSeconds` (150) for the factions' answers, and a checkpoint that fails writes an empty answer so the game resumes at once.
 - **In the harness:** start `tools\strategist.ps1 -Harness` before the run. It follows the newest run under `lab\results`, and each run keeps its exchange files in `lab\results\<run>\strategist`. Probe: `strategist-2039`. While the strategist thinks, the harness holds the Autopilot off so the clock stays stopped.
 
 ## Known limits

@@ -29,7 +29,7 @@ namespace ImprovedAI.AI
         public override string ToString() => $"{focus} / puppetry {puppetry:F2} / forward {forwardCommand:F2} / {weapons} {hulls} {engagement}";
     }
 
-    /// <summary>Everything the mod adds to the alien mind for one campaign. Stored in a sidecar next to the save.</summary>
+    /// <summary>Everything the mod adds to one campaign. Stored in a sidecar beside the saves (AlienStrategy).</summary>
     public class StrategyState
     {
         public int version = 1;
@@ -69,6 +69,13 @@ namespace ImprovedAI.AI
         public string lastCheckpoint;
         /// <summary>Goal IDs of the open raids the RaidPlanner created.</summary>
         public HashSet<int> raidGoals = new HashSet<int>();
+        /// <summary>Attack goal IDs whose muster point has been chosen, and the escalation state it was chosen under (ForcePooling).</summary>
+        public HashSet<int> stagedGoals = new HashSet<int>();
+        public bool stagedEscalated;
+        /// <summary>Attack goal ID -> the date (yyyy-MM-dd) its pooled force became complete at the muster point.</summary>
+        public Dictionary<int, string> musterStart = new Dictionary<int, string>();
+        /// <summary>What each human ship has shown the aliens, per ship ID (ThreatMemory).</summary>
+        public Dictionary<int, List<ThreatObs>> threat = new Dictionary<int, List<ThreatObs>>();
     }
 
     public class LedgerMonth
@@ -78,16 +85,22 @@ namespace ImprovedAI.AI
     }
 
     /// <summary>
-    /// Chooses the alien doctrine for a campaign and persists it in a sidecar (&lt;save&gt;.improvedai.json, written
-    /// whenever the game saves). Without a sidecar (old save, new game, save made without the mod) the doctrine is
-    /// derived deterministically from CampaignKey. The save file itself is never touched.
+    /// Chooses the alien doctrine for a campaign and persists the mod's state in sidecars, one per saved moment:
+    /// &lt;save folder&gt;/ImprovedAI/&lt;campaign&gt;/&lt;game time&gt;.json, written whenever the game saves. A sidecar is found by
+    /// the loaded game's own time, not by the save's file name, because the game renames its autosaves (Autosave to
+    /// Autosave2 to Autosave3, TIMissionPhaseState.ContinueNewMissionPhase) and a player may rename or copy saves.
+    /// Without a sidecar (new game, save made without the mod) the doctrine is derived deterministically from
+    /// CampaignKey. The save file itself is never touched.
+    /// With VanillaAI on there is no state, but a campaign's sidecar is carried through saves unchanged, so the
+    /// campaign picks up where it was when VanillaAI is turned off again.
     /// </summary>
     internal static class AlienStrategy
     {
         public static StrategyState Current { get; private set; }
         internal static string LastLoadedSave;
+        private static string _carried;
 
-        private static readonly JsonSerializerSettings Json = new JsonSerializerSettings { Formatting = Formatting.Indented };
+        private static readonly JsonSerializerSettings Json = new JsonSerializerSettings { Formatting = Formatting.None };
 
         /// <summary>Doctrine pool per vanilla difficulty (1 Cinematic .. 4 Brutal); harsher doctrines only on higher levels.</summary>
         internal static List<StrategicFocus> Pool(int difficulty)
@@ -132,26 +145,36 @@ namespace ImprovedAI.AI
             };
         }
 
-        private static string SidecarPath(string save) => string.IsNullOrEmpty(save) ? null : save + ".improvedai.json";
+        /// <summary>Where the sidecar of the game as it stands now belongs, given any save in the same folder.</summary>
+        private static string SidecarPath(string save, string key)
+        {
+            if (string.IsNullOrEmpty(save)) return null;
+            var t = TITimeState.Now();
+            return Path.Combine(Path.GetDirectoryName(save), "ImprovedAI", StableHash(key).ToString("x8"),
+                $"{t.year:D4}{t.month:D2}{t.day:D2}-{t.hour:D2}{t.minute:D2}{t.second:D2}.json");
+        }
 
         /// <summary>Called by the Observer when a campaign becomes ready (after a load or a new game).</summary>
         public static void OnCampaignReady()
         {
             Current = null;
-            if (!Plugin.Cfg.UseStrategy) return;
+            _carried = null;
             string key = CampaignKey();
             int difficulty = TIGlobalValuesState.GlobalValues.difficulty;
-            string side = SidecarPath(LastLoadedSave);
+            string side = SidecarPath(LastLoadedSave, key);
             try
             {
                 if (side != null && File.Exists(side))
                 {
-                    var s = JsonConvert.DeserializeObject<StrategyState>(File.ReadAllText(side), Json);
-                    if (s != null && s.campaignKey == key) { s.source = "sidecar"; Current = s; }
-                    else Plugin.Log.LogWarning($"[Strategy] Sidecar {side} belongs to another campaign ({s?.campaignKey} vs {key}); deriving.");
+                    string text = File.ReadAllText(side);
+                    var s = JsonConvert.DeserializeObject<StrategyState>(text, Json);
+                    if (s == null || s.campaignKey != key) Plugin.Log.LogWarning($"[Strategy] Sidecar {side} belongs to another campaign ({s?.campaignKey} vs {key}); deriving.");
+                    else if (Plugin.Cfg.UseStrategy) { s.source = "sidecar"; Current = s; }
+                    else _carried = text;
                 }
             }
             catch (Exception e) { Plugin.Log.LogWarning($"[Strategy] Bad sidecar {side}: {e.Message}; deriving."); }
+            if (!Plugin.Cfg.UseStrategy) return;
 
             if (Current == null)
                 Current = new StrategyState { campaignKey = key, source = "derived", doctrine = Derive(key, difficulty) };
@@ -190,8 +213,14 @@ namespace ImprovedAI.AI
 
         internal static void WriteSidecar(string save)
         {
-            if (Current == null || string.IsNullOrEmpty(save)) return;
-            try { File.WriteAllText(SidecarPath(save), JsonConvert.SerializeObject(Current, Json)); }
+            string text = Current != null ? JsonConvert.SerializeObject(Current, Json) : _carried;
+            if (text == null || string.IsNullOrEmpty(save)) return;
+            try
+            {
+                string side = SidecarPath(save, CampaignKey());
+                Directory.CreateDirectory(Path.GetDirectoryName(side));
+                File.WriteAllText(side, text);
+            }
             catch (Exception e) { Plugin.Log.LogWarning($"[Strategy] Could not write sidecar for {save}: {e.Message}"); }
         }
     }
@@ -209,7 +238,7 @@ namespace ImprovedAI.AI
     {
         private static void Postfix(string filepath, bool __result)
         {
-            if (!__result || !Plugin.Cfg.UseStrategy) return;
+            if (!__result) return;
             if (Harness.CampaignHarness.Active && !Harness.CampaignHarness.Run.allowSaves && !Harness.CampaignHarness.AllowSaveNow) return;
             AlienStrategy.WriteSidecar(filepath);
         }
