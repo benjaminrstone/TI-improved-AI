@@ -106,6 +106,29 @@ Means, with the range in brackets where it was kept.
 
 The AI-run player (`flow-2034-ai`) changes nothing for the aliens: it loses about half its 54 habs in both arms and does not attack them. The aliens won every battle they started in all six runs.
 
+### Against a player who attacks (`flow-2034-hunt`), three runs each
+
+| | Vanilla | Mod |
+|---|---|---|
+| Alien SCV at end | 29.7k (24.0–36.4) | 43.8k (42.8–44.6) |
+| Alien ships lost, all / to the player | 91 (36–180) / 84 (32–178) | 21 (7–29) / 13 (7–19) |
+| Player ships lost to aliens | 49 (13–67) | 33 (18–51) |
+| Fights the player started (won all) | 7.0 (6–9) | 4.0 (3–5) |
+| Fights the aliens started against the player (won all) | 7.3 (3–11) | 12.0 (7–16) |
+| Alien stations destroyed | 2.7 (2–3) | 2.3 (2–3) |
+| Human ships destroyed by aliens | 128 (46–169) | 129 (114–154) |
+| Habs lost, all / Resistance | 61 / 24.0 (19–28) | 74 / 31.7 (31–32) |
+| Alien attack launches, all / at the player | 30 / 8.0 | 32 / 3.7 |
+| Resistance SCV at end (about 970 at start, about 8k handed over) | 6.9k (6.0–7.9) | 7.8k (7.0–8.4) |
+
+Being attacked costs vanilla's aliens about a sixth of their strength (29.7k against 35k with a player who leaves them alone) and the mod's nothing (43.8k against 43k). The bot destroys the same two or three stations in both arms; the difference is in ships. Vanilla's aliens leave fleets where the bot can pick them off, docked at a station it then takes or parked in an orbit; the mod's offer fewer such fights, so the bot starts fewer. In both arms a hunter that reaches Jupiter is caught there by a much larger fleet and lost.
+
+What to keep in mind when reading these:
+
+- **Big fights are all or nothing, and SCV does not predict them.** The game resolves them itself. The bot's fleet won twice without loss at 2.3 and 2.8 times its SCV (both in one vanilla run, which is why that run lost 180 ships) and was wiped out without a kill at 2.8, 3.2 and 4.6 times.
+- **The bot chases an evading fleet every day.** An outgunned alien fleet in the bot's orbit can refuse the fight for months (91 refused attempts in one mod run, 36 in one vanilla run) and the bot does nothing else with that fleet meanwhile.
+- **Its ships are given to it**, it leaves surface bases alone, and it only starts fights it outguns by 1.25.
+
 540 days from 2039, mod only, three runs each (`flow-2039-long-ai`, `-bot`): Resistance habs lost 9.3 (8–11) with the AI-run player and 14.7 (11–19) with the bot; alien ships lost 0 and 2.0 (0–5); alien SCV at end 65.7k and 70.0k.
 
 ## Playing it
