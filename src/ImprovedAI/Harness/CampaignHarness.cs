@@ -337,6 +337,7 @@ namespace ImprovedAI.Harness
             }
             else
             {
+                FactionControl.HandBackAfterLoad();
                 var after = Continuity();
                 string a = Jsonl.Serialize(_beforeReload), b = Jsonl.Serialize(after);
                 // The memory has taken one more sample since the load (ships finished since the last daily one join
@@ -433,8 +434,8 @@ namespace ImprovedAI.Harness
             _beforeReload = Continuity();
             _threatBeforeReload = AI.ThreatMemory.Totals();
             AllowSaveNow = true;
-            bool saved;
-            try { saved = GameStateManager.SaveAllGameStates(written, doNotOpenSaveMenu: true) && File.Exists(written); }
+            bool saved = false;
+            try { FactionControl.SaveAsHuman(() => saved = GameStateManager.SaveAllGameStates(written, doNotOpenSaveMenu: true) && File.Exists(written)); }
             finally { AllowSaveNow = false; }
             if (!saved) return "! save failed";
             File.Move(written, path);
@@ -613,7 +614,7 @@ namespace ImprovedAI.Harness
                 if (Run.finalSave)
                 {
                     AllowSaveNow = true;
-                    try { GameStateManager.SaveAllGameStates(Path.Combine(Run.outDir, "final.gz"), doNotOpenSaveMenu: true); }
+                    try { FactionControl.SaveAsHuman(() => GameStateManager.SaveAllGameStates(Path.Combine(Run.outDir, "final.gz"), doNotOpenSaveMenu: true)); }
                     catch (Exception e) { Plugin.Log.LogWarning($"[Harness] final save: {e.Message}"); }
                     AllowSaveNow = false;
                 }
