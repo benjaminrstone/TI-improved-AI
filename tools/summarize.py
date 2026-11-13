@@ -88,6 +88,8 @@ def main(run, show_all=False):
     if os.path.exists(ap):
         print("\n-- asserts")
         for a in json.load(open(ap, encoding="utf-8")):
+            if a.get("info"):
+                continue
             print(f"   {'PASS' if a['pass'] else 'FAIL'}  {a['expr']}" + (f"  [{a['error']}]" if a.get("error") else ""))
 
 
