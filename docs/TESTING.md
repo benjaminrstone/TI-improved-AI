@@ -89,6 +89,7 @@ Throughput is ~17–24 game days per real minute on a mid-game save; a save load
 | `flow-2026`, `campaign-2026-15y` | The early game with the strategist; the 15-year campaign (overnight, ~4.5 h). |
 | `strategist-2039` | The strategist end to end. |
 | `newgame-smoke` | A new Veteran campaign with the Academy as the player, 90 days. |
+| `campaign-veteran` | The stand-in for the user's campaign: that new game with the strategist, in three-year legs (`-FinalSave`, then `-SavePath` the final). |
 | `reload-2039` | Campaign safety: a year with eight reloads in the running game; the mod's state must come back the same each time. |
 | `e1-bait-reload` | Threat memory across a reload. |
 | `guard-fault` | A patch of ours that throws on every call must not disturb the game. |

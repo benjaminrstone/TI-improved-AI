@@ -1,0 +1,35 @@
+{
+  "name": "campaign-veteran",
+  "notes": "The closest stand-in for the user's campaign: a new game on Veteran (accelerated preset), the Academy as the player with the game's AI at its controls, the strategist directing every other faction. Run it in legs of three years, each from the last one's final save (run.ps1 -Probe campaign-veteran -SavePath <final.gz> -FinalSave), with tools/strategist.ps1 -Harness alongside; the finals are the Veteran fixtures. The asserts are a leg's health only; the campaign is judged by reading it (summarize.py).",
+  "newGame": { "faction": "CooperateCouncil", "difficulty": 3, "accelerated": true },
+  "runDays": 1095,
+  "config": {
+    "Strategist": {
+      "Enabled": "true"
+    }
+  },
+  "commands": [
+    "ai.control CooperateCouncil ai"
+  ],
+  "asserts": [
+    "results['endReason'] == 'days-elapsed'",
+    "status['stalls'] <= 2",
+    "status['exceptions'] == 0",
+    "count('init') == 1",
+    "events('doctrine')[0]['difficulty'] == 3",
+    "count('control', faction='CooperateCouncil', ai=True) == 1",
+    "count('strategist', ev='applied') >= 10",
+    "count('strategist', ev='timeout') <= 1"
+  ],
+  "info": [
+    "(status['start'], status['date'], status['gameDaysPerRealMinute'], status['unsticks'], status['resumes'], status.get('memoryGB'))",
+    "(events('doctrine')[0]['source'], events('doctrine')[0]['doctrine'])",
+    "[(e['t'], e['ev'], e.get('applied'), e.get('ignored')) for e in events('strategist') if e['ev'] != 'brief']",
+    "[(e['t'], e.get('ev'), e.get('why')) for e in events('posture')]",
+    "[(e['t'], e['ev']) for e in events('terminus') if e['ev'] != 'month']",
+    "[(r['t'][:4], faction(r, 'AlienCouncil').get('scv'), faction(r, 'AlienCouncil').get('bases'), faction(r, 'CooperateCouncil').get('scv'), sum(faction(r, f).get('scv', 0) for f in ['ResistCouncil','DestroyCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil'])) for r in metrics][::12]",
+    "{f: (faction(last, f).get('bases', 0) + faction(last, f).get('stations', 0), faction(last, f).get('cps')) for f in ['AlienCouncil','CooperateCouncil','ResistCouncil','DestroyCouncil','ExploitCouncil','EscapeCouncil','SubmitCouncil','AppeaseCouncil']}",
+    "(count('combat', occurred=True), count('combat', occurred=True, winner='AlienCouncil'))",
+    "results['exceptionSamples'][:8]"
+  ]
+}

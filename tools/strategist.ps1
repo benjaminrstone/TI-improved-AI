@@ -18,7 +18,8 @@ param(
     [int]$StopAfterMinutes = 0,
     # Real seconds to wait for the factions' answers; the mod itself gives up after its TimeoutMinutes (3).
     [int]$AnswerSeconds = 150,
-    # Harness mode: follow the newest lab\results\<run>\strategist folder (each run keeps its own exchange files).
+    # Harness mode: follow the newest unfinished run's lab\results\<run>\strategist folder (each run keeps its own
+    # exchange files; a finished run has a results.json, and its unanswered briefs are left alone).
     [switch]$Harness
 )
 $ErrorActionPreference = 'Stop'
@@ -28,7 +29,7 @@ $resultsDir = Join-Path (Split-Path $PSScriptRoot -Parent) 'lab\results'
 function Resolve-Folder {
     if (-not $Harness) { return $Folder }
     $d = Get-ChildItem $resultsDir -Directory -ErrorAction SilentlyContinue | Sort-Object Name -Descending |
-        Where-Object { Test-Path (Join-Path $_.FullName 'strategist\briefs') } | Select-Object -First 1
+        Where-Object { (Test-Path (Join-Path $_.FullName 'strategist\briefs')) -and -not (Test-Path (Join-Path $_.FullName 'results.json')) } | Select-Object -First 1
     if ($d) { return (Join-Path $d.FullName 'strategist') } else { return $null }
 }
 if (-not $Harness) { foreach ($d in 'briefs', 'directives', 'responses') { New-Item -ItemType Directory -Force (Join-Path $Folder $d) | Out-Null } }

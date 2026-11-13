@@ -75,7 +75,7 @@ The first two stand in for "allied": the game has no formal alliance. `[Strategi
 - **In the campaign:** `tools\play.ps1 -Strategist on` once; it is remembered, so later launches are `tools\play.ps1` (`-StrategistModel` picks the model). The launcher starts the watcher in a minimized window, restarts it if it stops, and stops it when the game quits. The exchange folder is `strategist` in the play install's data folder.
 - **What the player sees at a checkpoint:** a box at the top of the screen says the game is paused while the other factions plan, with the seconds waited. After 30 seconds it offers "Resume now". If no answer comes within `[Strategist] TimeoutMinutes` (3), or the player resumes, play goes on under the previous directives and the next checkpoint asks again. A checkpoint normally takes about ten seconds.
 - **The watcher** waits at most `-AnswerSeconds` (150) for the factions' answers, and a checkpoint that fails writes an empty answer so the game resumes at once.
-- **In the harness:** start `tools\strategist.ps1 -Harness` before the run. It follows the newest run under `lab\results`, and each run keeps its exchange files in `lab\results\<run>\strategist`. Probe: `strategist-2039`. While the strategist thinks, the harness holds the Autopilot off so the clock stays stopped.
+- **In the harness:** start `tools\strategist.ps1 -Harness` before the run. It follows the newest unfinished run under `lab\results` (one without a `results.json`), and each run keeps its exchange files in `lab\results\<run>\strategist`. Probe: `strategist-2039`. While the strategist thinks, the harness holds the Autopilot off so the clock stays stopped.
 
 ## Known limits
 

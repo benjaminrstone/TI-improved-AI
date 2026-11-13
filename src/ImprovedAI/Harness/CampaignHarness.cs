@@ -148,7 +148,7 @@ namespace ImprovedAI.Harness
         private float _leftCampaignAt = -1f;
         private string _reloadSave;
         private object _beforeReload;
-        private float _threatBeforeReload;
+        private (int ships, float best) _threatBeforeReload;
         private string _shot;
         private float _shotAt;
         private int _shots;
@@ -338,11 +338,12 @@ namespace ImprovedAI.Harness
             {
                 var after = Continuity();
                 string a = Jsonl.Serialize(_beforeReload), b = Jsonl.Serialize(after);
-                // The memory has taken one more sample since the load, and the game's SCV of a ship can differ a little
-                // across a save and load, so remembered strength may only have grown.
-                float threat = AI.ThreatMemory.Totals().best;
-                bool same = a == b && threat >= 0.98f * _threatBeforeReload;
-                Session.Journal?.Write(new { t = _lastDate, kind = "reload", n = _reloads, seconds = (float)Math.Round(now - _loadRequestedAt), same, memoryGB = MemoryGB(), threatBefore = _threatBeforeReload, threatAfter = threat, before = a == b ? null : _beforeReload, after = a == b ? null : after });
+                // The memory has taken one more sample since the load (ships finished since the last daily one join
+                // it), and the game's SCV of a ship can differ a little across a save and load, so remembered ships
+                // and strength may only have grown.
+                var (ships, threat) = AI.ThreatMemory.Totals();
+                bool same = a == b && ships >= _threatBeforeReload.ships && threat >= 0.98f * _threatBeforeReload.best;
+                Session.Journal?.Write(new { t = _lastDate, kind = "reload", n = _reloads, seconds = (float)Math.Round(now - _loadRequestedAt), same, memoryGB = MemoryGB(), threatBefore = _threatBeforeReload.best, threatAfter = threat, shipsBefore = _threatBeforeReload.ships, shipsAfter = ships, before = a == b ? null : _beforeReload, after = a == b ? null : after });
                 try { File.Delete(_reloadSave); } catch (Exception e) { Plugin.Log.LogWarning($"[Harness] {_reloadSave}: {e.Message}"); }
                 _reloadSave = null;
                 _beforeReload = null;
@@ -429,7 +430,7 @@ namespace ImprovedAI.Harness
             string written = Path.Combine(Run.outDir, "reload.gz");
             string path = Path.Combine(Run.outDir, $"reload-{++_reloads}.gz");
             _beforeReload = Continuity();
-            _threatBeforeReload = AI.ThreatMemory.Totals().best;
+            _threatBeforeReload = AI.ThreatMemory.Totals();
             AllowSaveNow = true;
             bool saved;
             try { saved = GameStateManager.SaveAllGameStates(written, doNotOpenSaveMenu: true) && File.Exists(written); }
@@ -444,10 +445,31 @@ namespace ImprovedAI.Harness
             return "> reloading from " + path;
         }
 
-        /// <summary>The game process's private memory. Each load of a save in a running game adds to it.</summary>
+        [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
+        private struct ProcessMemory
+        {
+            public uint cb, pageFaults;
+            public UIntPtr peakWorkingSet, workingSet, peakPagedPool, pagedPool, peakNonPagedPool, nonPagedPool, pagefile, peakPagefile, privateBytes;
+        }
+
+        [System.Runtime.InteropServices.DllImport("kernel32.dll")]
+        private static extern IntPtr GetCurrentProcess();
+
+        [System.Runtime.InteropServices.DllImport("psapi.dll")]
+        private static extern bool GetProcessMemoryInfo(IntPtr process, out ProcessMemory counters, uint size);
+
+        /// <summary>
+        /// The game process's private memory. Each load of a save in a running game adds to it.
+        /// Unity's Mono reports 0 for System.Diagnostics.Process.PrivateMemorySize64, so this asks Windows.
+        /// </summary>
         private static double MemoryGB()
         {
-            try { return Math.Round(System.Diagnostics.Process.GetCurrentProcess().PrivateMemorySize64 / 1e9, 1); } catch { return 0; }
+            try
+            {
+                uint size = (uint)System.Runtime.InteropServices.Marshal.SizeOf(typeof(ProcessMemory));
+                return GetProcessMemoryInfo(GetCurrentProcess(), out var m, size) ? Math.Round(m.privateBytes.ToUInt64() / 1e9, 1) : 0;
+            }
+            catch { return 0; }
         }
 
         /// <summary>What must be the same after a load as before the save.</summary>
@@ -459,7 +481,6 @@ namespace ImprovedAI.Harness
             {
                 date = GameRead.Now(),
                 strategy = s == null ? null : Newtonsoft.Json.Linq.JObject.FromObject(s).Properties().Where(p => p.Name != "source" && p.Name != "threat").ToDictionary(p => p.Name, p => p.Value.ToString(Formatting.None)),
-                threatShips = AI.ThreatMemory.Totals().ships,
                 escalated = AI.Escalation.Escalated,
                 dials = AI.Dials.Snapshot(),
                 alienFleets = alien?.fleets.Count,
