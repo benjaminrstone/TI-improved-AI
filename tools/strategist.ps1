@@ -98,6 +98,12 @@ while ($true) {
             [void]$raw.AppendLine("## $($r.faction)`n$($r.raw)`n")
             if ($r.json) { $out.factions[$r.faction] = ($r.json | ConvertFrom-Json) } else { Log "  $($r.faction): $($r.error)" }
         }
+        if ($out.factions.Count -eq 0 -and $jobs.Count -gt 0) {
+            # Nobody could be answered (the Claude login expired, no network): the mod tells the player why.
+            $said = @($results | ForEach-Object { ("$($_.raw)" -split "`n")[0].Trim() } | Where-Object { $_ })
+            $out.error = if ($said.Count -gt 0) { $said[0] } else { "no answer within $AnswerSeconds s" }
+            Log "  no faction answered: $($out.error)"
+        }
         [IO.File]::WriteAllText((Join-Path $Folder "responses\$date.md"), $raw.ToString(), $utf8)
         $tmp = Join-Path $Folder "directives\$date.json.tmp"
         [IO.File]::WriteAllText($tmp, ($out | ConvertTo-Json -Depth 8), $utf8)
@@ -106,7 +112,7 @@ while ($true) {
       } catch {
         # An empty answer lets the game play on at once under the previous directives.
         Log "  checkpoint $date failed: $($_.Exception.Message)"
-        try { [IO.File]::WriteAllText((Join-Path $Folder "directives\$date.json"), "{`"checkpoint`":`"$date`",`"factions`":{}}", $utf8) } catch { }
+        try { [IO.File]::WriteAllText((Join-Path $Folder "directives\$date.json"), (@{ checkpoint = $date; error = "the watcher failed: $($_.Exception.Message)"; factions = @{} } | ConvertTo-Json), $utf8) } catch { }
       }
     }
     if ($Once) { break }

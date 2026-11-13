@@ -176,11 +176,12 @@ namespace ImprovedAI.Harness
 
         /// <summary>
         /// With notices shown, capture the screen a few seconds from now (what the player is looking at). The Autopilot,
-        /// which would dismiss a popup on its first frame, is held off until then.
+        /// which would dismiss a popup on its first frame, is held off until then. A second notice within those seconds
+        /// takes the first one's place.
         /// </summary>
         public static void ShootSoon(string what)
         {
-            if (Instance == null || !Active || Run.interactive || !Run.notices || Instance._shot != null) return;
+            if (Instance == null || !Active || Run.interactive || !Run.notices) return;
             Instance._shot = what;
             Instance._shotAt = Time.realtimeSinceStartup + 4f;
             if (Instance._autopilot != null) Instance._autopilot.Activated = false;

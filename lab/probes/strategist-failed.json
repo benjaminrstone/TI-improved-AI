@@ -1,0 +1,29 @@
+{
+  "name": "strategist-failed",
+  "notes": "Campaign safety: the strategist's watcher answers a checkpoint with an error instead of directives, as it does when it cannot reach Claude (an expired login). The player is told why on screen (\"notices\": true, with a screenshot), play goes on under the previous directives, and no second checkpoint is asked before the next one is due. Needs no watcher.",
+  "fixture": "accel-2039-clean-jupiter",
+  "runDays": 30,
+  "notices": true,
+  "config": {
+    "Strategist": {
+      "Enabled": "true"
+    }
+  },
+  "commands": [
+    "ai.strategist fail Failed to authenticate: OAuth session expired and could not be refreshed"
+  ],
+  "asserts": [
+    "results['endReason'] == 'days-elapsed'",
+    "status['stalls'] == 0",
+    "status['exceptions'] == 0",
+    "count('strategist', ev='brief') == 1",
+    "count('strategist', ev='failed') == 1",
+    "events('strategist', ev='failed')[0]['error'].startswith('Failed to authenticate')",
+    "count('strategist', ev='applied') == 0",
+    "count('strategist', ev='timeout') == 0"
+  ],
+  "info": [
+    "[(e['t'], e['ev'], e.get('error')) for e in events('strategist')]",
+    "(status['gameDays'], status['realSeconds'], status['resumes'])"
+  ]
+}

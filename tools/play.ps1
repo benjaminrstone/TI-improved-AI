@@ -79,6 +79,15 @@ Write-Host "Improved AI build $build. Strategist $(if ($opt.strategist) { "on ($
 if ($NoLaunch) { return }
 if (& $Playing) { throw 'The play install is already running.' }
 Remove-Item (Join-Path $PlayPlugin 'run.json') -ErrorAction SilentlyContinue
+if ($opt.strategist) {
+    # The watcher asks Claude through the claude command; its login expires now and then.
+    $said = try { ('Reply with the single word ok.' | & claude -p --model haiku --tools "" --output-format text | Out-String).Trim() } catch { $_.Exception.Message }
+    if ($LASTEXITCODE -ne 0 -or -not $said) {
+        Write-Host "The strategist cannot reach Claude: $said" -ForegroundColor Yellow
+        Write-Host 'Run "claude" in a terminal and log in, then start again. Or play this session without it: tools\play.ps1 -Strategist off'
+        return
+    }
+}
 
 $watcher = $null
 $watcherArgs = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', (Join-Path $PSScriptRoot 'strategist.ps1'), '-Folder', "`"$stratDir`"", '-Model', $opt.model)

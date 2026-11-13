@@ -19,11 +19,11 @@ It is off by default (`[Strategist] Enabled`), and `[General] VanillaAI=true` tu
 3. **Wait.** It holds the game paused and looks for `directives/<date>.json` once a second.
 4. **Directives in.** Each entry for a directed faction replaces that faction's whole directive in the sidecar, so directives survive save and load. Entries under other names are ignored. A faction missing from the file keeps its previous directive.
 5. **Resume.** The player gets the intel notifications they are entitled to, and the game resumes at the previous speed.
-6. **Timeout.** After `TimeoutMinutes` real minutes (default 20, 0 waits indefinitely) the game plays on under the previous directives, or under the mod alone if there are none. A timeout still counts as the checkpoint, and so does a directives file that fails to parse: the next checkpoint comes after the full interval.
+6. **Timeout.** After `TimeoutMinutes` real minutes (default 3, 0 waits indefinitely) the game plays on under the previous directives, or under the mod alone if there are none. A timeout still counts as the checkpoint, and so does a directives file that fails to parse: the next checkpoint comes after the full interval.
 
 **Exchange folder:** `[Strategist] Folder`. When that is empty: `<run folder>\strategist` in an unattended harness run, otherwise `BepInEx\ImprovedAI-strategist` in the game copy. It holds `briefs\`, `directives\`, `responses\` (the model's raw answers) and `watcher.log`.
 
-**Journal:** `strategist` (`ev`: `brief`, `applied` with the directives, `timeout`, `bad-directives`), `strategist-intel`, `strategist-defend`.
+**Journal:** `strategist` (`ev`: `brief`, `applied` with the directives, `timeout`, `resumed-by-player`, `failed` with the watcher's error, `bad-directives`), `strategist-intel`, `strategist-defend`.
 
 ## The brief (`Brief.cs`)
 
@@ -74,7 +74,8 @@ The first two stand in for "allied": the game has no formal alliance. `[Strategi
 
 - **In the campaign:** `tools\play.ps1 -Strategist on` once; it is remembered, so later launches are `tools\play.ps1` (`-StrategistModel` picks the model). The launcher starts the watcher in a minimized window, restarts it if it stops, and stops it when the game quits. The exchange folder is `strategist` in the play install's data folder.
 - **What the player sees at a checkpoint:** a box at the top of the screen says the game is paused while the other factions plan, with the seconds waited. After 30 seconds it offers "Resume now". If no answer comes within `[Strategist] TimeoutMinutes` (3), or the player resumes, play goes on under the previous directives and the next checkpoint asks again. A checkpoint normally takes about ten seconds.
-- **The watcher** waits at most `-AnswerSeconds` (150) for the factions' answers, and a checkpoint that fails writes an empty answer so the game resumes at once.
+- **The watcher** waits at most `-AnswerSeconds` (150) for the factions' answers. When no faction can be answered (the `claude` command's login has expired, the network is down) it writes an answer that carries the error: the game resumes at once and tells the player for 20 seconds why the strategist did not answer.
+- **The `claude` login expires now and then.** `play.ps1` asks Claude one word before it starts the game with the strategist on, and stops with what to do if that fails. The harness does not check: read `strategist\watcher.log` of a run.
 - **In the harness:** start `tools\strategist.ps1 -Harness` before the run. It follows the newest unfinished run under `lab\results` (one without a `results.json`), and each run keeps its exchange files in `lab\results\<run>\strategist`. Probe: `strategist-2039`. While the strategist thinks, the harness holds the Autopilot off so the clock stays stopped.
 
 ## Known limits

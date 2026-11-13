@@ -95,6 +95,7 @@ Throughput is ~17–24 game days per real minute on a mid-game save; a save load
 | `guard-fault` | A patch of ours that throws on every call must not disturb the game. |
 | `terminus-ending` | The terminus notices and the campaign-ending popup, shown and closed as a player would. |
 | `strategist-timeout` | A checkpoint nobody answers: the pause notice, then play goes on. Run it with no watcher. |
+| `strategist-failed` | A checkpoint the watcher answers with an error (it cannot reach Claude): the player is told, play goes on. |
 | everything else | Targeted probes with injected setups, for the feature being changed. |
 
 Fixtures are all from one Normal accelerated Resistance campaign. A run's `final.gz` (`-FinalSave`) is a fixture too: `-SavePath` loads it and copies the sidecars beside it (`ImprovedAI\`) along. The mod switched off and on again mid-campaign is checked with three such legs: a mod run, `-Vanilla` from its final save, the mod again from that one's.

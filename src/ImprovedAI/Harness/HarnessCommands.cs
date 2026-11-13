@@ -98,7 +98,12 @@ namespace ImprovedAI.Harness
                     }
                     case "ai.strategist":
                         // ai.strategist checkpoint: force a strategist checkpoint now (needs [Strategist] Enabled).
+                        // ai.strategist fail <text>: the same, answered at once as the watcher answers when it cannot
+                        // reach Claude.
                         output.Add(Strategist.Directives.On ? Strategist.Checkpoint.Begin() : "! [Strategist] Enabled is off");
+                        if (Strategist.Checkpoint.Waiting && parts.Length > 2 && parts[1] == "fail")
+                            System.IO.File.WriteAllText(System.IO.Path.Combine(Strategist.Checkpoint.Folder, "directives", GameRead.Now() + ".json"),
+                                Newtonsoft.Json.JsonConvert.SerializeObject(new { checkpoint = GameRead.Now(), error = string.Join(" ", parts.Skip(2)) }));
                         break;
                     case "ai.bot":
                         // ai.bot <faction> <reinforce,merge,hunt|off>: the rule-based player (PlayerBot).

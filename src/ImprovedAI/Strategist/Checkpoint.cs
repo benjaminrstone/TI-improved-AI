@@ -16,6 +16,8 @@ namespace ImprovedAI.Strategist
     public class DirectiveFile
     {
         public string checkpoint;
+        /// <summary>Set by the watcher when no faction could be answered (its Claude login expired, say).</summary>
+        public string error;
         public Dictionary<string, Directive> factions = new Dictionary<string, Directive>();
     }
 
@@ -37,6 +39,9 @@ namespace ImprovedAI.Strategist
         private static GUIStyle _box, _button;
         private static Texture2D _boxFill;
         private const float ResumeButtonAfterSeconds = 30f;
+        private const float FailureShownSeconds = 20f;
+        private static string _failure;
+        private static float _failureAt;
 
         public static string Folder
         {
@@ -126,10 +131,10 @@ namespace ImprovedAI.Strategist
             if (timeout > 0f && now - _since > timeout * 60f) GiveUp("timeout");
         }
 
-        private static void GiveUp(string why)
+        private static void GiveUp(string why, string error = null)
         {
-            Plugin.Log.LogWarning($"[Strategist] no directives for {_pending} ({why}); playing on under the previous ones");
-            Session.Journal?.Write(new { t = GameRead.Now(), kind = "strategist", ev = why, checkpoint = _pending });
+            Plugin.Log.LogWarning($"[Strategist] no directives for {_pending} ({why}{(error != null ? ": " + error : "")}); playing on under the previous ones");
+            Session.Journal?.Write(new { t = GameRead.Now(), kind = "strategist", ev = why, checkpoint = _pending, error });
             if (AlienStrategy.Current != null) AlienStrategy.Current.lastCheckpoint = _pending;   // wait for the next checkpoint, don't re-ask tomorrow
             Finish();
         }
@@ -138,7 +143,10 @@ namespace ImprovedAI.Strategist
 
         private void Notice()
         {
-            if (!Waiting || Harness.CampaignHarness.Quiet) return;
+            if (Harness.CampaignHarness.Quiet) return;
+            float sinceFailure = Time.realtimeSinceStartup - _failureAt;
+            bool failed = !Waiting && _failure != null && sinceFailure < FailureShownSeconds;
+            if (!Waiting && !failed) return;
             if (_box == null || _boxFill == null)
             {
                 // An opaque panel: the map's labels show through Unity's default box.
@@ -155,6 +163,12 @@ namespace ImprovedAI.Strategist
             _button.fontSize = Mathf.RoundToInt(15f * k);
             float waited = Time.realtimeSinceStartup - _since;
             var r = new Rect(Screen.width / 2f - 300f * k, 96f * k, 600f * k, 72f * k);
+            if (failed)
+            {
+                r.height = 108f * k;
+                GUI.Label(r, $"The strategist did not answer: {_failure}\nThe other factions carry on under their last orders.", _box);
+                return;
+            }
             GUI.Label(r, $"Paused: the other factions are planning their next moves ({waited:F0} s).\nThe game resumes by itself.", _box);
             if (waited > ResumeButtonAfterSeconds && GUI.Button(new Rect(r.xMax - 150f * k, r.yMax + 4f * k, 150f * k, 30f * k), "Resume now", _button)) GiveUp("resumed-by-player");
         }
@@ -164,6 +178,14 @@ namespace ImprovedAI.Strategist
             try
             {
                 var file = JsonConvert.DeserializeObject<DirectiveFile>(File.ReadAllText(path));
+                if (!string.IsNullOrEmpty(file?.error))
+                {
+                    _failure = file.error.Length > 160 ? file.error.Substring(0, 160) : file.error;
+                    _failureAt = Time.realtimeSinceStartup;
+                    Harness.CampaignHarness.ShootSoon("strategist-failed");
+                    GiveUp("failed", file.error);
+                    return;
+                }
                 var s = AlienStrategy.Current;
                 if (s.directives == null) s.directives = new Dictionary<string, Directive>();
                 var player = GameControl.control?.activePlayer;
