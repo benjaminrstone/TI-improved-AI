@@ -167,10 +167,14 @@ try {
         while ((& $ours) -and (Get-Date) -lt $deadline) {
             Start-Sleep -Seconds 10
             $hb = Join-Path $outDir 'heartbeat.json'
-            if (Test-Path $hb) { $h = Get-Content $hb -Raw | ConvertFrom-Json; Write-Host ("  {0}  day {1}/{2}  {3} days/min  fps {4}  exc {5}  stalls {6}" -f $h.date, $h.gameDays, $Days, $h.gameDaysPerRealMinute, $h.fps, $h.exceptions, $h.stalls) }
+            if (Test-Path $hb) {
+                $h = Get-Content $hb -Raw | ConvertFrom-Json; Write-Host ("  {0}  day {1}/{2}  {3} days/min  fps {4}  exc {5}  stalls {6}" -f $h.date, $h.gameDays, $Days, $h.gameDaysPerRealMinute, $h.fps, $h.exceptions, $h.stalls)
+                # The harness ends a frozen game itself within minutes (Watchdog); this is for when it cannot.
+                if (((Get-Date) - (Get-Item $hb).LastWriteTime).TotalMinutes -gt 15) { Write-Warning 'No heartbeat for 15 minutes.'; break }
+            }
         }
         if (& $ours) {
-            if ($KeepOpen) { Write-Host 'Game left open.' } else { Write-Warning 'Timed out; killing the game.'; & $ours | Stop-Process -Force; Start-Sleep -Seconds 3 }
+            if ($KeepOpen) { Write-Host 'Game left open.' } else { Write-Warning 'Not finished; killing the game.'; & $ours | Stop-Process -Force; Start-Sleep -Seconds 3 }
         }
     }
     finally {

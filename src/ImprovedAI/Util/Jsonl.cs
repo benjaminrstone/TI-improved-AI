@@ -24,9 +24,14 @@ namespace ImprovedAI.Util
             _w = new StreamWriter(new FileStream(path, FileMode.Append, FileAccess.Write, FileShare.ReadWrite)) { AutoFlush = true };
         }
 
+        /// <summary>Any thread: some patches run on the mission planner's thread (PatchGuard).</summary>
         public void Write(object record)
         {
-            try { _w.WriteLine(JsonConvert.SerializeObject(record, Settings)); }
+            try
+            {
+                string line = JsonConvert.SerializeObject(record, Settings);
+                lock (_w) _w.WriteLine(line);
+            }
             catch (Exception e) { Plugin.Log.LogWarning($"[Jsonl] {Path}: {e.Message}"); }
         }
 

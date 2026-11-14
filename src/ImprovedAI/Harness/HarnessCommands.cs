@@ -20,6 +20,8 @@ namespace ImprovedAI.Harness
     ///       Force (part of) the alien doctrine for this run.
     ///   ai.fault on|off
     ///       Make a patch of ours throw on every call (FaultInjection), to check PatchGuard.
+    ///   ai.plannerclock on|off
+    ///       Whether the clock waits for the mission planner when the AI plays the player (PlannerClock); off shows why it must.
     ///   ai.reload
     ///       Save and load that save in the running game (CampaignHarness.Reload).
     ///   ai.drainammo &lt;faction&gt; &lt;system&gt;
@@ -59,9 +61,17 @@ namespace ImprovedAI.Harness
                         FaultInjection.On = !parts[1].Equals("off", StringComparison.OrdinalIgnoreCase);
                         output.Add("> fault injection " + (FaultInjection.On ? "on" : "off"));
                         break;
+                    case "ai.plannerclock":
+                        PlannerClock.Hold = !parts[1].Equals("off", StringComparison.OrdinalIgnoreCase);
+                        output.Add("> the clock " + (PlannerClock.Hold ? "waits" : "does not wait") + " for the mission planner");
+                        break;
                     case "ai.reload":
                         output.Add(CampaignHarness.Instance.Reload());
                         break;
+                    case "ai.freeze":
+                        // ai.freeze: block the main thread for good (the Watchdog's own test).
+                        Plugin.Log.LogInfo("[Harness] Freezing the main thread.");
+                        for (long spin = 0; ; spin++) { }
                     case "ai.terminus":
                         output.Add(AI.Terminus.Force(float.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture)));
                         break;
@@ -134,6 +144,7 @@ namespace ImprovedAI.Harness
             {
                 output.Add($"! {line}: {e.GetType().Name}: {e.Message}");
                 Plugin.Log.LogError($"[Harness] {line}: {e}");
+                if (Watchdog.Tripped) Watchdog.Saw(e.ToString());
             }
             return true;
         }

@@ -6,6 +6,7 @@
   "asserts": [
     "results['endReason'] == 'days-elapsed'",
     "status['stalls'] == 0",
+    "results['planner']['clockMovedBeside'] == 0",
     "status['gameDays'] >= 360",
     "count('init') == 1",
     "count('economy') >= 10",

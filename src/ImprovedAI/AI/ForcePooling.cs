@@ -19,8 +19,15 @@ namespace ImprovedAI.AI
     [HarmonyPatch(typeof(AIDailyFactionPlanner), "ManageFleets")]
     internal static class ForcePooling
     {
-        /// <summary>Goals currently gathering a pooled force; vanilla must leave their fleet alone.</summary>
-        internal static readonly HashSet<FactionGoal_AttackWithFleet> Pooling = new HashSet<FactionGoal_AttackWithFleet>();
+        /// <summary>
+        /// Goals currently gathering a pooled force; vanilla must leave their fleet alone. Locked: the mission planner's
+        /// thread asks too (LeaveMyFleetAlone; see PatchGuard).
+        /// </summary>
+        private static readonly HashSet<FactionGoal_AttackWithFleet> Pooling = new HashSet<FactionGoal_AttackWithFleet>();
+
+        internal static bool IsPooling(FactionGoal_AttackWithFleet goal) { lock (Pooling) return Pooling.Contains(goal); }
+
+        internal static List<FactionGoal_AttackWithFleet> PoolingNow() { lock (Pooling) return Pooling.ToList(); }
         /// <summary>Goals whose pool-ready was journaled (once each).</summary>
         private static readonly HashSet<FactionGoal_AttackWithFleet> Announced = new HashSet<FactionGoal_AttackWithFleet>();
 
@@ -28,7 +35,8 @@ namespace ImprovedAI.AI
         // (StrategyState.stagedGoals, musterStart): a load must not move the muster point or restart the muster.
         public static void Reset()
         {
-            Pooling.Clear(); Announced.Clear();
+            lock (Pooling) Pooling.Clear();
+            Announced.Clear();
         }
 
         internal static bool On(TIFactionState f) => Plugin.Cfg.UseForcePooling && f != null && f.IsAlienFaction;
@@ -40,8 +48,9 @@ namespace ImprovedAI.AI
             if (!AIDailyFactionPlanner.factionAIData.TryGetValue(faction, out var data)) return;
             if ((TITimeState.Now().day + data.every4DaysOffset) % 4 != 0) return;   // vanilla's ManageFleets tick
 
-            Pooling.RemoveWhere(g => g == null || g.skipGoal || g.importance <= 0 || !TIGameState.Valid(g.assignedFleet)
-                                     || g.assignedFleet.transferAssigned || g.InProgress());
+            lock (Pooling)
+                Pooling.RemoveWhere(g => g == null || g.skipGoal || g.importance <= 0 || !TIGameState.Valid(g.assignedFleet)
+                                         || g.assignedFleet.transferAssigned || g.InProgress());
             if (Plugin.Cfg.LeaveDryShips.Value) LeaveDryShipsBehind(faction);
 
             var goal = faction.GoalsOfType(GoalType.AttackWithFleet, orderByImportance: true)
@@ -49,7 +58,7 @@ namespace ImprovedAI.AI
                 .Where(g => !g.skipGoal && g.importance > 0 && !g.InProgress() && TIGameState.Valid(g.target()))
                 .Where(g => !Strategist.Directives.Spared(GameRead.System(g.target())))
                 .OrderBy(g => Strategist.Directives.StrikeRank(GameRead.System(g.target())))   // the strategist's targets first
-                .ThenByDescending(g => Pooling.Contains(g))          // stick with the current focus
+                .ThenByDescending(IsPooling)                         // stick with the current focus
                 .ThenByDescending(g => g.importance)
                 .ThenByDescending(g => g.desiredFleetCombatValue)
                 .FirstOrDefault();
@@ -95,7 +104,7 @@ namespace ImprovedAI.AI
             // above drops it then. Released at "ready", vanilla's weekly 2.3% random discard of war attack goals
             // (FactionGoal_WarOnFaction.DailyGoalMaintenance) could kill an assembled strike while its joiners were
             // still in transit.
-            Pooling.Add(goal);
+            lock (Pooling) Pooling.Add(goal);
             if (present >= need)
             {
                 // Ready only when the force is actually there (joiners merged), not when it is merely on its way.
@@ -283,7 +292,7 @@ namespace ImprovedAI.AI
             if (!Escalation.Escalated || !(fleet is TISpaceFleetState f) || f.faction == null || !f.faction.IsAlienFaction) return;
             if (!(f.AssignedGoal() is FactionGoal_JoinFleet j)) return;
             var anchor = j.target()?.ref_fleet;
-            if (anchor == null || !ForcePooling.Pooling.Any(g => g.assignedFleet == anchor)) return;
+            if (anchor == null || !ForcePooling.PoolingNow().Any(g => g.assignedFleet == anchor)) return;
             desiredReserveDVFraction = System.Math.Min(desiredReserveDVFraction, Plugin.Cfg.EscalatedJoinReserve.Value);
         }
     }
@@ -305,7 +314,7 @@ namespace ImprovedAI.AI
     {
         private static void Postfix(FactionGoal_AttackWithFleet __instance, ref bool __result)
         {
-            if (!__result && ForcePooling.On(__instance.faction) && __instance.assignedFleet != null && ForcePooling.Pooling.Contains(__instance)) __result = true;
+            if (!__result && ForcePooling.On(__instance.faction) && __instance.assignedFleet != null && ForcePooling.IsPooling(__instance)) __result = true;
         }
     }
 

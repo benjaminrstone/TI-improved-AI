@@ -1,0 +1,18 @@
+{
+  "name": "planner-clock-off",
+  "notes": "Shows the problem Harness/PlannerClock removes: with the AI at the player's controls and the clock not waiting, it moves while a faction's missions are still being planned on the planner's thread. Such a run can freeze; the Watchdog ends it if it does.",
+  "fixture": "accel-2039-clean-jupiter",
+  "runDays": 60,
+  "commands": [
+    "ai.control ResistCouncil ai",
+    "ai.plannerclock off"
+  ],
+  "asserts": [
+    "results['endReason'] in ('days-elapsed', 'frozen')",
+    "results['planner']['clockMovedBeside'] > 0"
+  ],
+  "info": [
+    "results['planner']",
+    "results['missionPhase']"
+  ]
+}

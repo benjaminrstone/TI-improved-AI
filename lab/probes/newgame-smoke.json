@@ -9,6 +9,7 @@
   "asserts": [
     "results['endReason'] == 'days-elapsed'",
     "status['stalls'] == 0",
+    "results['planner']['clockMovedBeside'] == 0",
     "status['exceptions'] == 0",
     "count('init') == 1",
     "events('doctrine')[0]['source'] == 'derived'",

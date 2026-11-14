@@ -17,7 +17,8 @@ A full campaign takes 50–80 hours, so it can't be the inner loop. Everything r
 - **The regression check is two flow probes**, not the whole roster: `tools\probes.ps1 flow-2034, flow-2039` (~45 min). Their asserts are health checks and wide floors that natural variance passes; the `info` lines are the observations to read. Probes with injected setups are run only for the feature being changed.
 - **The harness player is passive** unless the probe says otherwise. The game's Autopilot clears prompts and resolves combat but gives no orders, so the player's faction slowly loses ground. For a player that acts, hand the faction to the game's AI (`ai.control ResistCouncil ai`) or the rule-based bot (`ai.bot <faction> reinforce,merge,hunt`, rules in `Harness/PlayerBot.cs`). The game's AI fights the other human factions, not the aliens. The bot's `hunt` rule attacks alien stations and parked fleets it outguns, destroys the stations and flies home to resupply; it needs a fleet worth sending, which `ai.spawnfleet` provides. An AI-run player costs little speed (14–21 days/min).
 - **The Autopilot never presses a fight.** It answers every stance prompt with Defend and does not answer the delta-v bid of a pursuit, so a fight the player's fleet starts happens only if the other side pursues. The `hunt` bot pursues in the fights it starts and bids as the game's AI would. An AI-run player is not affected: the game answers its prompts.
-- **An AI-run player makes the game's own mission planner throw.** `AICouncilorMissionPlanner` logs "Collection was modified" and retries on the main thread, in the vanilla arm too; these do not count as exceptions. A null reference in `TIEffectsState.ProcessInstantEffect` from a narrative event is also the game's (seen once, in a vanilla run).
+- **With an AI-run player the clock waits for the mission planner** (`Harness/PlannerClock.cs`). The game plans each AI faction's councilor missions on a second thread. A human's game holds the clock meanwhile (the player's own prompt, and Confirm reads "AI working" until every faction is done); a handed-over player's prompt is answered by the AI at once, so the clock used to run on beside the planner. That cancelled missions at every phase start (about 500 in a three-year leg), made the planner throw "Collection was modified" now and then, and froze the game for good in 3 of 8 three-year legs (the event manager is not thread-safe). `results['planner']['clockMovedBeside']` counts frames on which it happened and must be 0; `planner-clock-off` switches the hold off to show the problem. A null reference in `TIEffectsState.ProcessInstantEffect` from a narrative event is the game's own (seen once, in a vanilla run).
+- **A frozen run ends itself.** A watchdog thread counts frames; after two minutes without one it aborts the main thread for its stack trace and the run finishes with `endReason: "frozen"`, the trace and the CPU use in `results['frozen']`, and no final save (`harness-freeze` tests this with `ai.freeze`). Behind it, `run.ps1` kills a game whose heartbeat is 15 minutes old.
 - **One run at a time.** The game copy is locked by `C:\Games\TI-ImprovedAI-harness\harness.lock`. A run also waits while the play install's game is open and until 16 GB of memory is free (`-MinFreeGB`): beside another game it swaps, and its stalls and timings mean nothing.
 - **`status['exceptions']` includes what `PatchGuard` swallowed** in the mod's own patches (`status['guarded']`), so a health assert on exceptions also catches a patch that fails quietly.
 - **A run is quiet by default:** the mod's player notices (terminus, intel, the strategist's pause box) are only journaled. A probe with `"notices": true` shows them as a real play does and saves a screenshot of each (`notice-N-<what>.png`); the harness holds the Autopilot off until the shot is taken and closes the campaign-ending popup once, as a player does.
@@ -55,7 +56,7 @@ Throughput is ~17–24 game days per real minute on a mid-game save; a save load
 | `journal.jsonl` | One record per decision or event, each with a `kind`. The record shapes are defined where they are written (`Session.Journal?.Write` in the plugin). |
 | `metrics.jsonl` | One row at load and one per game month: per faction resources, habs, fleets, ships, SCV; alien hate and goal counts. |
 | `ai-log.txt` | The developers' own AI trace (`TIFactionState.LogAI`, a no-op in vanilla). |
-| `results.json` | End reason, throughput, exception samples, terminal output. |
+| `results.json` | End reason, throughput, exception samples, terminal output. `missionPhase`: the game's own alarms (finalizes outside a phase, missions cancelled at a phase start). `planner`: mission phases planned, the longest in real seconds, frames the clock moved beside the planner. `offThread`: which of the mod's patches ran on the planner's thread, and how often. `frozen`: the trace, when the watchdog ended the run. |
 | `asserts.json` | Probe outcomes and `info` values. |
 | `strategist\` | Briefs and directives, when the strategist ran. |
 | `player.log`, `bepinex.log`, `stall-N.png` | Logs, and a screenshot whenever the date stops advancing for 90 s. |
@@ -93,9 +94,11 @@ Throughput is ~17–24 game days per real minute on a mid-game save; a save load
 | `reload-2039` | Campaign safety: a year with eight reloads in the running game; the mod's state must come back the same each time. |
 | `e1-bait-reload` | Threat memory across a reload. |
 | `guard-fault` | A patch of ours that throws on every call must not disturb the game. |
+| `harness-freeze` | The harness's own test: a main thread blocked for good must end the run as `frozen`, with its trace. |
+| `control-smoke`, `planner-clock-off` | The AI at the player's controls for 60 days: no cancelled missions and the clock never beside the planner; and the same with the hold off, where both happen. |
 | `terminus-ending` | The terminus notices and the campaign-ending popup, shown and closed as a player would. |
 | `strategist-timeout` | A checkpoint nobody answers: the pause notice, then play goes on. Run it with no watcher. |
-| `strategist-failed` | A checkpoint the watcher answers with an error (it cannot reach Claude): the player is told, play goes on. |
+| `strategist-failed` | A checkpoint the watcher answers with an error (it cannot reach Claude): the player is told, play goes on. Its second checkpoint begins with the clock running and must stop it. |
 | everything else | Targeted probes with injected setups, for the feature being changed. |
 
 Fixtures are all from one Normal accelerated Resistance campaign. A run's `final.gz` (`-FinalSave`) is a fixture too: `-SavePath` loads it and copies the sidecars beside it (`ImprovedAI\`) along. The mod switched off and on again mid-campaign is checked with three such legs: a mod run, `-Vanilla` from its final save, the mod again from that one's.
@@ -114,6 +117,8 @@ Means, with the range in brackets where it was kept.
 | Resistance SCV at end (873 at start) | – | – | 3.2k (1.7–3.9) | 2.6k (2.1–2.9) |
 | AI human ships completed, year 1 / both years | 69 / – | 102, 117, 113 / – | – / 161 | – / 211 |
 | Exotics stock | 2.0k → 2.4–2.7k | 2.0k → 1.4k | | |
+
+**The AI-run player columns, and the `flow-2039-long-ai` line below, predate the clock hold** (`Harness/PlannerClock.cs`): missions were cancelled at every phase start in those runs, in both arms, so every faction's councilors did less than they should have. Rerun them before comparing anything against them.
 
 The AI-run player (`flow-2034-ai`) changes nothing for the aliens: it loses about half its 54 habs in both arms and does not attack them. The aliens won every battle they started in all six runs.
 

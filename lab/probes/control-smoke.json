@@ -7,11 +7,14 @@
   "asserts": [
     "results['endReason'] == 'days-elapsed'",
     "status['stalls'] == 0",
+    "results['missionPhase'] == {'lateFinalizes': 0, 'cancelled': 0}",
+    "results['planner']['clockMovedBeside'] == 0",
     "count('control', faction='ResistCouncil', ai=True) == 1",
     "count('direct-invest', faction='ResistCouncil') + count('human-mc-invest', faction='ResistCouncil') + count('human-ship-built', f='ResistCouncil') >= 1"
   ],
   "info": [
     "status.get('exceptions')",
+    "results['planner']",
     "results.get('unsticks')",
     "events('control')",
     "(count('direct-invest', faction='ResistCouncil'), count('human-mc-invest', faction='ResistCouncil'), count('human-ship-built', f='ResistCouncil'))",

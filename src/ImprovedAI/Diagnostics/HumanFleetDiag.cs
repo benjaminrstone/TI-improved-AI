@@ -54,8 +54,7 @@ namespace ImprovedAI.Diagnostics
                     boost = (float)Math.Round(h.resourcesCost.GetSingleCostValue(FactionResource.Boost)), shortfall,
                 });
             }
-            int idleDays = Human.FixIdleSavings.IdleDays.TryGetValue(f, out var nd) ? nd : 0;
-            Human.FixIdleSavings.IdleDays[f] = 0;
+            int idleDays = Human.FixIdleSavings.TakeIdleDays(f);
             return new { yards = yards.Count, paid, unpaid, targetQueuedAtYard = targetAt, savingIdleDays = idleDays, blockerHab = f.lastUnaffordableShipShipyard?.hab?.displayName, heads };
         }
 

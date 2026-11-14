@@ -20,11 +20,24 @@ namespace ImprovedAI
         internal static int Count;
         private static readonly HashSet<string> Reported = new HashSet<string>();
 
+        /// <summary>
+        /// The councilor mission planner (AICouncilorMissionPlanner.PlanMissionsTask) runs on a pool thread while the
+        /// main thread carries on, so a patch on anything it calls runs there too. Which ones do is counted here.
+        /// </summary>
+        private static int _mainThread;
+        private static readonly Dictionary<string, int> OffThread = new Dictionary<string, int>();
+
+        internal static SortedDictionary<string, int> OffThreadCalls()
+        {
+            lock (OffThread) return new SortedDictionary<string, int>(OffThread);
+        }
+
         internal static int Apply(Harmony harmony, IEnumerable<Type> types)
         {
             var onVoid = new HarmonyMethod(typeof(PatchGuard), nameof(OnVoid));
             var onBool = new HarmonyMethod(typeof(PatchGuard), nameof(OnBool));
             int guarded = 0;
+            _mainThread = Thread.CurrentThread.ManagedThreadId;
             foreach (var type in types)
             {
                 if (type == typeof(PatchGuard) || HarmonyMethodExtensions.GetFromType(type).Count == 0) continue;
@@ -51,6 +64,7 @@ namespace ImprovedAI
 
         private static Exception OnVoid(Exception __exception, MethodBase __originalMethod)
         {
+            if (Thread.CurrentThread.ManagedThreadId != _mainThread) NoteOffThread(__originalMethod);
             if (__exception != null) Report(__exception, Name(__originalMethod));
             return null;
         }
@@ -58,10 +72,17 @@ namespace ImprovedAI
         /// <summary>A Prefix that failed must not skip the game's method.</summary>
         private static Exception OnBool(Exception __exception, MethodBase __originalMethod, ref bool __result)
         {
+            if (Thread.CurrentThread.ManagedThreadId != _mainThread) NoteOffThread(__originalMethod);
             if (__exception == null) return null;
             __result = true;
             Report(__exception, Name(__originalMethod));
             return null;
+        }
+
+        private static void NoteOffThread(MethodBase patch)
+        {
+            string name = Name(patch);
+            lock (OffThread) OffThread[name] = (OffThread.TryGetValue(name, out int n) ? n : 0) + 1;
         }
 
         private static string Name(MethodBase m) => m?.DeclaringType?.Name + "." + m?.Name;

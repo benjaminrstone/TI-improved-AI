@@ -74,7 +74,8 @@ namespace ImprovedAI.Human
         private static Dictionary<TIFactionState, float> _strength = new Dictionary<TIFactionState, float>();
         private static float _pressure;
 
-        public static void Reset() { _day = null; _strength.Clear(); }
+        // _strength is replaced whole, never changed in place: the mission planner's thread reads it (PatchGuard).
+        public static void Reset() { _day = null; _strength = new Dictionary<TIFactionState, float>(); }
 
         private static void Refresh()
         {
@@ -146,11 +147,17 @@ namespace ImprovedAI.Human
 
         private static string Key(TIFactionState victim, TIFactionState actor) => $"{victim.templateName}>{actor.templateName}";
 
+        /// <summary>
+        /// Grudges and clients are read on the mission planner's thread (the mission bias and the pact patches; see
+        /// PatchGuard) while the main thread changes them. Every access holds this.
+        /// </summary>
+        private static readonly object Shared = new object();
+
         public static float Grudge(TIFactionState victim, TIFactionState actor)
         {
             var s = AlienStrategy.Current;
             if (s?.grudges == null || victim == null || actor == null) return 0f;
-            return s.grudges.TryGetValue(Key(victim, actor), out var g) ? g : 0f;
+            lock (Shared) return s.grudges.TryGetValue(Key(victim, actor), out var g) ? g : 0f;
         }
 
         /// <summary>From the hate ledger: an injury (missions, space, war) raised the victim's hate toward the actor.</summary>
@@ -159,16 +166,22 @@ namespace ImprovedAI.Human
             if (!Plugin.Cfg.UseHumanPersonalities || delta <= 0f) return;
             var s = AlienStrategy.Current;
             if (s == null) return;
-            if (s.grudges == null) s.grudges = new Dictionary<string, float>();
             string k = Key(victim, actor);
-            s.grudges[k] = (s.grudges.TryGetValue(k, out var g) ? g : 0f) + delta;
+            lock (Shared)
+            {
+                if (s.grudges == null) s.grudges = new Dictionary<string, float>();
+                s.grudges[k] = (s.grudges.TryGetValue(k, out var g) ? g : 0f) + delta;
+            }
         }
 
         public static TIFactionState PatronOf(TIFactionState client)
         {
             var s = AlienStrategy.Current;
             if (!Plugin.Cfg.UseHumanClients || s?.clients == null || client == null) return null;
-            return s.clients.TryGetValue(client.templateName, out var p) ? GameStateManager.AllHumanFactions().FirstOrDefault(x => x?.templateName == p) : null;
+            string patron;
+            lock (Shared)
+                if (!s.clients.TryGetValue(client.templateName, out patron)) return null;
+            return GameStateManager.AllHumanFactions().FirstOrDefault(x => x?.templateName == patron);
         }
 
         public static bool ClientPair(TIFactionState a, TIFactionState b) =>
@@ -207,15 +220,18 @@ namespace ImprovedAI.Human
             if (!Plugin.Cfg.UseHumanPersonalities) return;
             var s = AlienStrategy.Current;
             if (s == null) return;
-            if (s.grudges == null) s.grudges = new Dictionary<string, float>();
-            if (s.clients == null) s.clients = new Dictionary<string, string>();
             var humans = GameStateManager.AllHumanFactions().Where(x => x != null).ToList();
-            foreach (var k in s.grudges.Keys.ToList())
+            lock (Shared)
             {
-                var victim = humans.FirstOrDefault(x => x.templateName == k.Split('>')[0]);
-                float half = victim == null ? 6f : Mathf.Max(0.5f, ProfileOf(victim).GrudgeHalfLife);
-                float v = s.grudges[k] * Mathf.Pow(0.5f, 1f / half);
-                if (v < 0.05f) s.grudges.Remove(k); else s.grudges[k] = v;
+                if (s.grudges == null) s.grudges = new Dictionary<string, float>();
+                if (s.clients == null) s.clients = new Dictionary<string, string>();
+                foreach (var k in s.grudges.Keys.ToList())
+                {
+                    var victim = humans.FirstOrDefault(x => x.templateName == k.Split('>')[0]);
+                    float half = victim == null ? 6f : Mathf.Max(0.5f, ProfileOf(victim).GrudgeHalfLife);
+                    float v = s.grudges[k] * Mathf.Pow(0.5f, 1f / half);
+                    if (v < 0.05f) s.grudges.Remove(k); else s.grudges[k] = v;
+                }
             }
             Forgiveness(humans);
             if (!Plugin.Cfg.UseHumanClients) return;
@@ -234,7 +250,7 @@ namespace ImprovedAI.Human
                     else if (Strength(patron) < 0.7f * top) brk = "patronBehind";
                     else if (!Compatible(c, patron, out var w)) brk = w ?? "incompatible";
                     if (brk == null) { OfferPact(c, patron); continue; }
-                    s.clients.Remove(c.templateName);
+                    lock (Shared) s.clients.Remove(c.templateName);
                     Journal(c, patron, "break", brk);
                     continue;
                 }
@@ -244,7 +260,7 @@ namespace ImprovedAI.Human
                         && Compatible(c, x, out _))
                     .OrderByDescending(Strength).FirstOrDefault();
                 if (best == null) continue;
-                s.clients[c.templateName] = best.templateName;
+                lock (Shared) s.clients[c.templateName] = best.templateName;
                 Journal(c, best, "form", null);
                 OfferPact(c, best);
             }

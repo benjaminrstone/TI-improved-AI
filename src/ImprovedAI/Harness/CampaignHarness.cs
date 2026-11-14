@@ -159,6 +159,7 @@ namespace ImprovedAI.Harness
         private float _lastUnstick;
         private readonly List<string> _exceptions = new List<string>();
         private int _exceptionCount;
+        private int _lateFinalizes, _missionsCancelled;
         private readonly List<string> _terminal = new List<string>();
         private readonly List<string> _scheduled = new List<string>();
         private Autopilot _autopilot;
@@ -192,6 +193,7 @@ namespace ImprovedAI.Harness
             Instance = this;
             Application.logMessageReceived += OnLog;
             Observer.OnCampaignReady += OnCampaignReady;
+            if (!Run.interactive) Watchdog.Start(Run.outDir, Run.save);
         }
 
         private void OnDestroy()
@@ -202,7 +204,15 @@ namespace ImprovedAI.Harness
 
         private void OnLog(string condition, string stack, LogType type)
         {
+            if (type == LogType.Error)
+            {
+                // The game's own alarms about a mission phase gone wrong (FinalizeCouncilorMissions.Execute,
+                // TIMissionPhaseState.CancelOutstandingMissions).
+                if (condition.Contains("outside of mission phase")) _lateFinalizes++;
+                else if (condition.Contains(" had unresolved ")) _missionsCancelled++;
+            }
             if (type != LogType.Exception) return;
+            if (Watchdog.Tripped) Watchdog.Saw(condition + "\n" + stack);
             _exceptionCount++;
             if (_exceptions.Count < 30)
                 _exceptions.Add(condition + " @ " + (stack ?? "").Split('\n').FirstOrDefault());
@@ -210,8 +220,10 @@ namespace ImprovedAI.Harness
 
         private void Update()
         {
+            Watchdog.Frame();
             try
             {
+                if (Watchdog.Tripped) { Finish("frozen"); return; }
                 if (Run.interactive)
                 {
                     // A person plays: only the optional first load is automated.
@@ -257,7 +269,8 @@ namespace ImprovedAI.Harness
             catch (Exception e)
             {
                 Plugin.Log.LogError($"[Harness] {e}");
-                Finish("error: " + e.Message);
+                if (Watchdog.Tripped) Watchdog.Saw(e.ToString());
+                Finish(Watchdog.Tripped ? "frozen" : "error: " + e.Message);
             }
         }
 
@@ -508,7 +521,7 @@ namespace ImprovedAI.Harness
                 // Paused on purpose while the strategist thinks: not a stall, not to be resumed here, and the Autopilot
                 // (which presses play) is held off.
                 if (_autopilot != null && _autopilot.Activated) { _autopilot.Activated = false; _autopilotHeld = true; }
-                if (gtm != null && gtm.currentSpeedIndex != 0) gtm.SetSpeed(0, false);
+                if (gtm != null && gtm.currentSpeedIndex != 0) gtm.Pause();
                 _lastDateChangeAt = now;
                 _consecutiveStalls = 0;
                 return;
@@ -517,7 +530,8 @@ namespace ImprovedAI.Harness
             if (gtm != null && gtm.currentSpeedIndex != 0 && gtm.currentSpeedIndex != Run.speedIndex)
                 gtm.SetSpeed(Run.speedIndex, pushBeyondCap: true);
             if (date != _lastDate) { _lastDate = date; _lastDateChangeAt = now; _consecutiveStalls = 0; }
-            else if (now - _lastDateChangeAt > 20f && now - _lastUnstick > 20f && BlockingPrompts().Contains("faction:PromptSelectCouncilorMissions"))
+            else if (now - _lastDateChangeAt > 20f && now - _lastUnstick > 20f && !FactionControl.IsHanded(GameControl.control.activePlayer)
+                     && BlockingPrompts().Contains("faction:PromptSelectCouncilorMissions"))
             {
                 // The Autopilot sometimes fails to confirm the mission phase; do what the button does.
                 _lastUnstick = now;
@@ -611,7 +625,8 @@ namespace ImprovedAI.Harness
             if (prev == Phase.Running)
             {
                 try { metrics = Diagnostics.Metrics.Snapshot(); Session.Metrics?.Write(metrics); } catch (Exception e) { Plugin.Log.LogWarning($"[Harness] final metrics: {e.Message}"); }
-                if (Run.finalSave)
+                // No save of a game whose main thread was aborted mid-step: the next leg would start from it.
+                if (Run.finalSave && !Watchdog.Tripped)
                 {
                     AllowSaveNow = true;
                     try { FactionControl.SaveAsHuman(() => GameStateManager.SaveAllGameStates(Path.Combine(Run.outDir, "final.gz"), doNotOpenSaveMenu: true)); }
@@ -626,6 +641,10 @@ namespace ImprovedAI.Harness
                 save = Run.save,
                 aiLogCalls = AILogPatch.Calls,
                 savesBlocked = SavePatches.Blocked,
+                missionPhase = new { lateFinalizes = _lateFinalizes, cancelled = _missionsCancelled },
+                planner = PlannerClock.Report(),
+                offThread = PatchGuard.OffThreadCalls(),
+                frozen = Watchdog.Report(),
                 exceptionSamples = _exceptions,
                 terminal = _terminal,
             };

@@ -1,0 +1,14 @@
+{
+  "name": "harness-freeze",
+  "notes": "The harness's own test: the main thread is blocked for good on day 3 (ai.freeze). The Watchdog must end the run within minutes with the result 'frozen' and say where the thread was stuck.",
+  "fixture": "accel-2039-clean-jupiter",
+  "runDays": 30,
+  "commands": [
+    "@3 ai.freeze"
+  ],
+  "asserts": [
+    "results['endReason'] == 'frozen'",
+    "'HarnessCommands' in results['frozen']['trace']",
+    "results['frozen']['coresBusy'] > 0.5"
+  ]
+}

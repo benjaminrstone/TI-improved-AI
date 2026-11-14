@@ -1,6 +1,6 @@
 {
   "name": "strategist-failed",
-  "notes": "Campaign safety: the strategist's watcher answers a checkpoint with an error instead of directives, as it does when it cannot reach Claude (an expired login). The player is told why on screen (\"notices\": true, with a screenshot), play goes on under the previous directives, and no second checkpoint is asked before the next one is due. Needs no watcher.",
+  "notes": "Campaign safety: the strategist's watcher answers a checkpoint with an error instead of directives, as it does when it cannot reach Claude (an expired login). The first checkpoint comes with the game still paused after the load, the second on day 10 with the clock running, which it must stop. The player is told why on screen (\"notices\": true, with a screenshot), play goes on under the previous directives, and no second checkpoint is asked before the next one is due. Needs no watcher.",
   "fixture": "accel-2039-clean-jupiter",
   "runDays": 30,
   "notices": true,
@@ -10,14 +10,16 @@
     }
   },
   "commands": [
-    "ai.strategist fail Failed to authenticate: OAuth session expired and could not be refreshed"
+    "ai.strategist fail Failed to authenticate: OAuth session expired and could not be refreshed",
+    "@10 ai.strategist fail Failed to authenticate: OAuth session expired and could not be refreshed"
   ],
   "asserts": [
     "results['endReason'] == 'days-elapsed'",
     "status['stalls'] == 0",
     "status['exceptions'] == 0",
-    "count('strategist', ev='brief') == 1",
-    "count('strategist', ev='failed') == 1",
+    "count('strategist', ev='brief') == 2",
+    "events('strategist', ev='brief')[1]['wasRunning'] and events('strategist', ev='brief')[1]['paused']",
+    "count('strategist', ev='failed') == 2",
     "events('strategist', ev='failed')[0]['error'].startswith('Failed to authenticate')",
     "count('strategist', ev='applied') == 0",
     "count('strategist', ev='timeout') == 0"

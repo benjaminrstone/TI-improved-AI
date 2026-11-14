@@ -15,6 +15,8 @@
     "results['endReason'] == 'days-elapsed'",
     "status['stalls'] <= 2",
     "status['exceptions'] == 0",
+    "results['missionPhase']['lateFinalizes'] == 0",
+    "results['planner']['clockMovedBeside'] == 0",
     "count('init') == 1",
     "events('doctrine')[0]['difficulty'] == 3",
     "count('control', faction='CooperateCouncil', ai=True) == 1",
@@ -23,6 +25,7 @@
   ],
   "info": [
     "(status['start'], status['date'], status['gameDaysPerRealMinute'], status['unsticks'], status['resumes'], status.get('memoryGB'))",
+    "results['missionPhase']",
     "(events('doctrine')[0]['source'], events('doctrine')[0]['doctrine'])",
     "[(e['t'], e['ev'], e.get('applied'), e.get('ignored')) for e in events('strategist') if e['ev'] != 'brief']",
     "[(e['t'], e.get('ev'), e.get('why')) for e in events('posture')]",

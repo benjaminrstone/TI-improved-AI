@@ -48,7 +48,7 @@ namespace ImprovedAI.Strategist
         private static object Alien(TIFactionState a, List<TIFactionState> humans)
         {
             var s = AlienStrategy.Current;
-            var pooling = ForcePooling.Pooling.Where(g => g != null).Select(g => new
+            var pooling = ForcePooling.PoolingNow().Where(g => g != null).Select(g => new
             {
                 target = GameRead.Name(g.target()), system = GameRead.System(g.target()),
                 need = R(g.desiredFleetCombatValue * Dials.PoolMargin), present = R(GameRead.Safe(() => g.assignedFleet?.SpaceCombatValue() ?? 0f)),

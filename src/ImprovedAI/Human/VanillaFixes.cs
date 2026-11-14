@@ -165,16 +165,33 @@ namespace ImprovedAI.Human
     [HarmonyPatch(typeof(TIResourcesCost), nameof(TIResourcesCost.ShouldTapSavings))]
     internal static class FixIdleSavings
     {
+        // Both under the lock on _cache: ShouldTapSavings is also asked on the mission planner's thread (PatchGuard).
         private static readonly Dictionary<TIFactionState, (string day, bool idle)> _cache = new Dictionary<TIFactionState, (string, bool)>();
-        internal static readonly Dictionary<TIFactionState, int> IdleDays = new Dictionary<TIFactionState, int>();
+        private static readonly Dictionary<TIFactionState, int> IdleDays = new Dictionary<TIFactionState, int>();
 
-        public static void Reset() { _cache.Clear(); IdleDays.Clear(); FixDirectInvestBudget.Fixed.Clear(); }
+        public static void Reset()
+        {
+            lock (_cache) { _cache.Clear(); IdleDays.Clear(); }
+            FixDirectInvestBudget.Fixed.Clear();
+        }
+
+        /// <summary>Days the faction's savings sat idle since the last call (diagnostic).</summary>
+        internal static int TakeIdleDays(TIFactionState f)
+        {
+            lock (_cache)
+            {
+                IdleDays.TryGetValue(f, out var n);
+                IdleDays[f] = 0;
+                return n;
+            }
+        }
 
         /// <summary>The saving target is a ship design that is queued, but only behind other ships (or at inactive yards).</summary>
         internal static bool Idle(TIFactionState f)
         {
             string day = GameRead.Now();
-            if (_cache.TryGetValue(f, out var c) && c.day == day) return c.idle;
+            lock (_cache)
+                if (_cache.TryGetValue(f, out var c) && c.day == day) return c.idle;
             bool idle = false;
             try
             {
@@ -198,8 +215,11 @@ namespace ImprovedAI.Human
                 }
             }
             catch { idle = false; }
-            _cache[f] = (day, idle);
-            if (idle) IdleDays[f] = (IdleDays.TryGetValue(f, out var n) ? n : 0) + 1;
+            lock (_cache)
+            {
+                _cache[f] = (day, idle);
+                if (idle) IdleDays[f] = (IdleDays.TryGetValue(f, out var n) ? n : 0) + 1;
+            }
             return idle;
         }
 

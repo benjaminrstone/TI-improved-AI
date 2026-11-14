@@ -29,14 +29,20 @@ namespace ImprovedAI.Diagnostics
             Plugin.Log.LogInfo($"[Diagnostics] Session output: {Dir}");
         }
 
+        private static readonly object AILogLock = new object();
+
+        /// <summary>Any thread: the mission planner logs from its own (PatchGuard).</summary>
         public static void AILog(string line)
         {
             if (Dir == null) return;
             try
             {
-                if (_aiLog == null)
-                    _aiLog = new StreamWriter(new FileStream(Path.Combine(Dir, "ai-log.txt"), FileMode.Append, FileAccess.Write, FileShare.ReadWrite)) { AutoFlush = true };
-                _aiLog.WriteLine(line);
+                lock (AILogLock)
+                {
+                    if (_aiLog == null)
+                        _aiLog = new StreamWriter(new FileStream(Path.Combine(Dir, "ai-log.txt"), FileMode.Append, FileAccess.Write, FileShare.ReadWrite)) { AutoFlush = true };
+                    _aiLog.WriteLine(line);
+                }
             }
             catch (Exception e) { Plugin.Log.LogWarning($"[AILog] {e.Message}"); }
         }
@@ -45,7 +51,7 @@ namespace ImprovedAI.Diagnostics
         {
             Journal?.Dispose(); Journal = null;
             Metrics?.Dispose(); Metrics = null;
-            _aiLog?.Dispose(); _aiLog = null;
+            lock (AILogLock) { _aiLog?.Dispose(); _aiLog = null; }
         }
     }
 }

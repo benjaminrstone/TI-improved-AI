@@ -43,6 +43,7 @@ namespace ImprovedAI.Diagnostics
                 Human.FleetCompetence.Reset();
                 Human.HabDrainGuard.Reset();
                 Human.FixIdleSavings.Reset();
+                Harness.PlannerClock.Reset();
                 HateLedger.Reset();
                 Safe(DecisionJournal.Init, "journal init");
                 Safe(AI.AlienStrategy.OnCampaignReady, "strategy");

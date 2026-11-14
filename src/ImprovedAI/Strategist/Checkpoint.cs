@@ -97,14 +97,16 @@ namespace ImprovedAI.Strategist
                 if (File.Exists(path)) File.Delete(path);
                 File.Move(tmp, path);
                 var gtm = GameTimeManager.Singleton;
-                _resumeSpeed = gtm != null && gtm.currentSpeedIndex > 0 ? gtm.currentSpeedIndex : 1;
-                gtm?.SetSpeed(0, false);
+                bool wasRunning = gtm != null && gtm.currentSpeedIndex > 0;
+                // Already paused: a prompt that came up this same day did it (GameTimeManager.Pause keeps the speed it stopped).
+                _resumeSpeed = gtm == null ? 1 : gtm.currentSpeedIndex > 0 ? gtm.currentSpeedIndex : Mathf.Max(1, gtm.lastSpeedIndex);
+                gtm?.Pause();   // SetSpeed ignores index 0
                 _pending = date;
                 _since = Time.realtimeSinceStartup;
                 Waiting = true;
                 Harness.CampaignHarness.ShootSoon("checkpoint");
                 Plugin.Log.LogInfo($"[Strategist] checkpoint {date}: brief written to {path}; game paused, waiting for directives");
-                Session.Journal?.Write(new { t = date, kind = "strategist", ev = "brief", path });
+                Session.Journal?.Write(new { t = date, kind = "strategist", ev = "brief", path, wasRunning, paused = gtm != null && gtm.currentSpeedIndex == 0 });
                 return "> strategist checkpoint " + date;
             }
             catch (Exception e)
@@ -122,7 +124,7 @@ namespace ImprovedAI.Strategist
             if (!Waiting) return;
             float now = Time.realtimeSinceStartup;
             var gtm = GameTimeManager.Singleton;
-            if (gtm != null && gtm.currentSpeedIndex != 0) gtm.SetSpeed(0, false);   // the game stays paused while the strategist thinks
+            if (gtm != null && gtm.currentSpeedIndex != 0) gtm.Pause();   // the game stays paused while the strategist thinks
             if (now - _lastPoll < 1f) return;
             _lastPoll = now;
             string path = Path.Combine(Folder, "directives", _pending + ".json");
@@ -187,7 +189,9 @@ namespace ImprovedAI.Strategist
                     return;
                 }
                 var s = AlienStrategy.Current;
-                if (s.directives == null) s.directives = new Dictionary<string, Directive>();
+                // Replaced whole, never changed in place: the mission planner's thread reads the directives in force
+                // (Directives.Stance; see PatchGuard), and it may still be planning while the game is paused here.
+                var directives = s.directives == null ? new Dictionary<string, Directive>() : new Dictionary<string, Directive>(s.directives);
                 var player = GameControl.control?.activePlayer;
                 var directed = GameStateManager.AllFactions().Where(f => f != null && f != player && (f.IsAlienFaction || (f.player != null && f.player.isAI)))
                     .ToDictionary(f => f.templateName, f => f);
@@ -197,9 +201,10 @@ namespace ImprovedAI.Strategist
                 {
                     if (kv.Value == null || !directed.ContainsKey(kv.Key)) { ignored.Add(kv.Key); continue; }
                     kv.Value.set = _pending;
-                    s.directives[kv.Key] = kv.Value;
+                    directives[kv.Key] = kv.Value;
                     applied.Add(kv.Key);
                 }
+                s.directives = directives;
                 s.lastCheckpoint = _pending;
                 Plugin.Log.LogInfo($"[Strategist] {_pending}: applied directives for {string.Join(", ", applied)}{(ignored.Count > 0 ? "; ignored " + string.Join(", ", ignored) : "")}");
                 Session.Journal?.Write(new { t = GameRead.Now(), kind = "strategist", ev = "applied", checkpoint = _pending, applied, ignored, directives = applied.ToDictionary(k => k, k => s.directives[k]) });

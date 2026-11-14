@@ -21,13 +21,21 @@ namespace ImprovedAI.Human
 
         private static readonly Dictionary<TIFactionState, (string day, bool v)> _wantsShips = new Dictionary<TIFactionState, (string, bool)>();
 
-        public static void Reset() { _wantsShips.Clear(); HumanMissionControlInvest.Last.Clear(); }
+        public static void Reset()
+        {
+            lock (_wantsShips) _wantsShips.Clear();
+            HumanMissionControlInvest.Last.Clear();
+        }
 
-        /// <summary>Some space-combat fleet goal wants ships (cached per faction per day).</summary>
+        /// <summary>
+        /// Some space-combat fleet goal wants ships (cached per faction per day). Also asked on the mission planner's
+        /// thread (EvaluateMonthlyResourceIncome; see PatchGuard), so the cache is locked.
+        /// </summary>
         public static bool WantsWarships(TIFactionState f)
         {
             string today = GameRead.Now();
-            if (_wantsShips.TryGetValue(f, out var c) && c.day == today) return c.v;
+            lock (_wantsShips)
+                if (_wantsShips.TryGetValue(f, out var c) && c.day == today) return c.v;
             bool v = false;
             try
             {
@@ -35,7 +43,7 @@ namespace ImprovedAI.Human
                     .Any(g => g.importance > 0 && (g is FactionGoal_DefendWithFleet || g is FactionGoal_AttackWithFleet) && g.NeedsShipsOrdered());
             }
             catch { }
-            _wantsShips[f] = (today, v);
+            lock (_wantsShips) _wantsShips[f] = (today, v);
             return v;
         }
 

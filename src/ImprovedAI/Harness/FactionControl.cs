@@ -4,6 +4,7 @@ using System.Reflection;
 using HarmonyLib;
 using ImprovedAI.Diagnostics;
 using PavonisInteractive.TerraInvicta;
+using PavonisInteractive.TerraInvicta.Actions;
 using PavonisInteractive.TerraInvicta.Tasks;
 
 namespace ImprovedAI.Harness
@@ -26,6 +27,8 @@ namespace ImprovedAI.Harness
     {
         // By template name: a load replaces the faction states.
         private static readonly HashSet<string> Handed = new HashSet<string>();
+
+        public static bool IsHanded(TIFactionState f) => f != null && Handed.Contains(f.templateName);
 
         public static void SaveAsHuman(System.Action save)
         {
@@ -64,6 +67,45 @@ namespace ImprovedAI.Harness
             CountF.SetValue(planner, list.Count);
             Session.Journal?.Write(new { t = GameRead.Now(), kind = "control", faction = GameRead.Faction(f), ai, aiFactions = list.Select(GameRead.Faction).ToList() });
             return $"> {f.templateName} is now {(ai ? "AI" : "human")}-controlled ({list.Count} AI factions)";
+        }
+    }
+
+    /// <summary>
+    /// The game's AI finalizes a handed-over faction's missions itself. Confirm becomes clickable once every AI faction
+    /// has finalized (CouncilorMissionCanvasController.CheckReleaseUIToPlayer), which with an AI-run player is the moment
+    /// the phase ends, and the Autopilot presses whatever is clickable (Autopilot.Update): one more finalize per phase,
+    /// outside it, which the game logs as an error ("tried to finalize councilor missions outside of mission phase").
+    /// </summary>
+    [HarmonyPatch(typeof(CouncilorMissionCanvasController), nameof(CouncilorMissionCanvasController.PlayerConfirmsMissionAssignments))]
+    internal static class HandedFactionConfirm
+    {
+        private static bool Prefix() => !FactionControl.IsHanded(GameControl.control?.activePlayer);
+    }
+
+    /// <summary>
+    /// The game settles a contact offer between two AI factions itself and hands one that involves the active player to
+    /// the diplomacy window (TIPromptQueueState.HandleFactionContactMakeOffer). With the AI at the player's controls
+    /// nobody answers that window and the prompt holds the clock for good. A handed-over player trades as any AI does.
+    /// </summary>
+    [HarmonyPatch(typeof(TIPromptQueueState), "HandleFactionContactMakeOffer")]
+    internal static class HandedFactionTrade
+    {
+        private const string Prompt = "PromptFactionContactMakeOffer";
+
+        private static bool Prefix(TIMissionState mission)
+        {
+            var player = GameControl.control?.activePlayer;
+            var from = mission?.councilor?.faction;
+            var to = mission?.target?.ref_faction;
+            if (!FactionControl.IsHanded(player) || from == null || to == null || (from != player && to != player)) return true;
+            TradeAI.PrepareCachesForTrading(from, to);
+            var agreement = TradeAI.CreateTradeAgreement(from, to);
+            if (TradeAI.ScoreAgreement(agreement, to) > 0f)
+                from.playerControl.StartAction(new DiplomacyTradeAction(from, to, agreement.GetOffer(from), agreement.GetOffer(to), 1f));
+            TIPromptQueueState.RemovePromptStatic(from, mission.councilor, mission, Prompt);
+            // Where the game left it when it tried the diplomacy window.
+            if (mission.target.ref_councilor != null) TIPromptQueueState.RemovePromptStatic(to, mission.target.ref_councilor, mission, Prompt);
+            return false;
         }
     }
 }

@@ -43,12 +43,20 @@ namespace ImprovedAI.Human
             }
         }
 
-        internal static readonly Dictionary<string, int> Scaled = new Dictionary<string, int>();
+        /// <summary>Counted on the mission planner's thread (PatchGuard), read and cleared on the main thread: locked.</summary>
+        private static readonly Dictionary<string, int> Scaled = new Dictionary<string, int>();
+
+        internal static void CountScaled(string key)
+        {
+            lock (Scaled) Scaled[key] = (Scaled.TryGetValue(key, out var n) ? n : 0) + 1;
+        }
 
         /// <summary>Monthly: Exodus progress on its objective chain, and how often the mission bias applied.</summary>
         public static void Monthly()
         {
             if (!Plugin.Cfg.UseHumanPersonalities || !Plugin.Cfg.DecisionJournal.Value) return;
+            Dictionary<string, int> missionBias;
+            lock (Scaled) { missionBias = new Dictionary<string, int>(Scaled); Scaled.Clear(); }
             foreach (var f in GameStateManager.AllHumanFactions().Where(x => x != null && Personality.Of(x) == Personality.Persona.Exodus))
             {
                 try
@@ -60,12 +68,11 @@ namespace ImprovedAI.Human
                         objectiveDone = f.completedProjects.Where(p => p.AI_projectRole == ProjectRole.Objective).Select(p => p.dataName).ToList(),
                         objectiveActive = active.Select(p => new { p.dataName, research = (float)Math.Round(GameRead.Safe(() => f.GetProjectProgressByTemplate(p).accumulatedResearch)), cost = p.researchCost }).ToList(),
                         victoryUnlocked = f.unlockedVictoryObjective,
-                        missionBias = Scaled.ToDictionary(kv => kv.Key, kv => kv.Value),
+                        missionBias,
                     });
                 }
                 catch (Exception e) { Plugin.Log.LogWarning($"[PersonalityActions] persona record: {e.Message}"); }
             }
-            Scaled.Clear();
         }
     }
 
@@ -84,8 +91,7 @@ namespace ImprovedAI.Human
             if (stance != 0) k *= 1f + 0.8f * Strategist.Directives.MissionFocus(faction) * stance;
             if (k == 1f) return;
             __result *= k;
-            string key = $"{faction.templateName}>{owner?.templateName}:{(k > 1f ? "up" : "down")}";
-            PersonalityActions.Scaled[key] = (PersonalityActions.Scaled.TryGetValue(key, out var n) ? n : 0) + 1;
+            PersonalityActions.CountScaled($"{faction.templateName}>{owner?.templateName}:{(k > 1f ? "up" : "down")}");
         }
     }
 
