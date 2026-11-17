@@ -59,11 +59,10 @@ Found by reading the code; each changes behaviour, so each needs its probe befor
 
 ## Open questions for the user
 
-1. **The Veteran terminus.** It begins by year 11 of an Accelerated campaign (2037) and costs 3600, so an undisturbed alien finishes it about 2045; the recorded decision was year 9, which with the old cost ended the stand-in campaign in January 2041. Earlier or later?
-2. **"Allied" for intel.** The game has no formal alliance, so a non-aggression pact or an intel-sharing treaty counts. Narrower?
-3. **Forgiveness rates** are starting values: Exodus 15%/month, Initiative 6%, Academy 4%, Resistance 3%, pro-alien 2%, Humanity First never.
-4. **Accelerated or standard campaign speed** for the next play? The mod's clocks follow the game's alien progression speed, so either is safe; only Accelerated has run for longer than 90 days.
-5. **The terminus notices name the body the alien homeworld is at** (`[lore]` conflict: the base game reveals where it is through research). Keep the name, or say only "the alien homeworld" until the player has found it?
+1. **"Allied" for intel.** The game has no formal alliance, so a non-aggression pact or an intel-sharing treaty counts. Narrower?
+2. **Forgiveness rates** are starting values: Exodus 15%/month, Initiative 6%, Academy 4%, Resistance 3%, pro-alien 2%, Humanity First never.
+3. **Accelerated or standard campaign speed** for the next play? The mod's clocks follow the game's alien progression speed, so either is safe; only Accelerated has run for longer than 90 days.
+4. **The terminus notices name the body the alien homeworld is at** (`[lore]` conflict: the base game reveals where it is through research). Keep the name, or say only "the alien homeworld" until the player has found it?
 
 ## Gotchas
 
