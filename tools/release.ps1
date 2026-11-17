@@ -26,6 +26,14 @@ if (-not (Test-Path (Join-Path $PlayDir 'TerraInvicta.exe'))) {
     if ($LASTEXITCODE -ge 8) { throw "robocopy failed ($LASTEXITCODE)" }
 }
 
+# After a game update the game copy is ahead: bring the game files level. The install's own BepInEx stays.
+$asm = 'TerraInvicta_Data\Managed\Assembly-CSharp.dll'
+if ((Get-FileHash (Join-Path $GameDir $asm)).Hash -ne (Get-FileHash (Join-Path $PlayDir $asm)).Hash) {
+    Write-Host "Updating the play install's game files from $GameDir..."
+    & robocopy $GameDir $PlayDir /E /MT:8 /NFL /NDL /NP /NJH /XD (Join-Path $GameDir 'BepInEx') (Join-Path $GameDir 'Logs') (Join-Path $GameDir 'Mods') /XF doorstop_config.ini winhttp.dll .doorstop_version
+    if ($LASTEXITCODE -ge 8) { throw "robocopy failed ($LASTEXITCODE)" }
+}
+
 $log = Join-Path $env:TEMP 'improvedai-build.log'
 & dotnet build (Join-Path $ProjectRoot 'src\ImprovedAI\ImprovedAI.csproj') -c Release -p:GameDir="$GameDir" -nologo -v q *> $log
 if ($LASTEXITCODE -ne 0) { Get-Content $log | Select-String 'error' | Select-Object -First 20 | ForEach-Object Line; throw 'Build failed' }

@@ -26,7 +26,7 @@ A Terra Invicta mod that makes the opposition constrained but competent: it play
   - `Harness/`: the unattended runner and its `ai.*` commands.
 - **`tools/`**: `deploy.ps1`, `run.ps1`, `probes.ps1`, `soaks.ps1`, `strategist.ps1`, `release.ps1` and `play.ps1` (the user's campaign), and the Python analysis scripts (`probe.py`, `summarize.py`, `compare.py`, `aggregate.py`).
 - **`lab/`**: `probes/*.json`, `fixtures.json`, `results/` (gitignored run output).
-- **`_ref/decompiled/`**: decompiled game source (gitignored; build 1.0.53b). Regenerate after a game patch: `ilspycmd -p -o _ref/decompiled "<TI>/TerraInvicta_Data/Managed/Assembly-CSharp.dll"`.
+- **`_ref/decompiled/`**: decompiled game source (gitignored; build 1.0.65). Regenerate after a game patch: `ilspycmd -p -o _ref/decompiled "<TI>/TerraInvicta_Data/Managed/Assembly-CSharp.dll"`.
 
 ## Rules
 

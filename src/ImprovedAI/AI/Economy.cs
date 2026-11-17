@@ -403,7 +403,7 @@ namespace ImprovedAI.AI
     /// counts only ship maintenance (propellant = water). Inside that planner, the list the rule uses becomes: the
     /// vanilla-insecure resources the aliens are not swimming in, plus the resources they truly lack (need >= threshold).
     /// The planner asks twice: first through HasUpkeepInsecurityInTheFuture (gates a 1.5x cap overshoot; left alone),
-    /// then for the rule's list (rewritten). Call order is fixed in build 1.0.53b.
+    /// then for the rule's list (rewritten). The patch depends on that call order.
     /// </summary>
     [HarmonyPatch(typeof(PavonisInteractive.TerraInvicta.Tasks.AlienHabPlanner), nameof(PavonisInteractive.TerraInvicta.Tasks.AlienHabPlanner.ManageHabGoals))]
     internal static class NeedDrivenResourceBaseScope

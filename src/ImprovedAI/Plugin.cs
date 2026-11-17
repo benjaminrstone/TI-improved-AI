@@ -13,7 +13,7 @@ namespace ImprovedAI
         public const string Name = "ImprovedAI";
         public const string Version = "0.0.1";
         /// <summary>The game build the patches were written against (method names and, in places, call order).</summary>
-        public const string TestedGameBuild = "1.0.53b";
+        public const string TestedGameBuild = "1.0.65";
 
         internal static ManualLogSource Log;
         internal static AIConfig Cfg;

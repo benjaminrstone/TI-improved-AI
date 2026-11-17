@@ -250,7 +250,7 @@ namespace ImprovedAI.Human
 
         private static float Days(TIFactionState f, FactionResource r) => (float)DaysF.GetValue(DataM.Invoke(null, new object[] { f, r }));
 
-        /// <summary>The stock floor GetResourceTradeData adds to the numerator of storage days (build 1.0.53b).</summary>
+        /// <summary>The stock floor GetResourceTradeData adds to the numerator of storage days.</summary>
         private static float Floor(FactionResource r)
         {
             switch (r)
