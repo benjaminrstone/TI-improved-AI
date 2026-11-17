@@ -1,0 +1,32 @@
+{
+  "name": "newgame-long",
+  "notes": "The long campaign's defaults instead of the Accelerated preset (half its alien progression speed): the mod's campaign-year clock runs at half the calendar's.",
+  "newGame": {
+    "faction": "CooperateCouncil",
+    "difficulty": 3,
+    "accelerated": false
+  },
+  "runDays": 90,
+  "commands": [
+    "ai.control CooperateCouncil ai"
+  ],
+  "asserts": [
+    "results['endReason'] == 'days-elapsed'",
+    "status['stalls'] == 0",
+    "results['planner']['clockMovedBeside'] == 0",
+    "status['exceptions'] == 0",
+    "count('init') == 1",
+    "events('doctrine')[0]['source'] == 'derived'",
+    "events('doctrine')[0]['difficulty'] == 3",
+    "count('control', faction='CooperateCouncil', ai=True) == 1",
+    "events('economy')[-1]['campaignYears'] > 0.1 and abs(2 * events('economy')[-1]['progressionYears'] - events('economy')[-1]['campaignYears']) <= 0.02"
+  ],
+  "info": [
+    "(status['start'], status['date'], status['gameDaysPerRealMinute'], status['unsticks'], status['resumes'])",
+    "events('doctrine')[0]['key']",
+    "[(f['f'], f.get('scv'), f.get('bases', 0) + f.get('stations', 0)) for f in last['factions']]",
+    "sorted(set(e['kind'] for e in journal))",
+    "results['exceptionSamples'][:8]",
+    "results['terminal']"
+  ]
+}

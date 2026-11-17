@@ -22,8 +22,8 @@ Direction key:
 | Strategy / ContemptDifficultyOffset | `−` | Per difficulty. Arrogant on easy, wary on hard. |
 | Strategy / ContemptLearning | `+` | Per difficulty. |
 | Strategy / Terminus | `=` | Decision: completion is an alien victory at every difficulty. |
-| Strategy / TerminusCost | `−` | Per difficulty. |
-| Strategy / TerminusStartYear | `−` | Per difficulty. Lower means an earlier hard clock. |
+| Strategy / TerminusCost | `−` | Per difficulty. The drip that pays for it rises with difficulty (widening), so the list is not monotonic: Veteran costs most. Judge by the undisturbed finish date, not the number. |
+| Strategy / TerminusStartYear | `−` | Per difficulty. Lower means an earlier hard clock. In years of the Accelerated preset; the game's alien progression speed scales it. |
 | Strategy / TerminusDripShare | `+` | |
 | Strategy / TerminusStartContempt | `+` | |
 | Strategy / TerminusSetbackBattle | `−` | |
@@ -97,7 +97,7 @@ Direction key:
 | Economy / ExoticsPressureGain | `=` | |
 | Economy / ExoticsUpkeep | `=` | |
 | Economy / BaseExoticsUpkeep | `−` | Lower means more bases. It takes the place of vanilla `maxAlienBaseGoals_*` as the expansion limit. |
-| Economy / SustainableDripShare | `=` | |
+| Economy / SustainableDripShare | `=` | Share of the drip left after the terminus share. |
 | Economy / CapitalShipExoticsUpkeep | `−` | |
 | Economy / HugeShipExoticsUpkeep | `−` | |
 | Economy / ExoticsStockHorizonMonths | `−` | Shorter means the hoard turns into bases faster. |

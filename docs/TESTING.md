@@ -89,8 +89,9 @@ Throughput is ~17–24 game days per real minute on a mid-game save; a save load
 | `flow-2039-long` (`-ai`, `-bot`) | 540 days from 2039: the Jupiter strike arrives and fights. Passive, AI-run or bot-run Resistance. |
 | `flow-2026`, `campaign-2026-15y` | The early game with the strategist; the 15-year campaign (overnight, ~4.5 h). |
 | `strategist-2039` | The strategist end to end. |
-| `newgame-smoke` | A new Veteran campaign with the Academy as the player, 90 days. |
+| `newgame-smoke`, `newgame-long` | A new Veteran campaign with the Academy as the player, 90 days: Accelerated, and the standard-speed preset. Each checks the terminus clock against the campaign speed. |
 | `campaign-veteran` | The stand-in for the user's campaign: that new game with the strategist, in three-year legs (`-FinalSave`, then `-SavePath` the final). |
+| `alien-build` | Diagnostic, run with `-SavePath`: 65 days that print the alien build state (`alien-fleet` records: goals, saving target, yard queues, mission control). |
 | `reload-2039` | Campaign safety: a year with eight reloads in the running game; the mod's state must come back the same each time. |
 | `e1-bait-reload` | Threat memory across a reload. |
 | `guard-fault` | A patch of ours that throws on every call must not disturb the game. |
@@ -102,6 +103,19 @@ Throughput is ~17–24 game days per real minute on a mid-game save; a save load
 | everything else | Targeted probes with injected setups, for the feature being changed. |
 
 Fixtures are all from one Normal accelerated Resistance campaign. A run's `final.gz` (`-FinalSave`) is a fixture too: `-SavePath` loads it and copies the sidecars beside it (`ImprovedAI\`) along. The mod switched off and on again mid-campaign is checked with three such legs: a mod run, `-Vanilla` from its final save, the mod again from that one's.
+
+## Veteran campaign: 2026 to 2041, one run per arm
+
+`campaign-veteran` in five three-year legs, Accelerated, the Academy run by the game's AI. Every leg ended on its date with no exceptions, stalls or cancelled missions, the strategist applied 12 of 12 checkpoints per mod leg, and speed and memory were the same in both arms. The stand-in never threatens the aliens. The mod arm's legs 4 and 5 are on the current build (`vetc-4`, `vetc-5`); legs 1 to 3 are on earlier ones, which differ in the terminus clock and the base budget.
+
+| Aliens at 2041 | Vanilla | Mod |
+|---|---|---|
+| Bases | 27 | 37 |
+| Ships | 624 | 941 (48 large, 229 medium, 663 small) |
+| SCV | 120k | 76k |
+| Spare mission control | 75 | 0, from late 2037 |
+| Exotics stock | | 2,800, no hull retired |
+| Terminus | | begun 2037-02 by date, 46% at 2041-01 |
 
 ## Baseline: 2 years from 2034, three runs each
 

@@ -128,6 +128,19 @@ namespace ImprovedAI.AI
             return Mathf.Clamp(1f + Plugin.Cfg.ExoticsPressureGain.Value * s, 0.25f, 1f);
         }
 
+        /// <summary>
+        /// Weight multiplier on small hulls in the build pick, from mission control. Every ship takes one mission control
+        /// whatever its size, and vanilla queues no ship without spare (AI_AnyAvailabeGenericMissionControl), so the last
+        /// of it should go to large hulls: 1 with a quarter or more of the income spare, down to 0.1 with none.
+        /// </summary>
+        public static float SmallHullControlFactor(TIFactionState alien)
+        {
+            if (!Plugin.Cfg.UseFleetDoctrine) return 1f;
+            float income = GameRead.Safe(() => (float)alien.MissionControlIncome);
+            if (income <= 0f) return 1f;
+            return Mathf.Clamp(GameRead.Safe(() => (float)alien.AI_GenericMissionControlAvailable) / (0.25f * income), 0.1f, 1f);
+        }
+
         /// <summary>Gross monthly exotics income (the wormhole drip, before upkeep).</summary>
         public static float Drip(TIFactionState alien) => Mathf.Max(0f, GameRead.Safe(() => alien.GetMonthlyIncome(FactionResource.Exotics)));
 
@@ -152,6 +165,8 @@ namespace ImprovedAI.AI
         /// <summary>
         /// How many bases the aliens can sustain. The budget is a share of the drip (the rest is kept for exotic warships
         /// and the growth of capital-ship upkeep) plus a slow slice of the stockpile, minus current capital-ship upkeep.
+        /// The terminus share comes off the drip first, before the terminus is begun as well: bases founded against the
+        /// whole drip would leave nothing to build ships with once it is.
         /// </summary>
         public static int ExoticsBaseCap(TIFactionState alien)
         {
@@ -159,7 +174,8 @@ namespace ImprovedAI.AI
             if (perBase <= 0f) return 999;
             MonthlyUpkeep(alien, out _, out float ships);
             float stockSlice = Mathf.Max(0f, alien.GetCurrentResourceAmount(FactionResource.Exotics)) / Mathf.Max(1f, Plugin.Cfg.ExoticsStockHorizonMonths.Value);
-            float budget = Dials.SustainableDripShare * Drip(alien) + stockSlice - ships;
+            float terminus = Plugin.Cfg.UseTerminus ? Mathf.Clamp01(Plugin.Cfg.TerminusDripShare.Value) : 0f;
+            float budget = Dials.SustainableDripShare * (1f - terminus) * Drip(alien) + stockSlice - ships;
             return Mathf.Clamp(Mathf.FloorToInt(budget / perBase), 0, Plugin.Cfg.MaxAlienBasesCeiling.Value);
         }
 
@@ -248,10 +264,10 @@ namespace ImprovedAI.AI
                 need = Need(alien).ToDictionary(kv => kv.Key.ToString(), kv => (float)Math.Round(kv.Value, 2)),
                 shares = SpendShares(alien).ToDictionary(kv => kv.Key.ToString(), kv => (float)Math.Round(kv.Value, 3)),
                 stock = Basic.Concat(new[] { FactionResource.Exotics }).ToDictionary(r => r.ToString(), r => (float)Math.Round(alien.GetCurrentResourceAmount(r))),
-                drip, widening = (float)Math.Round(Wormhole.Widening, 3), campaignYears = (float)Math.Round(Wormhole.CampaignYears, 2),
+                drip, widening = (float)Math.Round(Wormhole.Widening, 3), campaignYears = (float)Math.Round(Wormhole.CampaignYears, 2), progressionYears = (float)Math.Round(Terminus.ProgressionYears, 2),
                 upkeep, baseUpkeep = baseUp, shipUpkeep = shipUp, charged,
                 warChest = (float)Math.Round(WarChest(alien)), slack = (float)Math.Round(ExoticsSlack(alien), 3),
-                largeFactor = (float)Math.Round(LargeHullBuildFactor(alien), 3), warChestHeld = ExoticsWarChestScope.Held,
+                largeFactor = (float)Math.Round(LargeHullBuildFactor(alien), 3), smallFactor = (float)Math.Round(SmallHullControlFactor(alien), 3), warChestHeld = ExoticsWarChestScope.Held,
                 bases = Bases(alien),
                 cap,
                 // Alien cost computations this month that lacked a space resource (vanilla would price Earth boost +

@@ -14,7 +14,8 @@ namespace ImprovedAI.AI
     ///  - Site: the alien HQ (Kuiper dwarf planet, hosts the AlienWormholeFacility; vanilla makes its core and wormhole
     ///    modules indestructible and aims the human victory missions at it).
     ///  - Start: on escalation, or contempt for any faction at or below TerminusStartContempt, and in any case by
-    ///    TerminusStartYear (calendar campaign years, per difficulty).
+    ///    TerminusStartYear (per difficulty; years at the Accelerated preset's alien progression speed, so a campaign
+    ///    at half that speed reaches it in twice the calendar time, as its halved drip takes twice as long to build).
     ///  - Funding: TerminusDripShare of the monthly exotics drip, really spent; progress = invested / TerminusCost.
     ///  - Setbacks: alien defeats in the HQ's system knock it back; alien habs lost there knock it back further.
     /// </summary>
@@ -26,6 +27,12 @@ namespace ImprovedAI.AI
         public static TIHabState Site()
         {
             try { return GameStateManager.AlienFaction()?.primaryHab ?? GameStateManager.FindByTemplate<TIHabState>("AlienHQ"); } catch { return null; }
+        }
+
+        /// <summary>Campaign years scaled by the game's alien progression speed; the Accelerated preset (200%) counts 1:1.</summary>
+        public static float ProgressionYears
+        {
+            get { try { return Mathf.Max(0f, TIGlobalValuesState.GetAlienProgressionModifiedDuration_IgnoreStartingProgression_years_exact() / 2f); } catch { return Wormhole.CampaignYears; } }
         }
 
         public static float Cost => Mathf.Max(100f, Dials.ByDifficulty(Plugin.Cfg.TerminusCost.Value, 2400f));
@@ -43,13 +50,13 @@ namespace ImprovedAI.AI
                 float minContempt = GameStateManager.AllHumanFactions().Where(h => h != null).Select(h => Disposition.Contempt(h)).DefaultIfEmpty(1f).Min();
                 // By date as well: against humans who never threaten the aliens, neither other trigger fires.
                 float startYear = Dials.ByDifficulty(Plugin.Cfg.TerminusStartYear.Value, 11f);
-                bool byDate = startYear > 0f && Wormhole.CampaignYears >= startYear;
+                bool byDate = startYear > 0f && ProgressionYears >= startYear;
                 bool start = Escalation.Escalated || minContempt <= Plugin.Cfg.TerminusStartContempt.Value || byDate;
                 if (!start) return;
                 s.terminusStarted = GameRead.Now();
                 string why = Escalation.Escalated ? "escalation" : minContempt <= Plugin.Cfg.TerminusStartContempt.Value ? "respect" : "date";
                 s.history.Add($"{s.terminusStarted} terminus begun ({why}; escalated {Escalation.Escalated}, min contempt {minContempt:F2}, campaign year {Wormhole.CampaignYears:F1})");
-                Session.Journal?.Write(new { t = GameRead.Now(), kind = "terminus", ev = "started", why, escalated = Escalation.Escalated, minContempt, campaignYears = Wormhole.CampaignYears, cost = Cost, site = GameRead.Body(Site()) });
+                Session.Journal?.Write(new { t = GameRead.Now(), kind = "terminus", ev = "started", why, escalated = Escalation.Escalated, minContempt, campaignYears = Wormhole.CampaignYears, progressionYears = ProgressionYears, cost = Cost, site = GameRead.Body(Site()) });
                 Notify("The Hydras have begun a terminus",
                     $"Wormhole traffic at the alien homeworld near {GameRead.Body(Site())} has changed. The Hydras have begun building a full terminus on this side; if it is completed, they will be able to bring through whatever they want, and humanity will have lost. The work will take them years. Strike the site to set it back.", false);
             }

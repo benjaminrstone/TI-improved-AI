@@ -1,0 +1,19 @@
+{
+  "name": "alien-build",
+  "notes": "What holds alien shipbuilding: the monthly alien-fleet record (fleet goals' desired and assigned strength, how many want ships ordered, the saving target, the yard queues). Run it from a late save with -SavePath.",
+  "runDays": 65,
+  "commands": [
+    "ai.control CooperateCouncil ai"
+  ],
+  "asserts": [
+    "results['endReason'] == 'days-elapsed'",
+    "count('alien-fleet') >= 2"
+  ],
+  "info": [
+    "[(e['t'], e['ships'], e['scv'], e['shipyards'], e['queued'], e['mcGenericAvailable'], e['saving']) for e in events('alien-fleet')]",
+    "events('alien-fleet')[-1]['goals']",
+    "events('alien-fleet')[-1]['queues']",
+    "events('alien-fleet')[-1]['stock']",
+    "count('ship-built')"
+  ]
+}

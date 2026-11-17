@@ -9,7 +9,7 @@ namespace ImprovedAI.Diagnostics
     /// One "human-fleet" record per human faction per month, covering what can hold back warship building: fleet goals'
     /// desired strength (sized from the faction's own fleet; aliens count only at war), the mission-control gate on
     /// queuing ships (AI_GenericMissionControlAvailable), war on the alien faction, the saving target and shipyard
-    /// queues. Runs on vanilla too.
+    /// queues. The aliens get the same record as "alien-fleet". Runs on vanilla too.
     /// </summary>
     internal static class HumanFleetDiag
     {
@@ -19,9 +19,12 @@ namespace ImprovedAI.Diagnostics
             foreach (var f in GameStateManager.AllHumanFactions())
             {
                 if (f == null) continue;   // the player too (player = true), as the yardstick
-                try { Session.Journal?.Write(Row(f, alien)); }
+                try { Session.Journal?.Write(Row(f, alien, "human-fleet")); }
                 catch (Exception e) { Plugin.Log.LogWarning($"[HumanFleetDiag] {f.templateName}: {e.Message}"); }
             }
+            if (alien != null)
+                try { Session.Journal?.Write(Row(alien, alien, "alien-fleet")); }
+                catch (Exception e) { Plugin.Log.LogWarning($"[HumanFleetDiag] aliens: {e.Message}"); }
         }
 
         private static T Try<T>(Func<T> f) { try { return f(); } catch { return default; } }
@@ -58,7 +61,7 @@ namespace ImprovedAI.Diagnostics
             return new { yards = yards.Count, paid, unpaid, targetQueuedAtYard = targetAt, savingIdleDays = idleDays, blockerHab = f.lastUnaffordableShipShipyard?.hab?.displayName, heads };
         }
 
-        private static object Row(TIFactionState f, TIFactionState alien)
+        private static object Row(TIFactionState f, TIFactionState alien, string kind)
         {
             var goals = f.factionGoals.Values.SelectMany(l => l).OfType<FactionGoal_Fleet>().Where(g => g != null && g.importance > 0).ToList();
             var byType = goals.GroupBy(g => g.GetGoalType().ToString()).ToDictionary(gr => gr.Key, gr => new
@@ -77,7 +80,7 @@ namespace ImprovedAI.Diagnostics
             return new
             {
                 t = GameRead.Now(),
-                kind = "human-fleet",
+                kind,
                 f = GameRead.Faction(f),
                 player = f.isActivePlayer,
                 mcUsage = GameRead.Safe(() => f.GetMissionControlUsage()),

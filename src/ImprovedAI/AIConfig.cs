@@ -191,12 +191,12 @@ namespace ImprovedAI
                 "Escalated (P4 surge): exotics (wormhole-tier) designs count as (1 + this) x their combat value when the aliens compare and pick designs.");
             Terminus = cfg.Bind("Strategy", "Terminus", true,
                 "The full wormhole terminus (hard clock): once begun, funded from the exotics drip; completion is an alien victory.");
-            TerminusCost = cfg.Bind("Strategy", "TerminusCost", "3000,2400,2000,1600",
-                "Exotics to complete the terminus, per difficulty (Cinematic,Normal,Veteran,Brutal). Normal: ~8-10 years at 30% of the drip.");
+            TerminusCost = cfg.Bind("Strategy", "TerminusCost", "3000,2400,3600,1600",
+                "Exotics to complete the terminus, per difficulty (Cinematic,Normal,Veteran,Brutal). The drip rises with difficulty, so the same cost is built sooner on a harder one. Veteran: about 8 years at 30% of the drip.");
             TerminusDripShare = cfg.Bind("Strategy", "TerminusDripShare", 0.3f, "Share of the monthly exotics drip invested in the terminus once begun.");
             TerminusStartContempt = cfg.Bind("Strategy", "TerminusStartContempt", 0.35f, "The terminus begins when contempt for any human faction falls to this, or on escalation.");
-            TerminusStartYear = cfg.Bind("Strategy", "TerminusStartYear", "14,11,9,7",
-                "Per difficulty (Cinematic,Normal,Veteran,Brutal): the terminus begins by this calendar campaign year even if humanity never threatened the aliens. 0 = never by date.");
+            TerminusStartYear = cfg.Bind("Strategy", "TerminusStartYear", "14,11,11,7",
+                "Per difficulty (Cinematic,Normal,Veteran,Brutal): the terminus begins by this campaign year even if humanity never threatened the aliens; years of the Accelerated preset, twice as many on a campaign at half its alien progression speed. 0 = never by date.");
             TerminusSetbackBattle = cfg.Bind("Strategy", "TerminusSetbackBattle", 0.05f, "Progress lost per alien defeat in the terminus (alien HQ) system.");
             TerminusSetbackHab = cfg.Bind("Strategy", "TerminusSetbackHab", 0.1f, "Progress lost per alien hab destroyed in the terminus system.");
             Escalation = cfg.Bind("Strategy", "Escalation", true,
@@ -259,7 +259,7 @@ namespace ImprovedAI
                 "Alien bases and capital hulls cost exotics each month, and the fixed alien base cap becomes what the exotics drip and stockpile can carry.");
             BaseExoticsUpkeep = cfg.Bind("Economy", "BaseExoticsUpkeep", 2f, "Exotics per alien base per month.");
             SustainableDripShare = cfg.Bind("Economy", "SustainableDripShare", 0.75f,
-                "Share of the exotics drip the base cap may commit to upkeep (bases + capital hulls); the rest is kept for exotic warships.");
+                "Share of the exotics drip left after the terminus share that the base cap may commit to upkeep (bases + capital hulls); the rest is kept for exotic warships.");
             CapitalShipExoticsUpkeep = cfg.Bind("Economy", "CapitalShipExoticsUpkeep", 0.5f, "Exotics per large-hull alien ship per month.");
             HugeShipExoticsUpkeep = cfg.Bind("Economy", "HugeShipExoticsUpkeep", 2f, "Exotics per huge-hull alien ship (mothership) per month.");
             ExoticsStockHorizonMonths = cfg.Bind("Economy", "ExoticsStockHorizonMonths", 240f,

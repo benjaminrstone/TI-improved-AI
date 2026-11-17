@@ -153,8 +153,9 @@ namespace ImprovedAI.AI
             // Exotics-aware shipbuilding: Large weight is fixed at 1 in vanilla, so a lower large-hull factor is applied
             // by raising the other two.
             float large = Economy.LargeHullBuildFactor(__instance);
-            __instance.aiValues.fleetSmalls *= w.smalls / large;
-            __instance.aiValues.fleetMediums *= w.mediums / large;
+            float small = Economy.SmallHullControlFactor(__instance);
+            __instance.aiValues.fleetSmalls *= w.smalls / large * small;
+            __instance.aiValues.fleetMediums *= w.mediums / large * UnityEngine.Mathf.Sqrt(small);
             FleetDoctrine.Judging++;
             ExoticsWarChestScope.Open(__instance);   // last: everything above read the true stock
         }

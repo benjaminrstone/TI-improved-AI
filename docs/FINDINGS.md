@@ -16,7 +16,7 @@ Line numbers are for that build. Treat them as pointers, not contracts. Where th
   - `ManageFleetGoals` (:1397)
   - `ManageFleets` (:1531; mostly every 4 days)
 - **Slower cadences.**
-  - Ship and hab building: weekly (`BuildSpaceAssetsCo`, :3541).
+  - Ship and hab building: weekly (`BuildSpaceAssetsCo`, :3541). Ships are queued only while the faction has spare mission control (`AI_AnyAvailabeGenericMissionControl`), and every ship takes one whatever its hull, so a fleet of small hulls reaches the limit at less strength than a fleet of large ones.
   - New alien targets: monthly, at most one fleet, one base and one station target per month outside emergencies.
 - **Reactions.** `AIReaction` (:6379) handles hostile arrivals, new habs, and transfers toward Jupiter.
 - **AI logging is stubbed out.** `TIFactionState.LogAI` is empty (`P/TIFactionState.cs:14552`) but has 38 call sites, including `DumpGoals`, `DumpShipyards` and `DumpMissions`. The mod's Harmony prefix brings back the developers' full AI trace (`Diagnostics / AILog`).
